@@ -28,14 +28,14 @@ const UserExist = (mail) => __awaiter(void 0, void 0, void 0, function* () {
     const User = yield UserModel.find({ mail });
     return User.length > 0 ? true : false;
 });
-const SignToken = (id) => {
+const SignToken = ({ _id, role }) => {
     //Do not forget to change the 10h to 10m
-    return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "10h",
+    return jwt.sign({ _id, role }, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "100000h",
     });
 };
-const SignRefreshToken = (id) => {
-    return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET);
+const SignRefreshToken = (_id) => {
+    return jwt.sign({ _id }, process.env.REFRESH_TOKEN_SECRET);
 };
 const RefreshTokenExists = (refreshToken) => __awaiter(void 0, void 0, void 0, function* () {
     const refreshExists = yield RefreshTokenModel.find({ refreshToken });
@@ -60,8 +60,13 @@ export const loginUser = expressAsyncHandler((req, res) => __awaiter(void 0, voi
             res.status(400);
             throw new Error("Password doesn't match!");
         }
-        const accessToken = SignToken(User[0]._id.toString());
-        const refreshToken = SignRefreshToken(User[0]._id.toString());
+        const accessToken = SignToken({
+            _id: User[0]._id.toString(),
+            role: User[0].role.toString(),
+        });
+        const refreshToken = SignRefreshToken({
+            _id: User[0]._id.toString(),
+        });
         yield RefreshTokenModel.create({
             idUtilisateur: User[0]._id,
             refreshToken,
@@ -117,16 +122,27 @@ export const logout = expressAsyncHandler((req, res) => __awaiter(void 0, void 0
 //Utilie Endpoints for COMMUNICATION
 //Generate access token and refreshToken
 export const handleTokens = expressAsyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
     try {
-        const id = (_b = req.params.id) === null || _b === void 0 ? void 0 : _b.toString();
-        const accessToken = SignToken(id);
-        const refreshToken = SignRefreshToken(id);
+        const { _id, role } = req.query;
+        const accessToken = SignToken({ _id, role });
+        const refreshToken = SignRefreshToken({ _id });
         yield RefreshTokenModel.create({
-            idUtilisateur: id,
+            idUtilisateur: _id,
             refreshToken,
         });
         res.json({ accessToken, refreshToken });
+    }
+    catch (error) {
+        res.status(400);
+        throw new Error(error);
+    }
+}));
+//Delete refreshToken after delete if user online
+export const deleteRefreshToken = expressAsyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { _id } = req.params;
+        yield RefreshTokenModel.deleteOne({ idUtilisateur: _id });
+        res.status(200).end();
     }
     catch (error) {
         res.status(400);

@@ -6,10 +6,11 @@ interface UserType {
   prenom: string
   mail: string
   mot_de_passe: string
-  sexe: "Homme" | "Femme"
+  sexe: "homme" | "femme"
   adresse: string
   date_de_naissance: Date
   age: number
+  role: "user" | "admin"
 }
 //User Schema
 const UserSchema = new Schema<UserType>(
@@ -36,6 +37,7 @@ const UserSchema = new Schema<UserType>(
       type: String,
       enum: ["homme", "femme"],
       required: true,
+      lowercase: true,
     },
     adresse: {
       type: String,
@@ -54,6 +56,12 @@ const UserSchema = new Schema<UserType>(
             (1000 * 60 * 60 * 24 * 30 * 12)
         )
       },
+    },
+    role: {
+      type: String,
+      default: "user",
+      lowercase: true,
+      enum: ["user", "qdmin"],
     },
   },
   { timestamps: true }

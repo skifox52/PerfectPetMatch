@@ -9,6 +9,6 @@ import { Router } from "express"
 const userRouter = Router()
   .post("/register", registerUser)
   .put("/update", protect, updateUser)
-  .delete("/delete", protect, deleteUser)
+  .delete("/delete", protect("role"), deleteUser)
 
 export default userRouter

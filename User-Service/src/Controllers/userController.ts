@@ -2,6 +2,7 @@ import expressAsyncHandler from "express-async-handler"
 import { Request, Response } from "express"
 import UserModel from "../Models/UserModel.js"
 import bcrypt from "bcrypt"
+import "dotenv/config"
 
 //Check if User Exists
 type UserExistType = (mail: string) => Promise<boolean>
@@ -48,7 +49,7 @@ export const registerUser = expressAsyncHandler(
         throw new Error("User already exists!")
       }
       const hashedPassword: string = await bcrypt.hash(mot_de_passe, 10)
-      const newUser = await UserModel.create({
+      const newUser = new UserModel({
         nom,
         prenom,
         mail,
@@ -58,14 +59,16 @@ export const registerUser = expressAsyncHandler(
         date_de_naissance,
       })
       const response = await fetch(
-        `http://localhost:${process.env.AUTH_PORT}/api/auth/token/${newUser._id}`
+        `http://localhost:${process.env.AUTH_PORT}/api/auth/token/?_id=${newUser._id}&role:${newUser.role}`
       )
+      await newUser.save()
       const {
         accessToken,
         refreshToken,
       }: { accessToken: string; refreshToken: string } = await response.json()
       res.status(201).json({
         _id: newUser._id,
+        role: newUser.role,
         accessToken,
         refreshToken,
       })
@@ -92,8 +95,14 @@ export const updateUser = expressAsyncHandler(
 export const deleteUser = expressAsyncHandler(
   async (req: any, res: Response) => {
     try {
-      await UserModel.findByIdAndDelete(req.user.id, req.body)
-      res.status(200).json(`User [${req.user.id}] deleted successfully!`)
+      await fetch(
+        `http://localhost:${process.env.AUTH_PORT}/api/auth/refreshToken?_id=${req.user.id}`,
+        {
+          method: "DELETE",
+        }
+      )
+      await UserModel.findByIdAndDelete(req.user._id)
+      res.status(200).json(`User [${req.user._id}] deleted successfully!`)
     } catch (error: any) {
       res.status(400)
       throw new Error(error)

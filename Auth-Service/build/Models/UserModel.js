@@ -23,6 +23,7 @@ const UserSchema = new Schema({
         type: String,
         enum: ["homme", "femme"],
         required: true,
+        lowercase: true,
     },
     adresse: {
         type: String,
@@ -40,6 +41,12 @@ const UserSchema = new Schema({
             (new Date() - new Date(this.date_de_naissance)) /
                 (1000 * 60 * 60 * 24 * 30 * 12));
         },
+    },
+    role: {
+        type: String,
+        default: "user",
+        lowercase: true,
+        enum: ["user", "qdmin"],
     },
 }, { timestamps: true });
 const UserModel = model("User", UserSchema);

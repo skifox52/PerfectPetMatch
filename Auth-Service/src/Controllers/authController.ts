@@ -13,15 +13,16 @@ const UserExist: UserExistType = async (mail) => {
   return User.length > 0 ? true : false
 }
 //Sign token
-type SignTokenType = (id: string) => string
-const SignToken: SignTokenType = (id) => {
+type SignTokenType = ({ _id, role }: { _id: string; role: string }) => string
+const SignToken: SignTokenType = ({ _id, role }) => {
   //Do not forget to change the 10h to 10m
-  return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET!, {
-    expiresIn: "10h",
+  return jwt.sign({ _id, role }, process.env.ACCESS_TOKEN_SECRET!, {
+    expiresIn: "100000h",
   })
 }
-const SignRefreshToken: SignTokenType = (id) => {
-  return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET!)
+type SingRefreshTokenType = ({ _id }: { _id: string }) => string
+const SignRefreshToken: SingRefreshTokenType = (_id) => {
+  return jwt.sign({ _id }, process.env.REFRESH_TOKEN_SECRET!)
 }
 //Check if RefreshTokenExists
 type RefreshTokenExistsType = (refreshToken: string) => Promise<boolean>
@@ -52,8 +53,13 @@ export const loginUser = expressAsyncHandler(
         res.status(400)
         throw new Error("Password doesn't match!")
       }
-      const accessToken: string = SignToken(User[0]._id.toString())
-      const refreshToken: string = SignRefreshToken(User[0]._id.toString())
+      const accessToken: string = SignToken({
+        _id: User[0]._id.toString(),
+        role: User[0].role.toString(),
+      })
+      const refreshToken: string = SignRefreshToken({
+        _id: User[0]._id.toString(),
+      })
       await RefreshTokenModel.create({
         idUtilisateur: User[0]._id,
         refreshToken,
@@ -118,14 +124,30 @@ export const logout = expressAsyncHandler(
 export const handleTokens = expressAsyncHandler(
   async (req: Request, res: Response) => {
     try {
-      const id: string = req.params.id?.toString()
-      const accessToken: string = SignToken(id)
-      const refreshToken: string = SignRefreshToken(id)
+      const { _id, role }: { _id: string; role: string } = req.query as {
+        _id: string
+        role: string
+      }
+      const accessToken: string = SignToken({ _id, role })
+      const refreshToken: string = SignRefreshToken({ _id })
       await RefreshTokenModel.create({
-        idUtilisateur: id,
+        idUtilisateur: _id,
         refreshToken,
       })
       res.json({ accessToken, refreshToken })
+    } catch (error: any) {
+      res.status(400)
+      throw new Error(error)
+    }
+  }
+)
+//Delete refreshToken after delete if user online
+export const deleteRefreshToken = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    try {
+      const { _id }: { _id: string } = req.params as { _id: string }
+      await RefreshTokenModel.deleteOne({ idUtilisateur: _id })
+      res.status(200).end()
     } catch (error: any) {
       res.status(400)
       throw new Error(error)
