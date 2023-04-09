@@ -11,6 +11,8 @@ interface UserType {
   date_de_naissance: Date
   age: number
   role: "user" | "admin"
+  picture: string
+  googleID: string
 }
 //User Schema
 const UserSchema = new Schema<UserType>(
@@ -31,7 +33,6 @@ const UserSchema = new Schema<UserType>(
     },
     mot_de_passe: {
       type: String,
-      required: true,
     },
     sexe: {
       type: String,
@@ -61,7 +62,21 @@ const UserSchema = new Schema<UserType>(
       type: String,
       default: "user",
       lowercase: true,
-      enum: ["user", "qdmin"],
+      enum: ["user", "admin"],
+    },
+    picture: {
+      type: String,
+      default: function () {
+        if (this.sexe === "homme") {
+          return "/assets/man.png"
+        } else {
+          return "/assets/woman.png"
+        }
+      },
+      googleID: {
+        type: String,
+        unique: true,
+      },
     },
   },
   { timestamps: true }

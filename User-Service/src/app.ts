@@ -1,4 +1,4 @@
-import express, { Express } from "express"
+import express, { Express, Request, Response } from "express"
 import "dotenv/config"
 import mongoose from "mongoose"
 import ErrorHandler from "./middlewares/ErrorHandler.js"
@@ -11,6 +11,11 @@ app.use(express.urlencoded({ extended: false }))
 app.use(compression())
 //Routes
 app.use("/api/user", userRouter)
+//Not found Route
+app.use("/*", (req: Request, res: Response) => {
+  res.status(400)
+  throw new Error("Not found!")
+})
 //Error middleware handler
 app.use(ErrorHandler)
 mongoose.connect(process.env.MONGO_URI as string).then(() => {

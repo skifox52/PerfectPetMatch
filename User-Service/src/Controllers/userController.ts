@@ -3,6 +3,8 @@ import { Request, Response } from "express"
 import UserModel from "../Models/UserModel.js"
 import bcrypt from "bcrypt"
 import "dotenv/config"
+import FormData from "form-data"
+import axios from "axios"
 
 //Check if User Exists
 type UserExistType = (mail: string) => Promise<boolean>
@@ -47,6 +49,22 @@ export const registerUser = expressAsyncHandler(
       if (await UserExist(mail)) {
         res.status(400)
         throw new Error("User already exists!")
+      }
+      const file: Express.Multer.File | undefined = req.file ?? undefined
+
+      //AJAX Reuest to get the fileName and insert the file in the Media-Service
+      if (file?.buffer !== undefined) {
+        const mediaResponse = await axios.post(
+          `http://localhost:${process.env.MEDIA_PORT}/api/media/profile`,
+          { image: file?.buffer },
+          {
+            headers: {
+              "Content-Type": file?.mimetype,
+            },
+          }
+        )
+        // const { imagePath, width, height, format, channels } = mediaData
+        console.log(mediaResponse.data)
       }
       const hashedPassword: string = await bcrypt.hash(mot_de_passe, 10)
       const newUser = new UserModel({

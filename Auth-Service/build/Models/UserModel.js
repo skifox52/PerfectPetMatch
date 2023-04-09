@@ -17,7 +17,6 @@ const UserSchema = new Schema({
     },
     mot_de_passe: {
         type: String,
-        required: true,
     },
     sexe: {
         type: String,
@@ -46,7 +45,22 @@ const UserSchema = new Schema({
         type: String,
         default: "user",
         lowercase: true,
-        enum: ["user", "qdmin"],
+        enum: ["user", "admin"],
+    },
+    picture: {
+        type: String,
+        default: function () {
+            if (this.sexe === "homme") {
+                return "/assets/man.png";
+            }
+            else {
+                return "/assets/woman.png";
+            }
+        },
+        googleID: {
+            type: String,
+            unique: true,
+        },
     },
 }, { timestamps: true });
 const UserModel = model("User", UserSchema);

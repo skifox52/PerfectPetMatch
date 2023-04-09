@@ -11,12 +11,14 @@ import expressAsyncHandler from "express-async-handler";
 import UserModel from "../Models/UserModel.js";
 import bcrypt from "bcrypt";
 import "dotenv/config";
+import axios from "axios";
 const UserExist = (mail) => __awaiter(void 0, void 0, void 0, function* () {
     const User = yield UserModel.find({ mail });
     return User.length > 0 ? true : false;
 });
 //Register a User
 export const registerUser = expressAsyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const { nom, prenom, mail, mot_de_passe, sexe, adresse, date_de_naissance, } = req.body;
         if (!nom ||
@@ -32,6 +34,17 @@ export const registerUser = expressAsyncHandler((req, res) => __awaiter(void 0, 
         if (yield UserExist(mail)) {
             res.status(400);
             throw new Error("User already exists!");
+        }
+        const file = (_a = req.file) !== null && _a !== void 0 ? _a : undefined;
+        //AJAX Reuest to get the fileName and insert the file in the Media-Service
+        if ((file === null || file === void 0 ? void 0 : file.buffer) !== undefined) {
+            const mediaResponse = yield axios.post(`http://localhost:${process.env.MEDIA_PORT}/api/media/profile`, { image: file === null || file === void 0 ? void 0 : file.buffer }, {
+                headers: {
+                    "Content-Type": file === null || file === void 0 ? void 0 : file.mimetype,
+                },
+            });
+            // const { imagePath, width, height, format, channels } = mediaData
+            console.log(mediaResponse.data);
         }
         const hashedPassword = yield bcrypt.hash(mot_de_passe, 10);
         const newUser = new UserModel({
