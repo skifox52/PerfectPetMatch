@@ -11,6 +11,7 @@ import expressAsyncHandler from "express-async-handler";
 import UserModel from "../Models/UserModel.js";
 import bcrypt from "bcrypt";
 import "dotenv/config";
+import FormData from "form-data";
 import axios from "axios";
 const UserExist = (mail) => __awaiter(void 0, void 0, void 0, function* () {
     const User = yield UserModel.find({ mail });
@@ -37,14 +38,18 @@ export const registerUser = expressAsyncHandler((req, res) => __awaiter(void 0, 
         }
         const file = (_a = req.file) !== null && _a !== void 0 ? _a : undefined;
         //AJAX Reuest to get the fileName and insert the file in the Media-Service
+        let mediaPath;
         if ((file === null || file === void 0 ? void 0 : file.buffer) !== undefined) {
-            const mediaResponse = yield axios.post(`http://localhost:${process.env.MEDIA_PORT}/api/media/profile`, { image: file === null || file === void 0 ? void 0 : file.buffer }, {
-                headers: {
-                    "Content-Type": file === null || file === void 0 ? void 0 : file.mimetype,
-                },
+            const formData = new FormData();
+            formData.append("image", file === null || file === void 0 ? void 0 : file.buffer, {
+                filename: file === null || file === void 0 ? void 0 : file.originalname,
+                contentType: file === null || file === void 0 ? void 0 : file.mimetype,
             });
-            // const { imagePath, width, height, format, channels } = mediaData
-            console.log(mediaResponse.data);
+            const mediaResponse = yield axios.post(`http://localhost:${process.env.MEDIA_PORT}/api/media/profile`, formData, {
+                headers: Object.assign({}, formData.getHeaders()),
+            });
+            const { imagePath } = mediaResponse.data;
+            mediaPath = imagePath;
         }
         const hashedPassword = yield bcrypt.hash(mot_de_passe, 10);
         const newUser = new UserModel({
@@ -55,6 +60,7 @@ export const registerUser = expressAsyncHandler((req, res) => __awaiter(void 0, 
             sexe: sexe.toLowerCase(),
             adresse,
             date_de_naissance,
+            picture: mediaPath,
         });
         const response = yield fetch(`http://localhost:${process.env.AUTH_PORT}/api/auth/token/?_id=${newUser._id}&role:${newUser.role}`);
         yield newUser.save();

@@ -19,21 +19,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 const upload = multer({
-    storage: multer.diskStorage({
-        destination: "/assets/profilePictures",
-    }),
+    storage: multer.memoryStorage(),
 });
 app.post("/api/media/profile", upload.single("image"), expressAsyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        //THE BODYYYYY NOT DEFINES--------------------------------------------------------------
-        console.log(req.body);
         const file = req.file;
         const randomId = Date.now();
         const { width, height, format, channels } = yield sharp(file === null || file === void 0 ? void 0 : file.buffer).metadata();
-        const compressionBuffer = yield sharp(file === null || file === void 0 ? void 0 : file.buffer)
+        yield sharp(file === null || file === void 0 ? void 0 : file.buffer)
             .resize(500, 500)
-            .toFile(`/assets/ProfilePictures/${randomId}-PofilePicture`);
-        const imagePath = `/assets/ProfilePictures/${randomId}-PofilePicture`;
+            .jpeg({ quality: 80 })
+            .toFile(`./assets/ProfilePictures/${randomId}-PofilePicture.${format}`);
+        const imagePath = `/assets/ProfilePictures/${randomId}-PofilePicture.${format}`;
         res.json({ imagePath, width, height, format, channels });
     }
     catch (error) {

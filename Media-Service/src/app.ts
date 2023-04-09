@@ -12,26 +12,23 @@ app.use(express.urlencoded({ extended: true }))
 app.use(compression())
 
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: "/assets/profilePictures",
-  }),
+  storage: multer.memoryStorage(),
 })
 app.post(
   "/api/media/profile",
   upload.single("image"),
   expressAsyncHandler(async (req: Request, res: Response) => {
     try {
-      //THE BODYYYYY NOT DEFINES--------------------------------------------------------------
-      console.log(req.body)
       const file = req.file
       const randomId: number = Date.now()
       const { width, height, format, channels } = await sharp(
         file?.buffer
       ).metadata()
-      const compressionBuffer = await sharp(file?.buffer)
+      await sharp(file?.buffer)
         .resize(500, 500)
-        .toFile(`/assets/ProfilePictures/${randomId}-PofilePicture`)
-      const imagePath = `/assets/ProfilePictures/${randomId}-PofilePicture`
+        .jpeg({ quality: 80 })
+        .toFile(`./assets/ProfilePictures/${randomId}-PofilePicture.${format}`)
+      const imagePath = `/assets/ProfilePictures/${randomId}-PofilePicture.${format}`
       res.json({ imagePath, width, height, format, channels })
     } catch (error: any) {
       res.status(400)
