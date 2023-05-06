@@ -14,15 +14,21 @@ const UserExist: UserExistType = async (mail) => {
 }
 //Sign token
 type SignTokenType = ({ _id, role }: { _id: string; role: string }) => string
-const SignToken: SignTokenType = ({ _id, role }) => {
+export const SignToken: SignTokenType = ({ _id, role }) => {
   //Do not forget to change the 10h to 10m
   return jwt.sign({ _id, role }, process.env.ACCESS_TOKEN_SECRET!, {
     expiresIn: "100000h",
   })
 }
-type SingRefreshTokenType = ({ _id }: { _id: string }) => string
-const SignRefreshToken: SingRefreshTokenType = (_id) => {
-  return jwt.sign({ _id }, process.env.REFRESH_TOKEN_SECRET!)
+type SingRefreshTokenType = ({
+  _id,
+  role,
+}: {
+  _id: string
+  role: string
+}) => string
+export const SignRefreshToken: SingRefreshTokenType = ({ _id, role }) => {
+  return jwt.sign({ _id, role }, process.env.REFRESH_TOKEN_SECRET!)
 }
 //Check if RefreshTokenExists
 type RefreshTokenExistsType = (refreshToken: string) => Promise<boolean>
@@ -59,6 +65,7 @@ export const loginUser = expressAsyncHandler(
       })
       const refreshToken: string = SignRefreshToken({
         _id: User[0]._id.toString(),
+        role: User[0].role.toString(),
       })
       await RefreshTokenModel.create({
         idUtilisateur: User[0]._id,
@@ -129,7 +136,7 @@ export const handleTokens = expressAsyncHandler(
         role: string
       }
       const accessToken: string = SignToken({ _id, role })
-      const refreshToken: string = SignRefreshToken({ _id })
+      const refreshToken: string = SignRefreshToken({ _id, role })
       await RefreshTokenModel.create({
         idUtilisateur: _id,
         refreshToken,

@@ -60,6 +60,7 @@ export const registerUser = expressAsyncHandler(
           filename: file?.originalname,
           contentType: file?.mimetype,
         })
+        console.log(req.body)
         const mediaResponse = await axios.post(
           `http://localhost:${process.env.MEDIA_PORT}/api/media/profile`,
           formData,
@@ -81,7 +82,7 @@ export const registerUser = expressAsyncHandler(
         sexe: sexe.toLowerCase(),
         adresse,
         date_de_naissance,
-        picture: mediaPath,
+        image: mediaPath,
       })
       const response = await fetch(
         `http://localhost:${process.env.AUTH_PORT}/api/auth/token/?_id=${newUser._id}&role:${newUser.role}`

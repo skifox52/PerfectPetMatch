@@ -28,7 +28,7 @@ app.post(
         .resize(500, 500)
         .jpeg({ quality: 80 })
         .toFile(`./assets/ProfilePictures/${randomId}-PofilePicture.${format}`)
-      const imagePath = `/assets/ProfilePictures/${randomId}-PofilePicture.${format}`
+      const imagePath: string = `/assets/ProfilePictures/${randomId}-PofilePicture.${format}`
       res.json({ imagePath, width, height, format, channels })
     } catch (error: any) {
       res.status(400)

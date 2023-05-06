@@ -11,7 +11,7 @@ interface UserType {
   date_de_naissance: Date
   age: number
   role: "user" | "admin"
-  picture: string
+  image: string
   googleID: string
 }
 //User Schema
@@ -37,25 +37,26 @@ const UserSchema = new Schema<UserType>(
     sexe: {
       type: String,
       enum: ["homme", "femme"],
-      required: true,
       lowercase: true,
     },
     adresse: {
       type: String,
-      required: true,
     },
     date_de_naissance: {
       type: Date,
-      required: true,
     },
     age: {
       type: Number,
       default: function () {
-        return Math.floor(
-          // @ts-ignore
-          (new Date() - new Date(this.date_de_naissance)) /
-            (1000 * 60 * 60 * 24 * 30 * 12)
-        )
+        if (this.date_de_naissance) {
+          return Math.floor(
+            // @ts-ignore
+            (new Date() - new Date(this.date_de_naissance)) /
+              (1000 * 60 * 60 * 24 * 30 * 12)
+          )
+        } else {
+          return 0
+        }
       },
     },
     role: {
@@ -64,13 +65,13 @@ const UserSchema = new Schema<UserType>(
       lowercase: true,
       enum: ["user", "admin"],
     },
-    picture: {
+    image: {
       type: String,
       default: function () {
         if (this.sexe === "homme") {
-          return "/assets/man.png"
+          return "/assets/profilePictures/defaultman.png"
         } else {
-          return "/assets/woman.png"
+          return "/assets/profilePicture/defaultwoman.png"
         }
       },
       googleID: {
