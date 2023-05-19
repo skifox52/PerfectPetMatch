@@ -3,10 +3,14 @@ import "dotenv/config"
 import compression from "compression"
 import expressAsyncHandler from "express-async-handler"
 import ErrorHandler from "./middlewares/ErrorHandler.js"
+import morgan from "morgan"
+import helmet from "helmet"
 import multer from "multer"
 import sharp from "sharp"
 
 const app: Express = express()
+app.use(helmet())
+app.use(morgan("dev"))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(compression())

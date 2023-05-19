@@ -1,4 +1,3 @@
-import protect from "../middlewares/protect.js"
 import {
   deleteUser,
   registerUser,
@@ -16,7 +15,7 @@ const upload = multer({
 
 const userRouter = Router()
   .post("/register", upload.single("image"), registerUser)
-  .put("/update", protect, updateUser)
-  .delete("/delete", protect("role"), deleteUser)
+  .put("/update", updateUser)
+  .delete("/delete", deleteUser)
 
 export default userRouter

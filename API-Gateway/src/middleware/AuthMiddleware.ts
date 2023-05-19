@@ -3,7 +3,7 @@ import { RequestHandler, Response, NextFunction } from "express"
 import jwt from "jsonwebtoken"
 
 type protectType = (role: string) => RequestHandler
-const protect: protectType = (role: string) => {
+const authMiddleware: protectType = (role: string) => {
   return expressAsyncHandler(
     async (req: any, res: Response, next: NextFunction) => {
       try {
@@ -16,9 +16,14 @@ const protect: protectType = (role: string) => {
           res.status(400)
           throw new Error("You are not authorized, No token!")
         }
-        const tokensData = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!)
-        req.user = tokensData
-        console.log(req.user)
+        const tokensData = jwt.verify(
+          token,
+          process.env.ACCESS_TOKEN_SECRET!
+        ) as { _id: string; role: string; iat: number; exp: number }
+        if (role === "admin" && tokensData.role !== "admin") {
+          throw new Error(`Unauthorized! ${role} is required!`)
+        }
+        req.headers["x-auth-user"] = JSON.stringify(tokensData)
         next()
       } catch (error: any) {
         res.status(400)
@@ -28,4 +33,4 @@ const protect: protectType = (role: string) => {
   )
 }
 
-export default protect
+export default authMiddleware

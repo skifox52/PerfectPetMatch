@@ -1,6 +1,6 @@
 import expressAsyncHandler from "express-async-handler";
 import jwt from "jsonwebtoken";
-const protect = (role) => {
+const authMiddleware = (role) => {
     return expressAsyncHandler(async (req, res, next) => {
         try {
             const authHeader = req.headers["authorization"];
@@ -12,8 +12,10 @@ const protect = (role) => {
                 throw new Error("You are not authorized, No token!");
             }
             const tokensData = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-            req.user = tokensData;
-            console.log(req.user);
+            if (role === "admin" && tokensData.role !== "admin") {
+                throw new Error(`Unauthorized! ${role} is required!`);
+            }
+            req.headers["x-auth-user"] = JSON.stringify(tokensData);
             next();
         }
         catch (error) {
@@ -22,4 +24,4 @@ const protect = (role) => {
         }
     });
 };
-export default protect;
+export default authMiddleware;

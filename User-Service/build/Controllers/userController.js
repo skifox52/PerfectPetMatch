@@ -35,7 +35,6 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
                 filename: file?.originalname,
                 contentType: file?.mimetype,
             });
-            console.log(req.body);
             const mediaResponse = await axios.post(`http://localhost:${process.env.MEDIA_PORT}/api/media/profile`, formData, {
                 headers: {
                     ...formData.getHeaders(),
@@ -55,7 +54,7 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
             date_de_naissance,
             image: mediaPath,
         });
-        const response = await fetch(`http://localhost:${process.env.AUTH_PORT}/api/auth/token/?_id=${newUser._id}&role:${newUser.role}`);
+        const response = await fetch(`http://localhost:${process.env.AUTH_PORT}/api/auth/token/?_id=${newUser._id}&role=${newUser.role}`);
         await newUser.save();
         const { accessToken, refreshToken, } = await response.json();
         res.status(201).json({
@@ -73,8 +72,9 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
 //Update a User
 export const updateUser = expressAsyncHandler(async (req, res) => {
     try {
-        await UserModel.findByIdAndUpdate(req.user.id, req.body);
-        res.status(200).json(`User [${req.user.id}] updated successfully!`);
+        const user = JSON.parse(req.headers["x-auth-user"]);
+        await UserModel.findByIdAndUpdate(user._id, req.body);
+        res.status(200).json(`User [${user._id}] updated successfully!`);
     }
     catch (error) {
         res.status(400);
