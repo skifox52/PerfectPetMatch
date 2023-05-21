@@ -10,6 +10,7 @@ const excludeUserPaths = ["/api/user/register"];
 const proxy = express();
 proxy.use(helmet());
 proxy.use(morgan("dev"));
+//Gateway the user service
 proxy.use("/api/user/*", (req, res, next) => {
     if (!excludeUserPaths.includes(req.originalUrl)) {
         authMiddleware("user")(req, res, next);
@@ -24,6 +25,18 @@ proxy.use("/api/user/*", (req, res, next) => {
         if (req.headers["x-auth-user"]) {
             proxyReq.setHeader("x-auth-user", req.headers["x-auth-user"]);
         }
+    },
+}));
+//Gateway the post service
+proxy.use("/api/post/*", authMiddleware("user"), createProxyMiddleware({
+    target: process.env.POST_SERVICE,
+    changeOrigin: true,
+    onProxyReq: (proxyReq, req) => {
+        if (req.headers["x-auth-user"]) {
+            proxyReq.setHeader("x-auth-user", req.headers["x-auth-user"]);
+        }
+        console.log(req);
+        //ENSURE THAT YOU SEND FILE TO THE HEADER
     },
 }));
 proxy.use(ErrorHandler);

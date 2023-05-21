@@ -61,7 +61,7 @@ export const registerUser = expressAsyncHandler(
           contentType: file?.mimetype,
         })
         const mediaResponse = await axios.post(
-          `http://localhost:${process.env.MEDIA_PORT}/api/media/profile`,
+          process.env.MEDIA_SERVICE_URI as string,
           formData,
           {
             headers: {

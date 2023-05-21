@@ -13,6 +13,7 @@ const proxy: Express = express()
 proxy.use(helmet())
 proxy.use(morgan("dev"))
 
+//Gateway the user service
 proxy.use(
   "/api/user/*",
   (req: Request, res: Response, next: NextFunction) => {
@@ -32,7 +33,22 @@ proxy.use(
     },
   })
 )
-
+//Gateway the post service
+proxy.use(
+  "/api/post/*",
+  authMiddleware("user"),
+  createProxyMiddleware({
+    target: process.env.POST_SERVICE,
+    changeOrigin: true,
+    onProxyReq: (proxyReq, req: any) => {
+      if (req.headers["x-auth-user"]) {
+        proxyReq.setHeader("x-auth-user", req.headers["x-auth-user"])
+      }
+      console.log(req)
+      //ENSURE THAT YOU SEND FILE TO THE HEADER
+    },
+  })
+)
 proxy.use(ErrorHandler)
 proxy.listen(process.env.PROXY_PORT, () =>
   console.log(`PROXY running at port ${process.env.PROXY_PORT}`)

@@ -44,13 +44,57 @@ app.post("/api/chat/message", expressAsyncHandler(async (req, res) => {
         });
         //Emit the messgage to the participant of the conversation
         io.to(conversationId).emit("newMessage", newMessage);
-        res.status(200).json("Message sent successfully!");
+        res.status(200).json({ message: "Message sent successfully!" });
     }
     catch (error) {
         res.status(400);
         throw new Error(error);
     }
 }));
+//API for getting conversation history
+app.get("/api/chat/messages/:conversationId", expressAsyncHandler(async (req, res) => {
+    const { conversationId } = req.params;
+    try {
+        const messages = await MessageModel.find({
+            conversation: conversationId,
+        });
+        res.status(200).json(messages);
+    }
+    catch (error) {
+        res.status(400);
+        throw new error(error);
+    }
+}));
+//Websockets connections handeling
+io.on("connection", (socket) => {
+    console.log("New connection", socket.id);
+    //Handeling joining conversation
+    socket.on("joinConversation", (conversationId) => {
+        socket.join(conversationId);
+    });
+    //Handeling incoming chat messages from the client
+    socket.on("sendMessage", async (data) => {
+        const { conversationId, senderId, content } = data;
+        try {
+            //Save message to database
+            const newMessage = await MessageModel.create({
+                conversation: conversationId,
+                sender: senderId,
+                content: content,
+            });
+            //Emit the message to the participent of the conversation
+            io.to(conversationId).emit("newMessage", newMessage);
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error(error);
+        }
+    });
+    //Handeling disconnection
+    socket.on("disconnect", () => {
+        console.log("Disconnected: ", socket.id);
+    });
+});
 //Error Handler
 app.use(ErrorHandler);
 connect(process.env.MONGO_URI)

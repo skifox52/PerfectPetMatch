@@ -4,6 +4,7 @@ const authMiddleware = (role) => {
     return expressAsyncHandler(async (req, res, next) => {
         try {
             const authHeader = req.headers["authorization"];
+            console.log("middleware firing");
             const token = authHeader &&
                 authHeader.startsWith("Bearer") &&
                 authHeader.toString().split(" ")[1];
