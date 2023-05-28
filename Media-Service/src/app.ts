@@ -63,10 +63,14 @@ app.post(
               .resize(1000, 1000)
               .jpeg({ quality: 80 })
               .toFile(
-                `./assets/PostPictures/${folderName}/${randomId}-PostPicture${i}.${format}`
+                `./assets/PostPictures/${folderName}/${randomId}-PostPicture${
+                  i + 1
+                }.${format}`
               )
             imagePath.unshift(
-              `./assets/PostPictures/${folderName}/${randomId}-PostPicture${i}.${format}`
+              `./assets/PostPictures/${folderName}/${randomId}-PostPicture${
+                i + 1
+              }.${format}`
             )
           })
         ))
