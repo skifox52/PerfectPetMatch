@@ -8,7 +8,6 @@ const authMiddleware: protectType = (role: string) => {
     async (req: any, res: Response, next: NextFunction) => {
       try {
         const authHeader = req.headers["authorization"]
-        console.log("middleware firing")
         const token =
           authHeader &&
           authHeader.startsWith("Bearer") &&

@@ -51,7 +51,7 @@ export const postPost = expressAsyncHandler(
         owner: _id,
         title,
         content,
-        images: response.data ? response.data : [],
+        // images: response.data ? response.data : [],
       })
       res.status(201).json({ Status: "Success", Post: newPost })
     } catch (error: any) {

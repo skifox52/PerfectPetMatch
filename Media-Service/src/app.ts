@@ -46,6 +46,7 @@ app.post(
   expressAsyncHandler(async (req: Request, res: Response): Promise<void> => {
     try {
       const files: any = req.files
+      console.log(req.headers["x-media-user"])
       //Create folder for the post
       let folderName: string
       if (files.length > 0) {
