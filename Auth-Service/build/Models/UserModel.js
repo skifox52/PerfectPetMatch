@@ -43,6 +43,10 @@ const UserSchema = new Schema({
             }
         },
     },
+    ville: {
+        type: String,
+        required: true,
+    },
     role: {
         type: String,
         default: "user",

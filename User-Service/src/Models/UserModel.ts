@@ -1,7 +1,7 @@
-import { Schema, model } from "mongoose"
+import { Schema, model, Model, Document } from "mongoose"
 
 //User type
-interface UserType {
+export interface UserType extends Document {
   nom: string
   prenom: string
   mail: string
@@ -10,9 +10,13 @@ interface UserType {
   adresse: string
   date_de_naissance: Date
   age: number
-  role: "user" | "admin"
+  role?: "user" | "admin"
   image: string
-  googleID: string
+  ville: string
+  googleID?: string
+}
+export interface UserTypeModel extends Model<UserType> {
+  userExists: (mail: string) => Promise<boolean>
 }
 //User Schema
 const UserSchema = new Schema<UserType>(
@@ -59,6 +63,10 @@ const UserSchema = new Schema<UserType>(
         }
       },
     },
+    ville: {
+      type: String,
+      required: true,
+    },
     role: {
       type: String,
       default: "user",
@@ -83,5 +91,11 @@ const UserSchema = new Schema<UserType>(
   { timestamps: true }
 )
 
-const UserModel = model("User", UserSchema)
+UserSchema.statics.userExists = async function (
+  mail: string
+): Promise<boolean> {
+  return (await this.findOne({ mail })) !== null
+}
+
+const UserModel = model<UserType, UserTypeModel>("User", UserSchema)
 export default UserModel

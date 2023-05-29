@@ -1,7 +1,7 @@
-import { Schema, model, Model } from "mongoose"
+import { Schema, model, Model, Document } from "mongoose"
 
 //User type
-export interface UserType {
+export interface UserType extends Document {
   nom: string
   prenom: string
   mail: string
@@ -10,9 +10,10 @@ export interface UserType {
   adresse: string
   date_de_naissance: Date
   age: number
-  role: "user" | "admin"
+  role?: "user" | "admin"
   image: string
-  googleID: string
+  ville: string
+  googleID?: string
 }
 export interface UserTypeModel extends Model<UserType> {
   userExists: (mail: string) => Promise<boolean>
@@ -61,6 +62,10 @@ const UserSchema = new Schema<UserType>(
           return 0
         }
       },
+    },
+    ville: {
+      type: String,
+      required: true,
     },
     role: {
       type: String,

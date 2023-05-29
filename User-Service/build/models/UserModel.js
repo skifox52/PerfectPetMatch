@@ -43,6 +43,10 @@ const UserSchema = new Schema({
             }
         },
     },
+    ville: {
+        type: String,
+        required: true,
+    },
     role: {
         type: String,
         default: "user",
@@ -65,5 +69,8 @@ const UserSchema = new Schema({
         },
     },
 }, { timestamps: true });
+UserSchema.statics.userExists = async function (mail) {
+    return (await this.findOne({ mail })) !== null;
+};
 const UserModel = model("User", UserSchema);
 export default UserModel;

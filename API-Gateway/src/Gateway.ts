@@ -4,12 +4,18 @@ import morgan from "morgan"
 import { createProxyMiddleware, fixRequestBody } from "http-proxy-middleware"
 import "dotenv/config"
 import ErrorHandler from "./middleware/ErrorHandler.js"
+import cors from "cors"
 import authMiddleware from "./middleware/AuthMiddleware.js"
 
 //Exlude non protected API Routes
 const excludeUserPaths = ["/api/user/register"]
 
 const proxy: Express = express()
+proxy.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+)
 proxy.use(express.json())
 proxy.use(express.urlencoded({ extended: true }))
 proxy.use(helmet())

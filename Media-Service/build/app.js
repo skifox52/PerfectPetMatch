@@ -52,8 +52,8 @@ app.post("/api/media/post", upload.array("images"), expressAsyncHandler(async (r
                 await sharp(file.buffer)
                     .resize(1000, 1000)
                     .jpeg({ quality: 80 })
-                    .toFile(`./assets/PostPictures/${folderName}/${randomId}-PostPicture${i}.${format}`);
-                imagePath.unshift(`./assets/PostPictures/${folderName}/${randomId}-PostPicture${i}.${format}`);
+                    .toFile(`./assets/PostPictures/${folderName}/${randomId}-PostPicture${i + 1}.${format}`);
+                imagePath.unshift(`./assets/PostPictures/${folderName}/${randomId}-PostPicture${i + 1}.${format}`);
             })));
         res.status(200).json(imagePath);
     }

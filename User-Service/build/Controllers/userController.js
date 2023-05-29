@@ -4,25 +4,22 @@ import bcrypt from "bcrypt";
 import "dotenv/config";
 import FormData from "form-data";
 import axios from "axios";
-const UserExist = async (mail) => {
-    const User = await UserModel.find({ mail });
-    return User.length > 0 ? true : false;
-};
 //Register a User
 export const registerUser = expressAsyncHandler(async (req, res) => {
     try {
-        const { nom, prenom, mail, mot_de_passe, sexe, adresse, date_de_naissance, } = req.body;
+        const { nom, prenom, mail, mot_de_passe, sexe, adresse, date_de_naissance, ville, } = req.body;
         if (!nom ||
             !prenom ||
             !mail ||
             !mot_de_passe ||
             !sexe ||
             !adresse ||
-            !date_de_naissance) {
+            !date_de_naissance ||
+            !ville) {
             res.status(400);
             throw new Error("Empty fields!");
         }
-        if (await UserExist(mail)) {
+        if (await UserModel.userExists(mail)) {
             res.status(400);
             throw new Error("User already exists!");
         }
@@ -35,7 +32,7 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
                 filename: file?.originalname,
                 contentType: file?.mimetype,
             });
-            const mediaResponse = await axios.post(`http://localhost:${process.env.MEDIA_PORT}/api/media/profile`, formData, {
+            const mediaResponse = await axios.post(process.env.MEDIA_SERVICE_URI, formData, {
                 headers: {
                     ...formData.getHeaders(),
                 },
@@ -53,6 +50,7 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
             adresse,
             date_de_naissance,
             image: mediaPath,
+            ville,
         });
         const response = await fetch(`http://localhost:${process.env.AUTH_PORT}/api/auth/token/?_id=${newUser._id}&role=${newUser.role}`);
         await newUser.save();

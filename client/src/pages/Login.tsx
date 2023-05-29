@@ -7,7 +7,6 @@ import getGoogleUrl from "../utils/getGoogleUrl"
 import { toast } from "react-hot-toast"
 import { useMutation } from "@tanstack/react-query"
 import { loginUser } from "../api/userApi"
-import type { CustomErrorObject } from "../types/customError"
 import { UserContext } from "../contexts/userContext"
 
 export interface UserInputInterface {
@@ -30,6 +29,7 @@ export const Login: React.FC = () => {
   }
   //handle user mutation
   let [loadingToast, setLoadingToast] = useState<any>(null)
+  //User context
   const userContext = useContext(UserContext)
   const createUserMutation = useMutation({
     mutationFn: (variables: UserInputInterface) => loginUser(variables),
@@ -42,13 +42,15 @@ export const Login: React.FC = () => {
       toast.error(error.response.data.err ?? error.message)
     },
     onSettled: () => {
-      loadingToast && toast.dismiss(loadingToast)
+      if (!!loadingToast) toast.dismiss(loadingToast)
     },
   })
   //Handeling loading state
   useEffect(() => {
     if (createUserMutation.isLoading) {
       setLoadingToast(toast.loading("Logging in..."))
+    } else {
+      setLoadingToast(null)
     }
   }, [createUserMutation.isLoading])
 

@@ -1,6 +1,18 @@
 import axios from "axios"
-import { useContext } from "react"
 import type { UserInputInterface } from "../pages/Login"
+
+export interface UserType {
+  nom: string
+  prenom: string
+  mail: string
+  mot_de_passe: string
+  confirmer_mot_de_passe?: string
+  sexe: string
+  adresse: string
+  date_de_naissance: Date | null
+  image: string
+  ville: string
+}
 
 //Login the user
 export const loginUser = async ({ mail, password }: UserInputInterface) => {
@@ -9,6 +21,20 @@ export const loginUser = async ({ mail, password }: UserInputInterface) => {
       mail,
       password,
     })
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+//Register a User
+export const registerUser = async (
+  userData: Omit<UserType, "confirmer_mot_de_passe">
+) => {
+  try {
+    const response = await axios.post(
+      import.meta.env.VITE_REGISTER_URI,
+      userData
+    )
     return response.data
   } catch (error) {
     throw error

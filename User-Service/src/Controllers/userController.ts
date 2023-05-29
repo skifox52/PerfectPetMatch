@@ -6,13 +6,6 @@ import "dotenv/config"
 import FormData from "form-data"
 import axios from "axios"
 
-//Check if User Exists
-type UserExistType = (mail: string) => Promise<boolean>
-const UserExist: UserExistType = async (mail) => {
-  const User = await UserModel.find({ mail })
-  return User.length > 0 ? true : false
-}
-
 //Register a User
 export const registerUser = expressAsyncHandler(
   async (req: Request, res: Response) => {
@@ -25,6 +18,7 @@ export const registerUser = expressAsyncHandler(
         sexe,
         adresse,
         date_de_naissance,
+        ville,
       }: {
         nom: string
         prenom: string
@@ -33,6 +27,7 @@ export const registerUser = expressAsyncHandler(
         sexe: string
         adresse: string
         date_de_naissance: Date
+        ville: string
       } = req.body
       if (
         !nom ||
@@ -41,12 +36,13 @@ export const registerUser = expressAsyncHandler(
         !mot_de_passe ||
         !sexe ||
         !adresse ||
-        !date_de_naissance
+        !date_de_naissance ||
+        !ville
       ) {
         res.status(400)
         throw new Error("Empty fields!")
       }
-      if (await UserExist(mail)) {
+      if (await UserModel.userExists(mail)) {
         res.status(400)
         throw new Error("User already exists!")
       }
@@ -82,6 +78,7 @@ export const registerUser = expressAsyncHandler(
         adresse,
         date_de_naissance,
         image: mediaPath,
+        ville,
       })
       const response = await fetch(
         `http://localhost:${process.env.AUTH_PORT}/api/auth/token/?_id=${newUser._id}&role=${newUser.role}`

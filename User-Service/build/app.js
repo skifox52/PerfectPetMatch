@@ -5,9 +5,11 @@ import ErrorHandler from "./middlewares/ErrorHandler.js";
 import compression from "compression";
 import userRouter from "./Routes/userRouter.js";
 import helmet from "helmet";
+import cors from "cors";
 import morgan from "morgan";
 // import ip from "ip"
 const app = express();
+app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
