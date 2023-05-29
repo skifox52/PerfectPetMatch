@@ -1,31 +1,44 @@
 import { Login } from "./pages/Login"
 import { Register } from "./pages/Register"
-import React from "react"
+import { useMemo, useState } from "react"
 import {
   createBrowserRouter,
   createRoutesFromElements,
   RouterProvider,
   Route,
-  Navigate,
 } from "react-router-dom"
 import { Layout } from "./Layout/Layout"
 import { Toaster } from "react-hot-toast"
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
+import { UserContext, type UserContextType } from "./contexts/userContext"
+import { Home } from "./pages/Home"
 
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<Layout />}>
-        <Route index element={<Navigate to={"/login"} />} />
+        <Route index element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Route>
     )
   )
+  const queryClient = new QueryClient()
+  const [user, setUser] = useState<UserContextType | null>(
+    localStorage.getItem("User")!?.length > 0
+      ? (JSON.parse(localStorage.getItem("User")!) as UserContextType)
+      : null
+  )
+  const userContextValue = useMemo(() => {
+    return { user, setUser }
+  }, [user, setUser])
   return (
-    <React.Fragment>
-      <RouterProvider router={router} />
+    <QueryClientProvider client={queryClient}>
+      <UserContext.Provider value={userContextValue}>
+        <RouterProvider router={router} />
+      </UserContext.Provider>
       <Toaster />
-    </React.Fragment>
+    </QueryClientProvider>
   )
 }
 

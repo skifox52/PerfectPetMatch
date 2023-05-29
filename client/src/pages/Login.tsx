@@ -1,19 +1,22 @@
-import React, { useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import Lottie from "lottie-react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import animationData from "../assets/animations/29280-sleepy-cat.json"
 import { FcGoogle } from "react-icons/fc"
 import getGoogleUrl from "../utils/getGoogleUrl"
 import { toast } from "react-hot-toast"
+import { useMutation } from "@tanstack/react-query"
+import { loginUser } from "../api/userApi"
+import type { CustomErrorObject } from "../types/customError"
+import { UserContext } from "../contexts/userContext"
 
-interface LoginProps {}
-
-interface UserInputInterface {
+export interface UserInputInterface {
   mail: string
   password: string
 }
 
-export const Login: React.FC<LoginProps> = ({}) => {
+export const Login: React.FC = () => {
+  const navigate = useNavigate()
   const [userLoginData, setUserLoginData] = useState<UserInputInterface>({
     mail: "",
     password: "",
@@ -25,12 +28,37 @@ export const Login: React.FC<LoginProps> = ({}) => {
       [e.target.name]: e.target.value,
     }))
   }
+  //handle user mutation
+  let [loadingToast, setLoadingToast] = useState<any>(null)
+  const userContext = useContext(UserContext)
+  const createUserMutation = useMutation({
+    mutationFn: (variables: UserInputInterface) => loginUser(variables),
+    onSuccess: (data) => {
+      userContext?.setUser(data)
+      localStorage.setItem("User", JSON.stringify(data))
+      navigate("/")
+    },
+    onError: (error: any) => {
+      toast.error(error.response.data.err ?? error.message)
+    },
+    onSettled: () => {
+      loadingToast && toast.dismiss(loadingToast)
+    },
+  })
+  //Handeling loading state
+  useEffect(() => {
+    if (createUserMutation.isLoading) {
+      setLoadingToast(toast.loading("Logging in..."))
+    }
+  }, [createUserMutation.isLoading])
+
   //handle OnSubmit
   const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
-    if (!userLoginData.mail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      return toast.error("Adresse mail incorrect!")
-    }
+    // if (!userLoginData.mail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+    //   return toast.error("Adresse mail incorrect!")
+    // }
+    createUserMutation.mutate(userLoginData)
   }
   return (
     <div className="overflow-hidden w-screen h-screen flex flex-col md:flex-row md:justify-between items-center justify-evenly">
@@ -65,8 +93,9 @@ export const Login: React.FC<LoginProps> = ({}) => {
           <button
             type="submit"
             className="btn btn-primary w-full font-bold text-white"
+            disabled={createUserMutation.isLoading}
           >
-            Connexion
+            {createUserMutation.isLoading ? "Loading..." : "Connexion"}
           </button>
           <a
             href={getGoogleUrl()}

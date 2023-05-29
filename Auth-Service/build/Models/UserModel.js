@@ -65,5 +65,8 @@ const UserSchema = new Schema({
         },
     },
 }, { timestamps: true });
+UserSchema.statics.userExists = async function (mail) {
+    return (await this.findOne({ mail })) !== null;
+};
 const UserModel = model("User", UserSchema);
 export default UserModel;

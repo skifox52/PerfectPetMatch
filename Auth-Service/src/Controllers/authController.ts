@@ -6,12 +6,6 @@ import RefreshTokenModel from "../Models/RefreshTokenModel.js"
 import jwt from "jsonwebtoken"
 import "dotenv/config"
 
-//Check if User Exists
-type UserExistType = (mail: string) => Promise<boolean>
-const UserExist: UserExistType = async (mail) => {
-  const User = await UserModel.find({ mail })
-  return User.length > 0 ? true : false
-}
 //Sign token
 type SignTokenType = ({ _id, role }: { _id: string; role: string }) => string
 export const SignToken: SignTokenType = ({ _id, role }) => {
@@ -46,8 +40,9 @@ export const loginUser = expressAsyncHandler(
         throw new Error("Empty fields!")
       }
       //Check User if Exists
-      if (!(await UserExist(mail))) {
+      if (!(await UserModel.userExists(mail))) {
         res.status(400)
+        console.log("exist")
         throw new Error("User doesn't exist!")
       }
       const User = await UserModel.find({ mail })
@@ -72,9 +67,10 @@ export const loginUser = expressAsyncHandler(
         refreshToken,
       })
       res.status(200).json({
-        id_user: User[0]._id,
+        _id: User[0]._id,
         accessToken,
         refreshToken,
+        role: User[0].role,
       })
     } catch (error: any) {
       res.status(400)

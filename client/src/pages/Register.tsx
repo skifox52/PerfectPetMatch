@@ -56,6 +56,7 @@ export const Register: React.FC = ({}) => {
       return toast.error("Mot de passe trop faible")
     }
   }
+
   console.log(userFormData)
   return (
     <div className="w-screen h-screen flex">
