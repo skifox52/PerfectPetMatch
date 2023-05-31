@@ -12,6 +12,7 @@ import { Toaster } from "react-hot-toast"
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
 import { UserContext, type UserContextType } from "./contexts/userContext"
 import { Home } from "./pages/Home"
+import { ResetPassword } from "./pages/ResetPassword"
 
 function App() {
   const router = createBrowserRouter(
@@ -20,6 +21,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/resetPassword" element={<ResetPassword />} />
       </Route>
     )
   )

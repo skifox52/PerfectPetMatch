@@ -28,7 +28,6 @@ export const loginUser = expressAsyncHandler(async (req, res) => {
         //Check User if Exists
         if (!(await UserModel.userExists(mail))) {
             res.status(400);
-            console.log("exist");
             throw new Error("User doesn't exist!");
         }
         const User = await UserModel.find({ mail });

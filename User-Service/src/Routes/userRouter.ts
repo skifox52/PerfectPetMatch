@@ -1,6 +1,7 @@
 import {
   deleteUser,
   registerUser,
+  resetPasswordForm,
   updateUser,
 } from "../Controllers/userController.js"
 import { Router } from "express"
@@ -16,6 +17,7 @@ const upload = multer({
 const userRouter = Router()
   .post("/register", upload.single("image"), registerUser)
   .put("/update", updateUser)
+  .put("/resetPassword", resetPasswordForm)
   .delete("/delete", deleteUser)
 
 export default userRouter

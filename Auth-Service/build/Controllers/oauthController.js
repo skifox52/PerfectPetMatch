@@ -44,12 +44,15 @@ const getGoogleUser = async ({ id_token, access_token }) => {
 const checkGoogleID = async (googleID) => {
     try {
         const exists = await UserModel.find({ googleID });
-        return exists.length > 0
-            ? {
+        if (exists.length > 0) {
+            return {
                 exist: true,
                 metadata: { _id: exists[0]._id.toString(), role: exists[0].role },
-            }
-            : { exist: false, metadata: null };
+            };
+        }
+        else {
+            return { exist: false, metadata: null };
+        }
     }
     catch (error) {
         throw new Error(error);
@@ -64,10 +67,9 @@ export const oauthRedirectGoogle = expressAsyncHandler(async (req, res) => {
             throw new Error("Validation Error Message: Please validate your email!");
         }
         //Upsert User
-        const user = await await checkGoogleID(googleUser.id);
+        const user = await checkGoogleID(googleUser.id);
         if (!user.exist) {
             const { id, name, given_name, email, family_name, picture } = googleUser;
-            console.log(googleUser);
             const newUser = await UserModel.create({
                 nom: family_name ? given_name : name,
                 prenom: given_name ? given_name : name,

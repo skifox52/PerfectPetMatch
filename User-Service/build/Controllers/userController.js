@@ -4,6 +4,8 @@ import bcrypt from "bcrypt";
 import "dotenv/config";
 import FormData from "form-data";
 import axios from "axios";
+import crypto from "node:crypto";
+import nodemailer from "nodemailer";
 //Register a User
 export const registerUser = expressAsyncHandler(async (req, res) => {
     try {
@@ -87,6 +89,51 @@ export const deleteUser = expressAsyncHandler(async (req, res) => {
         });
         await UserModel.findByIdAndDelete(req.user._id);
         res.status(200).json(`User [${req.user._id}] deleted successfully!`);
+    }
+    catch (error) {
+        res.status(400);
+        throw new Error(error);
+    }
+});
+//Reset password form
+export const resetPasswordForm = expressAsyncHandler(async (req, res) => {
+    try {
+        const { mail } = req.body;
+        if (!(await UserModel.userExists(mail))) {
+            throw new Error("User doesn't exist!");
+        }
+        const keyExist = await UserModel.keyExists(mail);
+        let randomKey;
+        if (!keyExist) {
+            let generatedKey = crypto.randomBytes(30).toString("hex");
+            randomKey = generatedKey;
+            await UserModel.findOneAndUpdate({ mail }, { resetKey: randomKey });
+        }
+        else {
+            randomKey = keyExist;
+        }
+        const url = `${process.env.CLIENT_SERVICE}/resetPassword?${encodeURIComponent(`key=${randomKey}`)}`;
+        //Create transporter
+        const transporter = nodemailer.createTransport({
+            host: "smtp.office365.com",
+            port: 587,
+            secure: false,
+            auth: {
+                user: process.env.SMTP_MAIL,
+                pass: process.env.SMTP_PASSWORD,
+            },
+        });
+        //Send mail
+        const info = await transporter.sendMail({
+            from: process.env.SMTP_MAIL,
+            to: mail,
+            subject: "Réinitialisation du mot de passe",
+            text: `Voici le lien de réinitialisation du mot de passe pour votre compte Perfect pet match: ${url}`,
+        });
+        res.status(200).json({
+            url,
+            mail,
+        });
     }
     catch (error) {
         res.status(400);

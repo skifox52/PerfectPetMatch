@@ -86,12 +86,14 @@ const checkGoogleID = async (
 ): Promise<checkGoogleIdReturnType> => {
   try {
     const exists = await UserModel.find({ googleID })
-    return exists.length > 0
-      ? {
-          exist: true,
-          metadata: { _id: exists[0]._id.toString(), role: exists[0].role },
-        }
-      : { exist: false, metadata: null }
+    if (exists.length > 0) {
+      return {
+        exist: true,
+        metadata: { _id: exists[0]._id.toString(), role: exists[0].role! },
+      }
+    } else {
+      return { exist: false, metadata: null }
+    }
   } catch (error: any) {
     throw new Error(error)
   }
@@ -107,12 +109,9 @@ export const oauthRedirectGoogle = expressAsyncHandler(
         throw new Error("Validation Error Message: Please validate your email!")
       }
       //Upsert User
-      const user: checkGoogleIdReturnType = await await checkGoogleID(
-        googleUser.id
-      )
+      const user: checkGoogleIdReturnType = await checkGoogleID(googleUser.id)
       if (!user.exist) {
         const { id, name, given_name, email, family_name, picture } = googleUser
-        console.log(googleUser)
         const newUser = await UserModel.create({
           nom: family_name ? given_name : name,
           prenom: given_name ? given_name : name,
@@ -122,11 +121,11 @@ export const oauthRedirectGoogle = expressAsyncHandler(
         })
         const accessToken: string = SignToken({
           _id: newUser._id.toString(),
-          role: newUser.role.toString(),
+          role: newUser.role!.toString(),
         })
         const refreshToken: string = SignRefreshToken({
           _id: newUser._id.toString(),
-          role: newUser.role.toString(),
+          role: newUser.role!.toString(),
         })
         res.status(200).json({
           id_user: newUser._id,

@@ -63,14 +63,24 @@ const UserSchema = new Schema({
                 return "/assets/profilePicture/defaultwoman.png";
             }
         },
-        googleID: {
-            type: String,
-            unique: true,
-        },
+    },
+    googleID: {
+        type: String,
+        unique: true,
+    },
+    resetKey: {
+        type: String,
+        unique: true,
     },
 }, { timestamps: true });
+//Static method to see if User exists
 UserSchema.statics.userExists = async function (mail) {
     return (await this.findOne({ mail })) !== null;
+};
+//Static method to see if resetKeyExist
+UserSchema.statics.keyExists = async function (mail) {
+    const user = await this.findOne({ mail });
+    return user.resetKey;
 };
 const UserModel = model("User", UserSchema);
 export default UserModel;

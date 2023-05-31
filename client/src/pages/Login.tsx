@@ -36,13 +36,9 @@ export const Login: React.FC = () => {
     onSuccess: (data) => {
       userContext?.setUser(data)
       localStorage.setItem("User", JSON.stringify(data))
-      navigate("/")
     },
     onError: (error: any) => {
-      toast.error(error.response.data.err ?? error.message)
-    },
-    onSettled: () => {
-      if (!!loadingToast) toast.dismiss(loadingToast)
+      toast.error(error.response?.data.err || error.message)
     },
   })
   //Handeling loading state
@@ -51,10 +47,11 @@ export const Login: React.FC = () => {
       setLoadingToast(toast.loading("Logging in..."))
     } else {
       setLoadingToast(null)
+      toast.dismiss(loadingToast)
     }
-  }, [createUserMutation.isLoading])
-
-  //handle OnSubmit
+    createUserMutation.isSuccess && navigate("/")
+  }, [createUserMutation.isLoading, createUserMutation.isSuccess])
+  //handle login onSubmit
   const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
     // if (!userLoginData.mail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
@@ -62,13 +59,20 @@ export const Login: React.FC = () => {
     // }
     createUserMutation.mutate(userLoginData)
   }
+  //Handle reset
+  //--Handle reset State
+  const [resetInput, setResetInput] = useState<string>("")
+  //--Handle reset onSubmit
+  const handleResetOnSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+    e.preventDefault()
+  }
   return (
-    <div className="overflow-hidden w-screen h-screen flex flex-col md:flex-row md:justify-between items-center justify-evenly">
+    <div className="overflow-hidden w-screen py-4 min-h-screen flex flex-col md:flex-row md:justify-between items-center justify-evenly">
       <Lottie
         animationData={animationData}
         className="md:max-w-1/2 md:w-1/2 h-1/2 md:h-full"
       />
-      <div className="w-full md:w-1/2 h-full flex justify-center items-center">
+      <div className="w-full md:w-1/2 h-full flex flex-col justify-center items-center">
         <form
           onSubmit={handleOnSubmit}
           className="flex flex-col w-4/5 sm:w-2/3 gap-4 items-start md:w-2/3 lg:w-1/2"
@@ -105,15 +109,45 @@ export const Login: React.FC = () => {
           >
             <FcGoogle className="text-lg lg:text-2xl" /> Continuer avec Google
           </a>
-          <div className="w-full flex justify-end">
-            <Link
-              to={"/register"}
-              className="hover:text-gray-600 text-primary underline"
-            >
-              Créer un compte ?
-            </Link>
-          </div>
         </form>
+        <div className="flex flex-col w-4/5 sm:w-2/3 py-4 items-end md:w-2/3 lg:w-1/2">
+          <Link
+            to={"/register"}
+            className="hover:text-gray-400 text-primary underline"
+          >
+            Créer un compte ?
+          </Link>
+          {/* Mot de passe oublier section  */}
+          <label
+            htmlFor="my-modal-4"
+            className="hover:text-gray-400 text-primary underline cursor-pointer"
+          >
+            Mot de passe oublier?
+          </label>
+
+          <input type="checkbox" id="my-modal-4" className="modal-toggle" />
+          <label htmlFor="my-modal-4" className="modal cursor-pointer">
+            <label className="modal-box relative" htmlFor="">
+              <h3 className="text-lg font-bold">Insérez votre E-mail</h3>
+              <form
+                className="py-4  flex flex-col gap-4"
+                onSubmit={handleResetOnSubmit}
+              >
+                <input
+                  type="mail"
+                  name="resetMail"
+                  className="input input-primary"
+                  required
+                  placeholder="E-mail..."
+                  onChange={(e) => setResetInput(e.target.value)}
+                />
+                <button type="submit" className="btn btn-primary text-gray-50">
+                  Envoyer
+                </button>
+              </form>
+            </label>
+          </label>
+        </div>
       </div>
     </div>
   )

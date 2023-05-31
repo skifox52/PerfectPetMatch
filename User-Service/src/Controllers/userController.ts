@@ -5,6 +5,8 @@ import bcrypt from "bcrypt"
 import "dotenv/config"
 import FormData from "form-data"
 import axios from "axios"
+import crypto from "node:crypto"
+import nodemailer from "nodemailer"
 
 //Register a User
 export const registerUser = expressAsyncHandler(
@@ -47,7 +49,6 @@ export const registerUser = expressAsyncHandler(
         throw new Error("User already exists!")
       }
       const file: Express.Multer.File | undefined = req.file ?? undefined
-
       //AJAX Reuest to get the fileName and insert the file in the Media-Service
       let mediaPath
       if (file?.buffer !== undefined) {
@@ -100,7 +101,6 @@ export const registerUser = expressAsyncHandler(
     }
   }
 )
-
 //Update a User
 export const updateUser = expressAsyncHandler(
   async (req: any, res: Response) => {
@@ -131,6 +131,53 @@ export const deleteUser = expressAsyncHandler(
       )
       await UserModel.findByIdAndDelete(req.user._id)
       res.status(200).json(`User [${req.user._id}] deleted successfully!`)
+    } catch (error: any) {
+      res.status(400)
+      throw new Error(error)
+    }
+  }
+)
+//Reset password form
+export const resetPasswordForm = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { mail } = req.body
+      if (!(await UserModel.userExists(mail))) {
+        throw new Error("User doesn't exist!")
+      }
+      const keyExist: string = await UserModel.keyExists(mail)
+      let randomKey: string
+      if (!keyExist) {
+        let generatedKey: string = crypto.randomBytes(30).toString("hex")
+        randomKey = generatedKey
+        await UserModel.findOneAndUpdate({ mail }, { resetKey: randomKey })
+      } else {
+        randomKey = keyExist
+      }
+      const url = `${
+        process.env.CLIENT_SERVICE
+      }/resetPassword?${encodeURIComponent(`key=${randomKey}`)}`
+      //Create transporter
+      const transporter = nodemailer.createTransport({
+        host: "smtp.office365.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.SMTP_MAIL,
+          pass: process.env.SMTP_PASSWORD,
+        },
+      })
+      //Send mail
+      const info = await transporter.sendMail({
+        from: process.env.SMTP_MAIL,
+        to: mail,
+        subject: "Réinitialisation du mot de passe",
+        text: `Voici le lien de réinitialisation du mot de passe pour votre compte Perfect pet match: ${url}`,
+      })
+      res.status(200).json({
+        url,
+        mail,
+      })
     } catch (error: any) {
       res.status(400)
       throw new Error(error)

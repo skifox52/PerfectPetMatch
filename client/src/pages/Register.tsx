@@ -23,10 +23,10 @@ export const Register: React.FC = ({}) => {
     confirmer_mot_de_passe: "",
     adresse: "",
     sexe: "",
-    image: "",
     ville: "",
   })
   //Handle form onChange function
+  //--Handle input Data
   const handleOnChange: React.ChangeEventHandler<
     HTMLInputElement | HTMLSelectElement
   > = (e) => {
@@ -35,20 +35,25 @@ export const Register: React.FC = ({}) => {
       [e.target.name]: e.target.value,
     }))
   }
+  //--Handle file input
+  const handeFileOnChange = (files: FileList | null) => {
+    if (files && files.length > 0) {
+      const file = files[0]
+      setUserFormData((previous) => ({
+        ...previous,
+        image: file,
+      }))
+    }
+  }
   //Handle User registration
   const createUserMutation = useMutation({
-    mutationFn: (variables: Omit<UserType, "confirmer_mot_de_passe">) =>
-      registerUser(variables),
+    mutationFn: (variables: FormData) => registerUser(variables),
     onSuccess: (data) => {
       userContext?.setUser(data)
       localStorage.setItem("User", JSON.stringify(data))
-      navigate("/")
     },
     onError: (error: any) => {
-      toast.error(error.message ?? error.response.data.err)
-    },
-    onSettled: () => {
-      if (!!loadingToast) toast.dismiss(loadingToast)
+      toast.error(error.response.data.err || error.message)
     },
   })
 
@@ -57,8 +62,10 @@ export const Register: React.FC = ({}) => {
       setLoadingToast(toast.loading("Logging in..."))
     } else {
       setLoadingToast(null)
+      toast.dismiss(loadingToast)
     }
-  }, [createUserMutation.isLoading])
+    createUserMutation.isSuccess && navigate("/")
+  }, [createUserMutation.isLoading, createUserMutation.isSuccess])
   //onSubmit function
   const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
@@ -72,10 +79,16 @@ export const Register: React.FC = ({}) => {
     // if (userFormData.mot_de_passe.length < 8) {
     //   return toast.error("Mot de passe trop faible")
     // }
-    const { confirmer_mot_de_passe, ...data } = userFormData
-    createUserMutation.mutate(data)
+    const { confirmer_mot_de_passe, image, ...data } = userFormData
+    const formData = new FormData()
+    if (image) {
+      formData.append("image", image)
+    }
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, value!.toString())
+    })
+    createUserMutation.mutate(formData)
   }
-
   return (
     <div className="w-screen min-h-screen flex overflow-x-hidden">
       <div className="h-full w-0 md:w-2/5 xl:w-1/2">
@@ -86,6 +99,7 @@ export const Register: React.FC = ({}) => {
           <div className=" inset-0 bg-primary z-0  absolute rotate-12"></div>
           <form
             onSubmit={onSubmit}
+            encType="multipart/form-data"
             className="w-full bg-base-100   relative z-1 bg-opacity-50 rounded-2xl p-4 lg:p-8 flex flex-col items-center gap-2 text-gray-700"
           >
             <input
@@ -174,7 +188,7 @@ export const Register: React.FC = ({}) => {
             </select>
             <input
               name="image"
-              onChange={handleOnChange}
+              onChange={(e) => handeFileOnChange(e.target.files)}
               type="file"
               className="file-input file-input-bordered file-input-primary w-full"
             />

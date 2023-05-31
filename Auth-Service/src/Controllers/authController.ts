@@ -42,7 +42,6 @@ export const loginUser = expressAsyncHandler(
       //Check User if Exists
       if (!(await UserModel.userExists(mail))) {
         res.status(400)
-        console.log("exist")
         throw new Error("User doesn't exist!")
       }
       const User = await UserModel.find({ mail })
@@ -54,13 +53,14 @@ export const loginUser = expressAsyncHandler(
         res.status(400)
         throw new Error("Password doesn't match!")
       }
+
       const accessToken: string = SignToken({
         _id: User[0]._id.toString(),
-        role: User[0].role.toString(),
+        role: User[0].role!.toString(),
       })
       const refreshToken: string = SignRefreshToken({
         _id: User[0]._id.toString(),
-        role: User[0].role.toString(),
+        role: User[0].role!.toString(),
       })
       await RefreshTokenModel.create({
         idUtilisateur: User[0]._id,

@@ -14,9 +14,11 @@ export interface UserType extends Document {
   image: string
   ville: string
   googleID?: string
+  resetKey?: string
 }
 export interface UserTypeModel extends Model<UserType> {
   userExists: (mail: string) => Promise<boolean>
+  keyExists: (mail: string) => Promise<string>
 }
 //User Schema
 const UserSchema = new Schema<UserType>(
@@ -82,20 +84,29 @@ const UserSchema = new Schema<UserType>(
           return "/assets/profilePicture/defaultwoman.png"
         }
       },
-      googleID: {
-        type: String,
-        unique: true,
-      },
+    },
+    googleID: {
+      type: String,
+      unique: true,
+    },
+    resetKey: {
+      type: String,
+      unique: true,
     },
   },
   { timestamps: true }
 )
 
+//Static method to see if User exists
 UserSchema.statics.userExists = async function (
   mail: string
 ): Promise<boolean> {
   return (await this.findOne({ mail })) !== null
 }
-
+//Static method to see if resetKeyExist
+UserSchema.statics.keyExists = async function (mail: string): Promise<string> {
+  const user = await this.findOne({ mail })
+  return user.resetKey
+}
 const UserModel = model<UserType, UserTypeModel>("User", UserSchema)
 export default UserModel

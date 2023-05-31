@@ -10,7 +10,7 @@ export interface UserType {
   sexe: string
   adresse: string
   date_de_naissance: Date | null
-  image: string
+  image?: File | null
   ville: string
 }
 
@@ -27,9 +27,7 @@ export const loginUser = async ({ mail, password }: UserInputInterface) => {
   }
 }
 //Register a User
-export const registerUser = async (
-  userData: Omit<UserType, "confirmer_mot_de_passe">
-) => {
+export const registerUser = async (userData: FormData) => {
   try {
     const response = await axios.post(
       import.meta.env.VITE_REGISTER_URI,
