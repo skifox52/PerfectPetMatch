@@ -1,6 +1,7 @@
 import {
   deleteUser,
   registerUser,
+  resetKeyIsValid,
   resetPasswordForm,
   updateUser,
 } from "../Controllers/userController.js"
@@ -18,6 +19,7 @@ const userRouter = Router()
   .post("/register", upload.single("image"), registerUser)
   .put("/update", updateUser)
   .put("/resetPassword", resetPasswordForm)
+  .post("/resetKeyExist", resetKeyIsValid)
   .delete("/delete", deleteUser)
 
 export default userRouter

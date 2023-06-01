@@ -131,9 +131,31 @@ export const resetPasswordForm = expressAsyncHandler(async (req, res) => {
             text: `Voici le lien de réinitialisation du mot de passe pour votre compte Perfect pet match: ${url}`,
         });
         res.status(200).json({
-            url,
-            mail,
+            success: true,
+            message: "E-mail sent successfully!",
         });
+    }
+    catch (error) {
+        res.status(400);
+        throw new Error(error);
+    }
+});
+//Check if reset key is valid
+export const resetKeyIsValid = expressAsyncHandler(async (req, res) => {
+    try {
+        const { key } = req.body;
+        if (!key) {
+            throw new Error("Invalide key!");
+        }
+        let exist = {
+            exist: false,
+            mail: null,
+        };
+        const user = await UserModel.findOne({ resetKey: key });
+        if (user) {
+            exist = { exist: true, mail: user.mail };
+        }
+        res.status(200).json(exist);
     }
     catch (error) {
         res.status(400);

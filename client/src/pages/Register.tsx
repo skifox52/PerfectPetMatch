@@ -59,7 +59,7 @@ export const Register: React.FC = ({}) => {
 
   useEffect(() => {
     if (createUserMutation.isLoading) {
-      setLoadingToast(toast.loading("Logging in..."))
+      setLoadingToast(toast.loading("Connexion..."))
     } else {
       setLoadingToast(null)
       toast.dismiss(loadingToast)
@@ -70,15 +70,15 @@ export const Register: React.FC = ({}) => {
   const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
     //Handeling some exceptions
-    // if (!userFormData.mail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-    //   return toast.error("Adresse mail incorrect!")
-    // }
+    if (!userFormData.mail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      return toast.error("Adresse mail incorrect!")
+    }
     if (userFormData.mot_de_passe !== userFormData.confirmer_mot_de_passe) {
       return toast.error("Vérifiez vos mots de passe")
     }
-    // if (userFormData.mot_de_passe.length < 8) {
-    //   return toast.error("Mot de passe trop faible")
-    // }
+    if (userFormData.mot_de_passe.length < 8) {
+      return toast.error("Mot de passe trop faible")
+    }
     const { confirmer_mot_de_passe, image, ...data } = userFormData
     const formData = new FormData()
     if (image) {
@@ -119,7 +119,7 @@ export const Register: React.FC = ({}) => {
               className="input input-bordered input-primary w-full"
             />
             <input
-              type="mail"
+              type="email"
               required
               placeholder="Email..."
               name="mail"

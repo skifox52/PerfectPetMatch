@@ -6,7 +6,7 @@ import { FcGoogle } from "react-icons/fc"
 import getGoogleUrl from "../utils/getGoogleUrl"
 import { toast } from "react-hot-toast"
 import { useMutation } from "@tanstack/react-query"
-import { loginUser } from "../api/userApi"
+import { loginUser, resetPassword } from "../api/userApi"
 import { UserContext } from "../contexts/userContext"
 
 export interface UserInputInterface {
@@ -44,7 +44,7 @@ export const Login: React.FC = () => {
   //Handeling loading state
   useEffect(() => {
     if (createUserMutation.isLoading) {
-      setLoadingToast(toast.loading("Logging in..."))
+      setLoadingToast(toast.loading("Connexion..."))
     } else {
       setLoadingToast(null)
       toast.dismiss(loadingToast)
@@ -54,18 +54,42 @@ export const Login: React.FC = () => {
   //handle login onSubmit
   const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
-    // if (!userLoginData.mail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-    //   return toast.error("Adresse mail incorrect!")
-    // }
+    if (!userLoginData.mail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      return toast.error("Adresse mail incorrect!")
+    }
     createUserMutation.mutate(userLoginData)
   }
   //Handle reset
   //--Handle reset State
   const [resetInput, setResetInput] = useState<string>("")
+  const [resetIsLoading, setResetIsLoading] = useState<any>(null)
+  //--Handle onSubmit mutation
+  const createResetPasswordMutation = useMutation({
+    mutationFn: (variables: string) => resetPassword(variables),
+    onSuccess: (data, vairables) => {
+      data.success && toast.success("Un email a été envoyer a : " + vairables)
+      setResetInput("")
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data.err || error.message)
+    },
+  })
   //--Handle reset onSubmit
   const handleResetOnSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
+    if (!resetInput.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      return toast.error("Adresse mail incorrect!")
+    }
+    createResetPasswordMutation.mutate(resetInput)
   }
+  useEffect(() => {
+    if (createResetPasswordMutation.isLoading) {
+      setResetIsLoading(toast.loading("E-mail en cours d'envoie..."))
+    } else {
+      setResetIsLoading(null)
+      toast.dismiss(resetIsLoading)
+    }
+  }, [createResetPasswordMutation.isLoading])
   return (
     <div className="overflow-hidden w-screen py-4 min-h-screen flex flex-col md:flex-row md:justify-between items-center justify-evenly">
       <Lottie
@@ -81,7 +105,7 @@ export const Login: React.FC = () => {
             Perfect pet match
           </h1>
           <input
-            type="mail"
+            type="email"
             required
             placeholder="Email..."
             name="mail"
@@ -134,9 +158,10 @@ export const Login: React.FC = () => {
                 onSubmit={handleResetOnSubmit}
               >
                 <input
-                  type="mail"
+                  type="email"
                   name="resetMail"
                   className="input input-primary"
+                  value={resetInput}
                   required
                   placeholder="E-mail..."
                   onChange={(e) => setResetInput(e.target.value)}

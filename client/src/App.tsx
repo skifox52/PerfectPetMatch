@@ -13,6 +13,7 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
 import { UserContext, type UserContextType } from "./contexts/userContext"
 import { Home } from "./pages/Home"
 import { ResetPassword } from "./pages/ResetPassword"
+import { NotFound } from "./components/NotFound"
 
 function App() {
   const router = createBrowserRouter(
@@ -22,6 +23,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/resetPassword" element={<ResetPassword />} />
+        <Route path="/*" element={<NotFound />} />
       </Route>
     )
   )
