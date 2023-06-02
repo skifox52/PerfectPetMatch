@@ -5,14 +5,14 @@ export interface UserType extends Document {
   nom: string
   prenom: string
   mail: string
-  mot_de_passe: string
-  sexe: "homme" | "femme"
-  adresse: string
-  date_de_naissance: Date
+  mot_de_passe?: string
+  sexe?: "homme" | "femme"
+  adresse?: string
+  date_de_naissance?: Date
   age: number
   role?: "user" | "admin"
   image: string
-  ville: string
+  ville?: string
   googleID?: string
   resetKey?: string
 }
@@ -67,7 +67,6 @@ const UserSchema = new Schema<UserType>(
     },
     ville: {
       type: String,
-      required: true,
     },
     role: {
       type: String,

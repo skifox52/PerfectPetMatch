@@ -4,6 +4,7 @@ import {
   resetKeyIsValid,
   resetPasswordForm,
   updateUser,
+  updateUserPassword,
 } from "../Controllers/userController.js"
 import { Router } from "express"
 import multer from "multer"
@@ -20,6 +21,7 @@ const userRouter = Router()
   .put("/update", updateUser)
   .put("/resetPassword", resetPasswordForm)
   .post("/resetKeyExist", resetKeyIsValid)
+  .put("/updatePassword", updateUserPassword)
   .delete("/delete", deleteUser)
 
 export default userRouter

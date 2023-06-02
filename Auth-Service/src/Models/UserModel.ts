@@ -5,20 +5,20 @@ export interface UserType extends Document {
   nom: string
   prenom: string
   mail: string
-  mot_de_passe: string
-  sexe: "homme" | "femme"
-  adresse: string
-  date_de_naissance: Date
+  mot_de_passe?: string
+  sexe?: "homme" | "femme"
+  adresse?: string
+  date_de_naissance?: Date
   age: number
   role?: "user" | "admin"
   image: string
-  ville: string
+  ville?: string
   googleID?: string
   resetKey?: string
 }
 export interface UserTypeModel extends Model<UserType> {
   userExists: (mail: string) => Promise<boolean>
-  keyExists: (mail: string) => Promise<boolean>
+  keyExists: (mail: string) => Promise<string>
 }
 //User Schema
 const UserSchema = new Schema<UserType>(
@@ -67,7 +67,6 @@ const UserSchema = new Schema<UserType>(
     },
     ville: {
       type: String,
-      required: true,
     },
     role: {
       type: String,
@@ -104,8 +103,9 @@ UserSchema.statics.userExists = async function (
   return (await this.findOne({ mail })) !== null
 }
 //Static method to see if resetKeyExist
-UserSchema.statics.keyExists = async function (mail: string): Promise<boolean> {
-  return await this.findOne({ mail }).resetKey
+UserSchema.statics.keyExists = async function (mail: string): Promise<string> {
+  const user = await this.findOne({ mail })
+  return user.resetKey
 }
 const UserModel = model<UserType, UserTypeModel>("User", UserSchema)
 export default UserModel

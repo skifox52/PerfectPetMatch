@@ -112,7 +112,7 @@ export const resetPasswordForm = expressAsyncHandler(async (req, res) => {
         else {
             randomKey = keyExist;
         }
-        const url = `${process.env.CLIENT_SERVICE}/resetPassword?${encodeURIComponent(`key=${randomKey}`)}`;
+        const url = `${process.env.CLIENT_SERVICE}/resetPassword?${new URLSearchParams(`key=${randomKey}`)}`;
         //Create transporter
         const transporter = nodemailer.createTransport({
             host: "smtp.office365.com",
@@ -156,6 +156,23 @@ export const resetKeyIsValid = expressAsyncHandler(async (req, res) => {
             exist = { exist: true, mail: user.mail };
         }
         res.status(200).json(exist);
+    }
+    catch (error) {
+        res.status(400);
+        throw new Error(error);
+    }
+});
+//Reset password [Updata user password]
+export const updateUserPassword = expressAsyncHandler(async (req, res) => {
+    try {
+        const { mail } = req.query;
+        const { password } = req.body;
+        if (!password) {
+            throw new Error("Empty fields!");
+        }
+        const cryptedPassword = await bcrypt.hash(password, 10);
+        await UserModel.findOneAndUpdate({ mail }, { mot_de_passe: cryptedPassword });
+        res.status(200).json("Password reset successfully!");
     }
     catch (error) {
         res.status(400);

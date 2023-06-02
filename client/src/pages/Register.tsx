@@ -90,7 +90,7 @@ export const Register: React.FC = ({}) => {
     createUserMutation.mutate(formData)
   }
   return (
-    <div className="w-screen min-h-screen flex overflow-x-hidden">
+    <div className="w-screen min-h-full flex overflow-x-hidden">
       <div className="h-full w-0 md:w-2/5 xl:w-1/2">
         <Lottie animationData={animationData} className="h-screen" />
       </div>

@@ -47,7 +47,7 @@ export const loginUser = expressAsyncHandler(
       const User = await UserModel.find({ mail })
       const passwordMatch: boolean = await bcrypt.compare(
         password,
-        User[0].mot_de_passe
+        User[0].mot_de_passe!
       )
       if (!passwordMatch) {
         res.status(400)

@@ -91,7 +91,7 @@ export const Login: React.FC = () => {
     }
   }, [createResetPasswordMutation.isLoading])
   return (
-    <div className="overflow-hidden w-screen py-4 min-h-screen flex flex-col md:flex-row md:justify-between items-center justify-evenly">
+    <div className="w-screen py-4 min-h-screen flex flex-col md:flex-row md:justify-between items-center justify-evenly 2xl:h-screen">
       <Lottie
         animationData={animationData}
         className="md:max-w-1/2 md:w-1/2 h-1/2 md:h-full"
@@ -163,11 +163,18 @@ export const Login: React.FC = () => {
                   className="input input-primary"
                   value={resetInput}
                   required
+                  disabled={createResetPasswordMutation.isLoading}
                   placeholder="E-mail..."
                   onChange={(e) => setResetInput(e.target.value)}
                 />
-                <button type="submit" className="btn btn-primary text-gray-50">
-                  Envoyer
+                <button
+                  type="submit"
+                  className="btn btn-primary text-gray-50"
+                  disabled={createResetPasswordMutation.isLoading}
+                >
+                  {createResetPasswordMutation.isLoading
+                    ? "Chargement..."
+                    : "Envoyer"}
                 </button>
               </form>
             </label>

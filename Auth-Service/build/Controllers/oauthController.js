@@ -67,44 +67,28 @@ export const oauthRedirectGoogle = expressAsyncHandler(async (req, res) => {
             throw new Error("Validation Error Message: Please validate your email!");
         }
         //Upsert User
-        const user = await checkGoogleID(googleUser.id);
-        if (!user.exist) {
-            const { id, name, given_name, email, family_name, picture } = googleUser;
-            const newUser = await UserModel.create({
-                nom: family_name ? given_name : name,
-                prenom: given_name ? given_name : name,
-                mail: email,
-                image: picture,
-                googleID: id,
-            });
-            const accessToken = SignToken({
-                _id: newUser._id.toString(),
-                role: newUser.role.toString(),
-            });
-            const refreshToken = SignRefreshToken({
-                _id: newUser._id.toString(),
-                role: newUser.role.toString(),
-            });
-            res.status(200).json({
-                id_user: newUser._id,
-                accessToken,
-                refreshToken,
-            });
-        }
-        //If user Already exist
+        const { id, name, given_name, email, family_name, picture } = googleUser;
+        const newUser = await UserModel.findOneAndUpdate({ mail: email }, {
+            nom: family_name ? given_name : name,
+            prenom: given_name ? given_name : name,
+            mail: email,
+            image: picture,
+            googleID: id,
+        }, { upsert: true, new: true });
         const accessToken = SignToken({
-            _id: user.metadata._id,
-            role: user.metadata.role.toString(),
+            _id: newUser._id.toString(),
+            role: newUser.role.toString(),
         });
         const refreshToken = SignRefreshToken({
-            _id: user.metadata._id.toString(),
-            role: user.metadata.role.toString(),
+            _id: newUser._id.toString(),
+            role: newUser.role.toString(),
         });
-        res.status(200).json({
-            id_user: user.metadata._id,
+        const queryString = new URLSearchParams({
+            _id: newUser._id,
             accessToken,
             refreshToken,
         });
+        res.redirect(`${process.env.CLIENT_SERVICE}?${queryString}`);
     }
     catch (error) {
         res.status(400);

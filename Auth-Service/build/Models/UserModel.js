@@ -45,7 +45,6 @@ const UserSchema = new Schema({
     },
     ville: {
         type: String,
-        required: true,
     },
     role: {
         type: String,
@@ -79,7 +78,8 @@ UserSchema.statics.userExists = async function (mail) {
 };
 //Static method to see if resetKeyExist
 UserSchema.statics.keyExists = async function (mail) {
-    return await this.findOne({ mail }).resetKey;
+    const user = await this.findOne({ mail });
+    return user.resetKey;
 };
 const UserModel = model("User", UserSchema);
 export default UserModel;

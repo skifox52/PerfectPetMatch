@@ -66,3 +66,18 @@ export const isResetKeyValide = async (
     throw error
   }
 }
+//Update user Password
+export const updatePassword = async (
+  mail: string,
+  password: string
+): Promise<string> => {
+  try {
+    const response = await axios.put(
+      `${import.meta.env.VITE_USER_URI}/updatePassword?mail=${mail}`,
+      { password }
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
