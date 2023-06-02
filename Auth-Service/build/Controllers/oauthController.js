@@ -41,24 +41,31 @@ const getGoogleUser = async ({ id_token, access_token }) => {
         throw new Error(error);
     }
 };
-const checkGoogleID = async (googleID) => {
-    try {
-        const exists = await UserModel.find({ googleID });
-        if (exists.length > 0) {
-            return {
-                exist: true,
-                metadata: { _id: exists[0]._id.toString(), role: exists[0].role },
-            };
-        }
-        else {
-            return { exist: false, metadata: null };
-        }
-    }
-    catch (error) {
-        throw new Error(error);
-    }
-};
-export const oauthRedirectGoogle = expressAsyncHandler(async (req, res) => {
+//Verifie User's GOOGLEID
+// interface checkGoogleIdReturnType {
+//   exist: boolean
+//   metadata: { _id: string; role: "user" | "admin" } | null
+// }
+// const checkGoogleID = async (
+//   googleID: number
+// ): Promise<checkGoogleIdReturnType> => {
+//   try {
+//     const exists = await UserModel.find({ googleID })
+//     if (exists.length > 0) {
+//       return {
+//         exist: true,
+//         metadata: { _id: exists[0]._id.toString(), role: exists[0].role! },
+//       }
+//     } else {
+//       return { exist: false, metadata: null }
+//     }
+//   } catch (error: any) {
+//     throw new Error(error)
+//   }
+// }
+export const oauthRedirectGoogle = expressAsyncHandler(
+//Upsert the User
+async (req, res) => {
     try {
         const code = req.query.code;
         const { id_token, access_token } = await getGoogleOauthGoogleToken(code);
@@ -66,29 +73,58 @@ export const oauthRedirectGoogle = expressAsyncHandler(async (req, res) => {
         if (!googleUser.verified_email) {
             throw new Error("Validation Error Message: Please validate your email!");
         }
-        //Upsert User
         const { id, name, given_name, email, family_name, picture } = googleUser;
-        const newUser = await UserModel.findOneAndUpdate({ mail: email }, {
-            nom: family_name ? given_name : name,
-            prenom: given_name ? given_name : name,
-            mail: email,
-            image: picture,
-            googleID: id,
-        }, { upsert: true, new: true });
-        const accessToken = SignToken({
-            _id: newUser._id.toString(),
-            role: newUser.role.toString(),
-        });
-        const refreshToken = SignRefreshToken({
-            _id: newUser._id.toString(),
-            role: newUser.role.toString(),
-        });
-        const queryString = new URLSearchParams({
-            _id: newUser._id,
-            accessToken,
-            refreshToken,
-        });
-        res.redirect(`${process.env.CLIENT_SERVICE}?${queryString}`);
+        if (!(await UserModel.userExists(email))) {
+            const newUser = await UserModel.create({
+                mail: email,
+                nom: family_name ? given_name : name,
+                prenom: given_name ? given_name : name,
+                image: picture,
+                googleID: id,
+                date_de_naissance: new Date(),
+            });
+            const accessToken = SignToken({
+                _id: newUser._id.toString(),
+                role: newUser.role.toString(),
+            });
+            const refreshToken = SignRefreshToken({
+                _id: newUser._id.toString(),
+                role: newUser.role.toString(),
+            });
+            const queryString = new URLSearchParams({
+                _id: newUser._id,
+                accessToken,
+                refreshToken,
+            });
+            console.log(process.env.CLIENT_URI);
+            res.redirect(`${process.env.CLIENT_URI}?${queryString}`);
+        }
+        else {
+            const newUser = await UserModel.findOneAndUpdate({ mail: email }, {
+                nom: family_name ? given_name : name,
+                prenom: given_name ? given_name : name,
+                mail: email,
+                image: picture,
+                googleID: id,
+                date_de_naissance: new Date(),
+            });
+            if (newUser) {
+                const accessToken = SignToken({
+                    _id: newUser._id.toString(),
+                    role: newUser.role.toString(),
+                });
+                const refreshToken = SignRefreshToken({
+                    _id: newUser._id.toString(),
+                    role: newUser.role.toString(),
+                });
+                const queryString = new URLSearchParams({
+                    _id: newUser._id,
+                    accessToken,
+                    refreshToken,
+                });
+                res.redirect(`${process.env.CLIENT_URI}/google-fill-form?${queryString}`);
+            }
+        }
     }
     catch (error) {
         res.status(400);

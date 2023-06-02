@@ -1,5 +1,7 @@
 import {
   deleteUser,
+  findAllUsers,
+  findUserById,
   registerUser,
   resetKeyIsValid,
   resetPasswordForm,
@@ -17,6 +19,8 @@ const upload = multer({
 })
 
 const userRouter = Router()
+  .get("/one", findUserById)
+  .get("/all", findAllUsers)
   .post("/register", upload.single("image"), registerUser)
   .put("/update", updateUser)
   .put("/resetPassword", resetPasswordForm)

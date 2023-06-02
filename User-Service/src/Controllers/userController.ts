@@ -228,3 +228,28 @@ export const updateUserPassword = expressAsyncHandler(
     }
   }
 )
+//Get user by id
+export const findUserById = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { _id } = req.query
+      const user = await UserModel.findById(_id)
+      res.status(200).json(user)
+    } catch (error: any) {
+      res.status(400)
+      throw new Error(error)
+    }
+  }
+)
+//Get All users
+export const findAllUsers = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const users = await UserModel.find({})
+      res.status(200).json(users)
+    } catch (error: any) {
+      res.status(400)
+      throw new Error(error)
+    }
+  }
+)

@@ -81,3 +81,14 @@ export const updatePassword = async (
     throw error
   }
 }
+//User exist
+export const findById = async (_id: string) => {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_USER_URI}/?_id=${_id}`
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}

@@ -14,6 +14,7 @@ import { UserContext, type UserContextType } from "./contexts/userContext"
 import { Home } from "./pages/Home"
 import { ResetPassword } from "./pages/ResetPassword"
 import { NotFound } from "./components/NotFound"
+import { FillForm } from "./components/FillForm"
 
 function App() {
   const router = createBrowserRouter(
@@ -23,6 +24,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/resetPassword" element={<ResetPassword />} />
+        <Route path="/google-fill-form" element={<FillForm />} />
         <Route path="/*" element={<NotFound />} />
       </Route>
     )
