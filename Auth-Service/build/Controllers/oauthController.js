@@ -41,37 +41,14 @@ const getGoogleUser = async ({ id_token, access_token }) => {
         throw new Error(error);
     }
 };
-//Verifie User's GOOGLEID
-// interface checkGoogleIdReturnType {
-//   exist: boolean
-//   metadata: { _id: string; role: "user" | "admin" } | null
-// }
-// const checkGoogleID = async (
-//   googleID: number
-// ): Promise<checkGoogleIdReturnType> => {
-//   try {
-//     const exists = await UserModel.find({ googleID })
-//     if (exists.length > 0) {
-//       return {
-//         exist: true,
-//         metadata: { _id: exists[0]._id.toString(), role: exists[0].role! },
-//       }
-//     } else {
-//       return { exist: false, metadata: null }
-//     }
-//   } catch (error: any) {
-//     throw new Error(error)
-//   }
-// }
-export const oauthRedirectGoogle = expressAsyncHandler(
 //Upsert the User
-async (req, res) => {
+export const oauthRedirectGoogle = expressAsyncHandler(async (req, res) => {
     try {
         const code = req.query.code;
         const { id_token, access_token } = await getGoogleOauthGoogleToken(code);
         const googleUser = await getGoogleUser({ id_token, access_token });
         if (!googleUser.verified_email) {
-            throw new Error("Validation Error Message: Please validate your email!");
+            throw new Error("Validation Error Message: Valider votre E-mail");
         }
         const { id, name, given_name, email, family_name, picture } = googleUser;
         if (!(await UserModel.userExists(email))) {
@@ -96,8 +73,7 @@ async (req, res) => {
                 accessToken,
                 refreshToken,
             });
-            console.log(process.env.CLIENT_URI);
-            res.redirect(`${process.env.CLIENT_URI}?${queryString}`);
+            res.redirect(`${process.env.CLIENT_URI}/google-fill-form?${queryString}`);
         }
         else {
             const newUser = await UserModel.findOneAndUpdate({ mail: email }, {

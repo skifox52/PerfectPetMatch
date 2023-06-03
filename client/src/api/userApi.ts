@@ -82,10 +82,34 @@ export const updatePassword = async (
   }
 }
 //User exist
+//--By Id
 export const findById = async (_id: string) => {
   try {
     const response = await axios.get(
-      `${import.meta.env.VITE_USER_URI}/?_id=${_id}`
+      `${import.meta.env.VITE_USER_URI}/one?_id=${_id}`
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+//--By Mail
+export const findByMail = async (mail: string) => {
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_USER_URI}/oneByMail?mail=${mail}`
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+//Update the user after Google authentifiacation
+export const updateGoogleUser = async (id: string, data: UserType) => {
+  try {
+    const response = await axios.put(
+      `${import.meta.env.VITE_USER_URI}/updateGoogleUser?_id=${id}`,
+      data
     )
     return response.data
   } catch (error) {

@@ -6,6 +6,7 @@ import FormData from "form-data";
 import axios from "axios";
 import crypto from "node:crypto";
 import nodemailer from "nodemailer";
+import { Types } from "mongoose";
 //Register a User
 export const registerUser = expressAsyncHandler(async (req, res) => {
     try {
@@ -23,7 +24,7 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
         }
         if (await UserModel.userExists(mail)) {
             res.status(400);
-            throw new Error("User already exists!");
+            throw new Error("L'utilisateur existe déjà");
         }
         const file = req.file ?? undefined;
         //AJAX Reuest to get the fileName and insert the file in the Media-Service
@@ -191,11 +192,37 @@ export const findUserById = expressAsyncHandler(async (req, res) => {
         throw new Error(error);
     }
 });
+//Get user by mail
+export const findUserByMail = expressAsyncHandler(async (req, res) => {
+    try {
+        const { mail } = req.query;
+        const user = await UserModel.findOne({ mail });
+        res.status(200).json(user);
+    }
+    catch (error) {
+        res.status(400);
+        throw new Error(error);
+    }
+});
 //Get All users
 export const findAllUsers = expressAsyncHandler(async (req, res) => {
     try {
         const users = await UserModel.find({});
         res.status(200).json(users);
+    }
+    catch (error) {
+        res.status(400);
+        throw new Error(error);
+    }
+});
+//Update the user after google auth
+export const updateGoogleUser = expressAsyncHandler(async (req, res) => {
+    try {
+        const { _id } = req.query;
+        console.log(_id);
+        const user = await UserModel.findByIdAndUpdate(new Types.ObjectId(_id), req.body, { new: true });
+        console.log(user);
+        res.status(200).json(user);
     }
     catch (error) {
         res.status(400);

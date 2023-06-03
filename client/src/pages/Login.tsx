@@ -5,8 +5,8 @@ import animationData from "../assets/animations/29280-sleepy-cat.json"
 import { FcGoogle } from "react-icons/fc"
 import getGoogleUrl from "../utils/getGoogleUrl"
 import { toast } from "react-hot-toast"
-import { useMutation } from "@tanstack/react-query"
-import { loginUser, resetPassword } from "../api/userApi"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { findById, findByMail, loginUser, resetPassword } from "../api/userApi"
 import { UserContext } from "../contexts/userContext"
 
 export interface UserInputInterface {
@@ -63,9 +63,22 @@ export const Login: React.FC = () => {
   //--Handle reset State
   const [resetInput, setResetInput] = useState<string>("")
   const [resetIsLoading, setResetIsLoading] = useState<any>(null)
+  //fetch user to check if not google account
+  const { data: fetchedUserData } = useQuery({
+    queryKey: ["UserByMail", resetInput],
+    queryFn: () => findByMail(resetInput),
+  })
   //--Handle onSubmit mutation
   const createResetPasswordMutation = useMutation({
-    mutationFn: (variables: string) => resetPassword(variables),
+    mutationFn: (variables: string) => {
+      if (fetchedUserData && fetchedUserData.googleID) {
+        throw Error(
+          "Ce mail est associer a un compte google, clickez sur 'Continuer avec Goolgle'!"
+        )
+      } else {
+        return resetPassword(variables)
+      }
+    },
     onSuccess: (data, vairables) => {
       data.success && toast.success("Un email a été envoyer a : " + vairables)
       setResetInput("")

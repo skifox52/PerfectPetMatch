@@ -28,13 +28,16 @@ export const loginUser = expressAsyncHandler(async (req, res) => {
         //Check User if Exists
         if (!(await UserModel.userExists(mail))) {
             res.status(400);
-            throw new Error("User doesn't exist!");
+            throw new Error("L'utilisateur n'éxiste pas!");
         }
         const User = await UserModel.find({ mail });
+        if (User[0].googleID) {
+            throw new Error("Connectez vous avec votre compte Google");
+        }
         const passwordMatch = await bcrypt.compare(password, User[0].mot_de_passe);
         if (!passwordMatch) {
             res.status(400);
-            throw new Error("Password doesn't match!");
+            throw new Error("Mot de passe incorrect");
         }
         const accessToken = SignToken({
             _id: User[0]._id.toString(),

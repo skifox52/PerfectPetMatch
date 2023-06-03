@@ -202,7 +202,7 @@ export const Register: React.FC = ({}) => {
             <div className="w-full flex justify-end">
               <Link
                 to="/login"
-                className="text-primary hover:text-black undelrines w-fit"
+                className="text-primary hover:text-gray-400 undelrines w-fit"
               >
                 J'ai déjà un compte
               </Link>

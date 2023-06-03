@@ -2,9 +2,11 @@ import {
   deleteUser,
   findAllUsers,
   findUserById,
+  findUserByMail,
   registerUser,
   resetKeyIsValid,
   resetPasswordForm,
+  updateGoogleUser,
   updateUser,
   updateUserPassword,
 } from "../Controllers/userController.js"
@@ -20,6 +22,7 @@ const upload = multer({
 
 const userRouter = Router()
   .get("/one", findUserById)
+  .get("/oneByMail", findUserByMail)
   .get("/all", findAllUsers)
   .post("/register", upload.single("image"), registerUser)
   .put("/update", updateUser)
@@ -27,5 +30,6 @@ const userRouter = Router()
   .post("/resetKeyExist", resetKeyIsValid)
   .put("/updatePassword", updateUserPassword)
   .delete("/delete", deleteUser)
+  .put("/updateGoogleUser", updateGoogleUser)
 
 export default userRouter

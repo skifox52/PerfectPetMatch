@@ -31,10 +31,10 @@ export const ResetPassword: React.FC = () => {
       navigate("/login")
     },
   })
-  const queryParams: string[] = decodeURIComponent(location.search).split("=")
+  const queryParams: URLSearchParams = new URLSearchParams(location.search)
   useEffect(() => {
-    if (queryParams[0] === "?key" && queryParams[1]) {
-      createIsValidKey.mutate(queryParams[1])
+    if (queryParams.get("key")) {
+      createIsValidKey.mutate(queryParams.get("key") as string)
     } else {
       navigate("/login")
     }
