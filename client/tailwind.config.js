@@ -5,6 +5,7 @@ export default {
     extend: {
       fontFamily: {
         montserrat: ["Titillium Web", "sans-serif"],
+        oi: ["Oi", "cursive"],
       },
     },
   },

@@ -53,6 +53,7 @@ export const FillForm: React.FC = () => {
 
   //OnMount
   useEffect(() => {
+    console.log(data)
     if (!_id || !accessToken || !refreshToken) {
       toast.error("Veuillez réesseyer!")
       navigate("/login")
@@ -61,10 +62,9 @@ export const FillForm: React.FC = () => {
         toast.error(error.response?.data.err || error.message)
         navigate("/login")
       }
+      console.log(data && data)
       if (isSuccess) {
-        console.log(data.ville)
         if (data.ville) {
-          console.log(data)
           userContext?.setUser({
             _id,
             accessToken,
