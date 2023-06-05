@@ -51,6 +51,7 @@ export const oauthRedirectGoogle = expressAsyncHandler(async (req, res) => {
             throw new Error("Validation Error Message: Valider votre E-mail");
         }
         const { id, name, given_name, email, family_name, picture } = googleUser;
+        const uesr = await UserModel.userExists(email);
         if (!(await UserModel.userExists(email))) {
             const newUser = await UserModel.create({
                 mail: email,
@@ -76,6 +77,9 @@ export const oauthRedirectGoogle = expressAsyncHandler(async (req, res) => {
             res.redirect(`${process.env.CLIENT_URI}/google-fill-form?${queryString}`);
         }
         else {
+            if (await UserModel.findOne({ mail: email }).select("mot_de_passe")) {
+                throw new Error("Ce compte existe déja, veuillez vous connecter avec votre mot de passe.");
+            }
             const newUser = await UserModel.findOneAndUpdate({ mail: email }, {
                 nom: family_name ? given_name : name,
                 prenom: given_name ? given_name : name,
