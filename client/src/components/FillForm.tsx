@@ -53,7 +53,6 @@ export const FillForm: React.FC = () => {
 
   //OnMount
   useEffect(() => {
-    console.log(data)
     if (!_id || !accessToken || !refreshToken) {
       toast.error("Veuillez réesseyer!")
       navigate("/login")
@@ -62,9 +61,8 @@ export const FillForm: React.FC = () => {
         toast.error(error.response?.data.err || error.message)
         navigate("/login")
       }
-      console.log(data && data)
-      if (isSuccess) {
-        if (data.ville) {
+      if (isSuccess && !isLoading) {
+        if (data.ville && data.sexe) {
           userContext?.setUser({
             _id,
             accessToken,
@@ -88,7 +86,7 @@ export const FillForm: React.FC = () => {
         }
       }
     }
-  }, [])
+  }, [isLoading, isSuccess])
   //HandleOnSubmit
   //--create user mutation
   const createUpdateGoogleUserMutation = useMutation({

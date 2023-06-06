@@ -14,7 +14,7 @@ export const HomeContainer: React.FC = () => {
   return (
     <div
       ref={parent}
-      className="w-full flex flex-col gap-8  py-4 px-8 bg-neutral text-gray-100 rounded-xl shadow-xl shadow-secondary"
+      className="w-1/2 flex flex-col gap-8  py-4 px-8 bg-neutral text-gray-100 rounded-xl shadow-lg shadow-secondary"
     >
       <div className="flex w-full gap-8">
         <button

@@ -1,21 +1,32 @@
 import React, { useContext, useEffect, useState } from "react"
 import Lottie from "lottie-react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import animationData from "../assets/animations/29280-sleepy-cat.json"
 import { FcGoogle } from "react-icons/fc"
 import getGoogleUrl from "../utils/getGoogleUrl"
 import { toast } from "react-hot-toast"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { findById, findByMail, loginUser, resetPassword } from "../api/userApi"
+import { findByMail, loginUser, resetPassword } from "../api/userApi"
 import { UserContext } from "../contexts/userContext"
 
 export interface UserInputInterface {
   mail: string
   password: string
 }
-
 export const Login: React.FC = () => {
+  const location = useLocation()
   const navigate = useNavigate()
+  //Handle potentiel googleOauth Error due to trying to connect to a non googleAccount
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search)
+    const error = searchParams.get("error")
+    if (error === "notGoogleAccount") {
+      alert(
+        "Cette addresse mail possède déjà un compte, connectez vous avec votre mot de passe!"
+      )
+      navigate("/login")
+    }
+  }, [])
   const [userLoginData, setUserLoginData] = useState<UserInputInterface>({
     mail: "",
     password: "",
@@ -63,11 +74,6 @@ export const Login: React.FC = () => {
   //--Handle reset State
   const [resetInput, setResetInput] = useState<string>("")
   const [resetIsLoading, setResetIsLoading] = useState<any>(null)
-  //fetch user to check if not google account
-  const { data: fetchedUserData } = useQuery({
-    queryKey: ["UserByMail", resetInput],
-    queryFn: () => findByMail(resetInput),
-  })
   //--Handle onSubmit mutation
   const createResetPasswordMutation = useMutation({
     mutationFn: (variables: string) => {
@@ -87,13 +93,28 @@ export const Login: React.FC = () => {
       toast.error(error.response?.data.err || error.message)
     },
   })
+  //fetch user to check if not google account
+  const isValidMail: RegExpMatchArray | null = resetInput.match(
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  )!
+  const {
+    data: fetchedUserData,
+    isLoading,
+    isSuccess,
+  } = useQuery({
+    queryKey: ["UserByMail", resetInput],
+    queryFn: () => findByMail(resetInput),
+    enabled: isValidMail?.length > 0,
+  })
   //--Handle reset onSubmit
   const handleResetOnSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
     if (!resetInput.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       return toast.error("Adresse mail incorrect!")
     }
-    createResetPasswordMutation.mutate(resetInput)
+    if (!isLoading && isSuccess) {
+      createResetPasswordMutation.mutate(resetInput)
+    }
   }
   useEffect(() => {
     if (createResetPasswordMutation.isLoading) {
@@ -112,7 +133,7 @@ export const Login: React.FC = () => {
       <div className="w-full md:w-1/2 h-full flex flex-col justify-center items-center">
         <form
           onSubmit={handleOnSubmit}
-          className="flex flex-col w-4/5 sm:w-2/3 gap-4 items-start md:w-2/3 lg:w-1/2"
+          className="flex flex-col w-4/5 sm:w-2/3 gap-4 font-bold items-start md:w-2/3 lg:w-1/2"
         >
           <h1 className="hidden md:block md:mb-8 md:w-2/3 md:text-6xl lg:text-7xl xl:text-8xl md:font-black md:text-primary">
             Perfect pet match
@@ -123,7 +144,7 @@ export const Login: React.FC = () => {
             placeholder="Email..."
             name="mail"
             onChange={handleOnChance}
-            className="input input-bordered input-primary w-full lg:text-[18px]"
+            className="input input-bordered placeholder:text-gray-300 input-primary w-full lg:text-[18px]"
           />
           <input
             type="password"
@@ -131,7 +152,7 @@ export const Login: React.FC = () => {
             placeholder="Password..."
             name="password"
             onChange={handleOnChance}
-            className="input input-bordered input-primary w-full lg:text-[18px]"
+            className="input input-bordered placeholder:text-gray-300 input-primary w-full lg:text-[18px]"
           />
           <button
             type="submit"

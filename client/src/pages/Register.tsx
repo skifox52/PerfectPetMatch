@@ -100,14 +100,14 @@ export const Register: React.FC = ({}) => {
           <form
             onSubmit={onSubmit}
             encType="multipart/form-data"
-            className="w-full bg-base-100   relative z-1 bg-opacity-50 rounded-2xl p-4 lg:p-8 flex flex-col items-center gap-2 text-gray-700"
+            className="w-full bg-base-100  font-bold relative z-1 bg-opacity-50 rounded-2xl p-4 lg:p-8 flex flex-col items-center gap-2 text-gray-700"
           >
             <input
               type="text"
               required
               placeholder="Nom..."
               name="nom"
-              className="input input-bordered input-primary w-full"
+              className="input input-bordered placeholder:text-gray-300 input-primary w-full"
               onChange={handleOnChange}
             />
             <input
@@ -116,7 +116,7 @@ export const Register: React.FC = ({}) => {
               placeholder="Prénom..."
               name="prenom"
               onChange={handleOnChange}
-              className="input input-bordered input-primary w-full"
+              className="input input-bordered placeholder:text-gray-300 input-primary w-full"
             />
             <input
               type="email"
@@ -124,7 +124,7 @@ export const Register: React.FC = ({}) => {
               placeholder="Email..."
               name="mail"
               onChange={handleOnChange}
-              className="input input-bordered input-primary w-full"
+              className="input input-bordered placeholder:text-gray-300 input-primary w-full"
             />
             <input
               type="password"
@@ -132,7 +132,7 @@ export const Register: React.FC = ({}) => {
               placeholder="Password..."
               name="mot_de_passe"
               onChange={handleOnChange}
-              className="input input-bordered input-primary w-full"
+              className="input input-bordered placeholder:text-gray-300 input-primary w-full"
             />
             <input
               type="password"
@@ -140,7 +140,7 @@ export const Register: React.FC = ({}) => {
               name="confirmer_mot_de_passe"
               onChange={handleOnChange}
               placeholder="Confirm password..."
-              className="input input-bordered input-primary w-full"
+              className="input input-bordered placeholder:text-gray-300 input-primary w-full"
             />
             <input
               type="text"
@@ -148,10 +148,10 @@ export const Register: React.FC = ({}) => {
               placeholder="Adresse..."
               name="adresse"
               onChange={handleOnChange}
-              className="input input-bordered input-primary w-full"
+              className="input input-bordered placeholder:text-gray-300 input-primary w-full"
             />
             <select
-              className="select select-primary w-full"
+              className="select select-primary  w-full"
               name="sexe"
               onChange={handleOnChange}
               required
@@ -168,7 +168,7 @@ export const Register: React.FC = ({}) => {
               required
               name="date_de_naissance"
               onChange={handleOnChange}
-              className="input input-bordered input-primary w-full"
+              className="input input-bordered placeholder:text-gray-300 input-primary w-full"
             />
             <select
               className="select select-primary w-full"
@@ -190,7 +190,7 @@ export const Register: React.FC = ({}) => {
               name="image"
               onChange={(e) => handeFileOnChange(e.target.files)}
               type="file"
-              className="file-input file-input-bordered file-input-primary w-full"
+              className="file-input placeholder:text-gray-300 file-input-bordered file-input-primary w-full"
             />
             <button
               type="submit"
@@ -202,7 +202,7 @@ export const Register: React.FC = ({}) => {
             <div className="w-full flex justify-end">
               <Link
                 to="/login"
-                className="text-primary hover:text-gray-400 undelrines w-fit"
+                className="text-primary font-normal hover:text-gray-400 undelrines w-fit"
               >
                 J'ai déjà un compte
               </Link>
