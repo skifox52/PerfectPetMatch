@@ -55,21 +55,24 @@ const UserSchema = new Schema({
     image: {
         type: String,
         default: function () {
-            if (this.sexe === "homme") {
-                return "/assets/profilePictures/defaultman.png";
+            if (this.sexe) {
+                if (this.sexe === "homme") {
+                    return "/assets/profilePictures/defaultman.png";
+                }
+                else {
+                    return "/assets/profilePicture/defaultwoman.png";
+                }
             }
             else {
-                return "/assets/profilePicture/defaultwoman.png";
+                return "";
             }
         },
     },
     googleID: {
         type: String,
-        unique: true,
     },
     resetKey: {
         type: String,
-        unique: true,
     },
 }, { timestamps: true });
 //Static method to see if User exists

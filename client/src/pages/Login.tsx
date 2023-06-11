@@ -65,9 +65,9 @@ export const Login: React.FC = () => {
   //handle login onSubmit
   const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
-    if (!userLoginData.mail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      return toast.error("Adresse mail incorrect!")
-    }
+    // if (!userLoginData.mail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+    //   return toast.error("Adresse mail incorrect!")
+    // }
     createUserMutation.mutate(userLoginData)
   }
   //Handle reset

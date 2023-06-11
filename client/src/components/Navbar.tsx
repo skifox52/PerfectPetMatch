@@ -3,63 +3,54 @@ import { Link } from "react-router-dom"
 
 export const Navbar: React.FC = ({}) => {
   return (
-    <nav className="h-[10vh] py-4 bg-base-200 shadow-xl relative z-50 px-8 flex items-center justify-between w-full ">
+    <div className="navbar bg-base-100 flex justify-between fixed  z-50 shadow-md">
       <div>
-        <button className="btn btn-neutral font-normal btn-outline rounded-xl">
-          Déconnexion
-        </button>
-      </div>
-      <ul className="flex  lg:menu-horizontal gap-10 text-neutral text-xl font-normal tracking-wide">
-        <li>
-          <Link to={"/"} className="hover:text-primary">
-            Home
-          </Link>
-        </li>
-        <li>
-          <Link to={"/posts"} className="hover:text-primary">
-            Posts
-          </Link>
-        </li>
-        <li>
-          <Link to={"/profile"} className="hover:text-primary">
-            Profile
-          </Link>
-        </li>
-        <li>
-          <Link to={"/about"} className="hover:text-primary">
-            About
-          </Link>
-        </li>
-        <li>
-          <Link to={"/contact"} className="hover:text-primary">
-            Contact
-          </Link>
-        </li>
-        <li>
-          <Link to={"/pets"} className="hover:text-primary">
-            Pets
-          </Link>
-        </li>
-      </ul>
-      <div className="flex h-full gap-8">
-        <div className="avatar">
-          <div className="h-full rounded-full ">
-            <img
-              className=" object-cover object-center"
-              src="https://c8.alamy.com/zoomsfr/9/d4c59d90389444e3b1166312d2f7fa51/p9mywr.jpg"
-            />
-          </div>
-        </div>
-        <Link
-          to={"/messagerie"}
-          className="flex items-center gap-3 hover:text-primary text-neutral text-xl font-normal tracking-wide"
-        >
-          Messages
-          <span className="badge bg-red-600  border-none  text-white badge-md ring ring-red-600 ring-offset-base-200 ring-offset-2">
-            99+
-          </span>
+        <Link to={"/"} className="btn btn-ghost normal-case text-xl">
+          <img src="/PPT.png" alt="logo" className="h-full" />
         </Link>
       </div>
-    </nav>
+      <div>
+        <ul className="flex  lg:menu-horizontal gap-10 text-gray-600 text-xl font-semibold tracking-wide">
+          <li>
+            <Link to={"/"} className="hover:text-primary  ">
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link to={"/about"} className="hover:text-primary">
+              About
+            </Link>
+          </li>
+          <li>
+            <Link to={"/contact"} className="hover:text-primary">
+              Contact
+            </Link>
+          </li>
+        </ul>
+      </div>
+      <div className="flex-none gap-2">
+        <div className="dropdown dropdown-end">
+          <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
+            <div className="w-10 rounded-full">
+              <img src="https://c8.alamy.com/zoomsfr/9/d4c59d90389444e3b1166312d2f7fa51/p9mywr.jpg  " />
+            </div>
+          </label>
+          <ul
+            tabIndex={0}
+            className="mt-3 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 font-semibold"
+          >
+            <li>
+              <a className="justify-between">Profile</a>
+            </li>
+            <li>
+              <a>Pramètres</a>
+            </li>
+            <li>
+              <a>Déconnexion</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
   )
 }

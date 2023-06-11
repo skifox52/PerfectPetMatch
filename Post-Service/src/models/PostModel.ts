@@ -1,10 +1,4 @@
-import {
-  Schema,
-  Types,
-  model,
-  Document,
-  StringExpressionOperatorReturningArray,
-} from "mongoose"
+import { Schema, Types, model, Document } from "mongoose"
 
 //Types
 //--Comment Type
@@ -16,14 +10,47 @@ export interface CommentInterface extends Document {
 }
 //--Post Type
 export interface PostInterface extends Document {
-  owner: Types.ObjectId
+  owner: String
+  pets: Types.ObjectId
+  comments: Types.ObjectId[]
   title: string
   content: string
   images: string[]
   likes: number
+  reports: number
 }
-
+//--Pet type
+export interface petInterface extends Document {
+  type: "Chat" | "Chien"
+  race: string
+  date_de_naissance: Date
+  description: string
+}
+const animalTypes = Object.freeze(["Chat", "Chien"])
 //Schemas
+//--pet schema
+const petSchema = new Schema<petInterface>(
+  {
+    type: {
+      type: String,
+      required: true,
+      enum: animalTypes,
+    },
+    race: {
+      type: String,
+      required: true,
+    },
+    date_de_naissance: {
+      type: Date,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+)
 //--Comment Schema
 const CommentSchema = new Schema<CommentInterface>(
   {
@@ -54,7 +81,14 @@ const PostSchema = new Schema<PostInterface>(
     owner: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
+    comments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Comment",
+      },
+    ],
     title: {
       type: String,
       required: true,
@@ -71,8 +105,13 @@ const PostSchema = new Schema<PostInterface>(
       type: Number,
       default: 0,
     },
+    reports: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 )
 export const CommentModel = model<CommentInterface>("Comment", CommentSchema)
+export const PetModel = model<petInterface>("Pet", petSchema)
 export const PostModel = model<PostInterface>("Post", PostSchema)

@@ -90,7 +90,6 @@ const UserSchema = new Schema<UserType>(
     },
     googleID: {
       type: String,
-      unique: true,
     },
     resetKey: {
       type: String,

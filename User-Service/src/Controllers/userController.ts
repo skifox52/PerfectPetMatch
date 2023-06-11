@@ -286,3 +286,16 @@ export const updateGoogleUser = expressAsyncHandler(
     }
   }
 )
+//Get all users by their id
+export const getUsersByIds = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const ids: string[] = req.body.ids
+      const users = await UserModel.find({ _id: { $in: ids } })
+      res.json(users)
+    } catch (error: any) {
+      res.status(400)
+      throw new Error(error)
+    }
+  }
+)

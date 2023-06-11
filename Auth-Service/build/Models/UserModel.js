@@ -70,7 +70,6 @@ const UserSchema = new Schema({
     },
     googleID: {
         type: String,
-        unique: true,
     },
     resetKey: {
         type: String,

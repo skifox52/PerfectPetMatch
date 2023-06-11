@@ -4,10 +4,23 @@ import FormData from "form-data";
 import axios from "axios";
 import "dotenv/config";
 //Get all posts
-const getAllPosts = expressAsyncHandler(async (req, res) => {
+export const getAllPosts = expressAsyncHandler(async (req, res) => {
     try {
-        const allPosts = await PostModel.find({});
-        res.status(200).json(allPosts);
+        const allPosts = await PostModel.find();
+        //Get the id of all users
+        const usersId = allPosts.map((post) => post.owner);
+        const filteredUsersId = usersId.filter((id, i, usersId) => {
+            return usersId.indexOf(id) === i;
+        });
+        const response = await axios.post("http://localhost:3333/api/user/getUsersByIds", { ids: filteredUsersId.length ? filteredUsersId : [] });
+        const populatedPosts = allPosts.map((post) => {
+            const { owner, ...restData } = post.toObject();
+            return {
+                ...restData,
+                owner: response.data.filter((user) => user._id.toString() === post.owner.toString())[0],
+            };
+        });
+        res.status(200).json(populatedPosts);
     }
     catch (error) {
         res.status(400);
@@ -41,9 +54,18 @@ export const postPost = expressAsyncHandler(async (req, res) => {
             owner: _id,
             title,
             content,
-            // images: response.data ? response.data : [],
+            images: response.data ? response.data : [],
         });
         res.status(201).json({ Status: "Success", Post: newPost });
+    }
+    catch (error) {
+        res.status(400);
+        throw new Error(error);
+    }
+});
+//Post a comment
+export const postComment = expressAsyncHandler(async (req, res) => {
+    try {
     }
     catch (error) {
         res.status(400);

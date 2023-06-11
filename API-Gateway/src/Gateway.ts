@@ -8,8 +8,12 @@ import cors from "cors"
 import authMiddleware from "./middleware/AuthMiddleware.js"
 
 //Exlude non protected API Routes
-const excludeUserPaths = ["/api/user/register"]
-
+const excludeUserPaths = [
+  "/api/user/register",
+  /^\/api\/user\/one\?_id=.*/,
+  /^\/api\/user\/updateGoogleUser\?_id=.*/,
+  "/api/user/getUsersByIds",
+]
 const proxy: Express = express()
 proxy.use(
   cors({
@@ -25,7 +29,14 @@ proxy.use(morgan("dev"))
 proxy.use(
   "/api/user/*",
   (req: Request, res: Response, next: NextFunction) => {
-    if (!excludeUserPaths.includes(req.originalUrl)) {
+    const verifyHeader: boolean = !excludeUserPaths.some((path) => {
+      if (typeof path === "string") {
+        return path === req.originalUrl
+      } else if (path instanceof RegExp) {
+        return path.test(req.originalUrl)
+      }
+    })
+    if (verifyHeader) {
       authMiddleware("user")(req, res, next)
     } else {
       next()
@@ -38,6 +49,29 @@ proxy.use(
       if (req.headers["x-auth-user"]) {
         proxyReq.setHeader("x-auth-user", req.headers["x-auth-user"])
       }
+      fixRequestBody(proxyReq, req)
+    },
+  })
+)
+//Gateway the auth service
+const authExcludedPaths = ["/api/auth/login"]
+proxy.use(
+  "/api/auth/*",
+  (req: Request, res: Response, next: NextFunction) => {
+    if (!authExcludedPaths.includes(req.originalUrl)) {
+      authMiddleware("user")(req, res, next)
+    } else {
+      next()
+    }
+  },
+  createProxyMiddleware({
+    target: process.env.AUTH_SERVICE,
+    changeOrigin: true,
+    onProxyReq: (proxyReq, req) => {
+      if (req.headers["x-auth-user"]) {
+        proxyReq.setHeader("x-auth-user", req.headers["x-auth-user"])
+      }
+      fixRequestBody(proxyReq, req)
     },
   })
 )

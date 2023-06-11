@@ -7,7 +7,12 @@ import ErrorHandler from "./middleware/ErrorHandler.js";
 import cors from "cors";
 import authMiddleware from "./middleware/AuthMiddleware.js";
 //Exlude non protected API Routes
-const excludeUserPaths = ["/api/user/register"];
+const excludeUserPaths = [
+    "/api/user/register",
+    /^\/api\/user\/one\?_id=.*/,
+    /^\/api\/user\/updateGoogleUser\?_id=.*/,
+    "/api/user/getUsersByIds",
+];
 const proxy = express();
 proxy.use(cors({
     origin: "http://localhost:5173",
@@ -18,7 +23,15 @@ proxy.use(helmet());
 proxy.use(morgan("dev"));
 //Gateway the user service
 proxy.use("/api/user/*", (req, res, next) => {
-    if (!excludeUserPaths.includes(req.originalUrl)) {
+    const verifyHeader = !excludeUserPaths.some((path) => {
+        if (typeof path === "string") {
+            return path === req.originalUrl;
+        }
+        else if (path instanceof RegExp) {
+            return path.test(req.originalUrl);
+        }
+    });
+    if (verifyHeader) {
         authMiddleware("user")(req, res, next);
     }
     else {
@@ -31,6 +44,26 @@ proxy.use("/api/user/*", (req, res, next) => {
         if (req.headers["x-auth-user"]) {
             proxyReq.setHeader("x-auth-user", req.headers["x-auth-user"]);
         }
+        fixRequestBody(proxyReq, req);
+    },
+}));
+//Gateway the auth service
+const authExcludedPaths = ["/api/auth/login"];
+proxy.use("/api/auth/*", (req, res, next) => {
+    if (!authExcludedPaths.includes(req.originalUrl)) {
+        authMiddleware("user")(req, res, next);
+    }
+    else {
+        next();
+    }
+}, createProxyMiddleware({
+    target: process.env.AUTH_SERVICE,
+    changeOrigin: true,
+    onProxyReq: (proxyReq, req) => {
+        if (req.headers["x-auth-user"]) {
+            proxyReq.setHeader("x-auth-user", req.headers["x-auth-user"]);
+        }
+        fixRequestBody(proxyReq, req);
     },
 }));
 //Gateway the post service

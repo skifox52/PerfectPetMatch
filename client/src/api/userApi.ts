@@ -17,10 +17,13 @@ export interface UserType {
 //Login the user
 export const loginUser = async ({ mail, password }: UserInputInterface) => {
   try {
-    const response = await axios.post(import.meta.env.VITE_LOGIN_URI, {
-      mail,
-      password,
-    })
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_GATEWAY}/api/auth/login`,
+      {
+        mail,
+        password,
+      }
+    )
     return response.data
   } catch (error) {
     throw error
@@ -30,7 +33,7 @@ export const loginUser = async ({ mail, password }: UserInputInterface) => {
 export const registerUser = async (userData: FormData) => {
   try {
     const response = await axios.post(
-      `${import.meta.env.VITE_USER_URI}/register`,
+      `${import.meta.env.VITE_API_GATEWAY}/api/user/register`,
       userData
     )
     return response.data
@@ -44,7 +47,7 @@ export const resetPassword = async (
 ): Promise<{ success: boolean; message: string }> => {
   try {
     const response = await axios.put(
-      `${import.meta.env.VITE_USER_URI}/resetPassword`,
+      `${import.meta.env.VITE_API_GATEWAY}/api/user/resetPassword`,
       { mail }
     )
     return response.data
@@ -58,7 +61,7 @@ export const isResetKeyValide = async (
 ): Promise<{ exist: boolean; mail: string | null }> => {
   try {
     const response = await axios.post(
-      `${import.meta.env.VITE_USER_URI}/resetKeyExist`,
+      `${import.meta.env.VITE_API_GATEWAY}/api/user/resetKeyExist`,
       { key: resetKey }
     )
     return response.data
@@ -73,7 +76,9 @@ export const updatePassword = async (
 ): Promise<string> => {
   try {
     const response = await axios.put(
-      `${import.meta.env.VITE_USER_URI}/updatePassword?mail=${mail}`,
+      `${
+        import.meta.env.VITE_API_GATEWAY
+      }/api/user/updatePassword?mail=${mail}`,
       { password }
     )
     return response.data
@@ -86,7 +91,7 @@ export const updatePassword = async (
 export const findById = async (_id: string) => {
   try {
     const response = await axios.get(
-      `${import.meta.env.VITE_USER_URI}/one?_id=${_id}`
+      `${import.meta.env.VITE_API_GATEWAY}/api/user/one?_id=${_id}`
     )
     return response.data
   } catch (error) {
@@ -97,7 +102,7 @@ export const findById = async (_id: string) => {
 export const findByMail = async (mail: string) => {
   try {
     const response = await axios.get(
-      `${import.meta.env.VITE_USER_URI}/oneByMail?mail=${mail}`
+      `${import.meta.env.VITE_API_GATEWAY}/api/user/oneByMail?mail=${mail}`
     )
     return response.data
   } catch (error) {
@@ -108,7 +113,7 @@ export const findByMail = async (mail: string) => {
 export const updateGoogleUser = async (id: string, data: UserType) => {
   try {
     const response = await axios.put(
-      `${import.meta.env.VITE_USER_URI}/updateGoogleUser?_id=${id}`,
+      `${import.meta.env.VITE_API_GATEWAY}/api/user/updateGoogleUser?_id=${id}`,
       data
     )
     return response.data

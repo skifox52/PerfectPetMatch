@@ -3,6 +3,7 @@ import {
   findAllUsers,
   findUserById,
   findUserByMail,
+  getUsersByIds,
   registerUser,
   resetKeyIsValid,
   resetPasswordForm,
@@ -31,5 +32,6 @@ const userRouter = Router()
   .put("/updatePassword", updateUserPassword)
   .delete("/delete", deleteUser)
   .put("/updateGoogleUser", updateGoogleUser)
+  .post("/getUsersByIds", getUsersByIds)
 
 export default userRouter

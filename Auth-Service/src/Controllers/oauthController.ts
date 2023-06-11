@@ -115,10 +115,8 @@ export const oauthRedirectGoogle = expressAsyncHandler(
           `${process.env.CLIENT_URI}/google-fill-form?${queryString}`
         )
       } else {
-        if (await UserModel.findOne({ mail: email }).select("mot_de_passe")) {
-          throw new Error(
-            "Ce compte existe déja, veuillez vous connecter avec votre mot de passe."
-          )
+        if ((await UserModel.findOne({ mail: email }))?.mot_de_passe) {
+          res.redirect(`${process.env.CLIENT_URI}/login?error=notGoogleAccount`)
         }
         const newUser = await UserModel.findOneAndUpdate(
           { mail: email },

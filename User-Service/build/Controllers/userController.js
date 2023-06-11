@@ -229,3 +229,17 @@ export const updateGoogleUser = expressAsyncHandler(async (req, res) => {
         throw new Error(error);
     }
 });
+//Get all users by their id
+export const getUsersByIds = expressAsyncHandler(async (req, res) => {
+    try {
+        console.log(req.body);
+        const ids = req.body.ids;
+        const users = await UserModel.find({ _id: { $in: ids } });
+        console.log(users);
+        res.json(users);
+    }
+    catch (error) {
+        res.status(400);
+        throw new Error(error);
+    }
+});

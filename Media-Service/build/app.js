@@ -37,7 +37,6 @@ app.post("/api/media/profile", upload.single("image"), expressAsyncHandler(async
 app.post("/api/media/post", upload.array("images"), expressAsyncHandler(async (req, res) => {
     try {
         const files = req.files;
-        console.log(req.headers["x-media-user"]);
         //Create folder for the post
         let folderName;
         if (files.length > 0) {

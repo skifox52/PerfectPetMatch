@@ -1,6 +1,6 @@
 import { Router } from "express"
 import multer, { memoryStorage } from "multer"
-import { postPost } from "../controllers/postController.js"
+import { getAllPosts, postPost } from "../controllers/postController.js"
 
 //Setup upload
 const upload = multer({
@@ -10,6 +10,8 @@ const upload = multer({
   },
 })
 
-const postRouter = Router().post("/", upload.array("images"), postPost)
+const postRouter = Router()
+  .post("/", upload.array("images"), postPost)
+  .get("/all", getAllPosts)
 
 export default postRouter
