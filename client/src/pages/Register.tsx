@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import Lottie from "lottie-react"
 import animationData from "../assets/animations/95961-puppy-sleeping.json"
 import { Link, useNavigate } from "react-router-dom"
@@ -6,13 +6,13 @@ import wilayas from "../data/wilayas.json"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "react-hot-toast"
 import { type UserType, registerUser } from "../api/userApi"
-import { UserContext } from "../contexts/userContext"
+import { useAuth } from "../hooks/useAuth"
 
 export const Register: React.FC = ({}) => {
   const [loadingToast, setLoadingToast] = useState<any>(null)
   const navigate = useNavigate()
   //User context
-  const userContext = useContext(UserContext)
+  const userContext = useAuth()
   //User form data
   const [userFormData, setUserFormData] = useState<UserType>({
     nom: "",

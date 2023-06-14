@@ -17,11 +17,11 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
             type="text"
             name="chatBody"
             placeholder="Saisissez votre message..."
-            className="h-full w-full rounded-3xl pl-6  input border-2 input-primary font-bold tracking-wide"
+            className="h-full w-full rounded-3xl pl-6  input border-2 input-primary font-bold tracking-wide pr-16"
           />
           <button
             type="submit"
-            className="absolute right-6 h-full w-8 text-neutral hover:text-primary cursor-pointer "
+            className="absolute right-6 h-full w-8 text-neutral hover:text-primary cursor-pointer"
           >
             <FiSend className="h-full w-full" />
           </button>

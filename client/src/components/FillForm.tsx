@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { UserType, findById, updateGoogleUser } from "../api/userApi"
@@ -6,15 +6,15 @@ import { LoadingDog } from "../components/LoadingDog"
 import Lottie from "lottie-react"
 import animationData from "../assets/animations/43901-cute-dog.json"
 import { toast } from "react-hot-toast"
-import { UserContext } from "../contexts/userContext"
 import wilayas from "../data/wilayas.json"
+import { useAuth } from "../hooks/useAuth"
 
 export const FillForm: React.FC = () => {
   const [loadingToast, setLoadingToast] = useState<any>(null)
 
   const location = useLocation()
   const navigate = useNavigate()
-  const userContext = useContext(UserContext)
+  const userContext = useAuth()
   //Get query params
   const searchParams = new URLSearchParams(location.search)
   const _id: string = searchParams.get("_id")!
@@ -68,10 +68,17 @@ export const FillForm: React.FC = () => {
             accessToken,
             refreshToken,
             role: data.role,
+            profilePicture: data.image,
           })
           localStorage.setItem(
             "User",
-            JSON.stringify({ _id, role: data.role, accessToken, refreshToken })
+            JSON.stringify({
+              _id,
+              role: data.role,
+              accessToken,
+              refreshToken,
+              profilePicture: data.image,
+            })
           )
           navigate("/")
         } else {
@@ -99,6 +106,7 @@ export const FillForm: React.FC = () => {
         role: data.role,
         accessToken: accessToken as string,
         refreshToken: refreshToken as string,
+        profilePicture: data.image,
       })
       localStorage.setItem(
         "User",
@@ -107,6 +115,7 @@ export const FillForm: React.FC = () => {
           role: data.role,
           accessToken,
           refreshToken,
+          profilePicture: data.image,
         })
       )
     },

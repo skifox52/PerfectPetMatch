@@ -6,11 +6,18 @@ import morgan from "morgan";
 import "dotenv/config";
 import ErrorHandler from "./middlewares/ErrorHandler.js";
 import expressAsyncHandler from "express-async-handler";
+import compression from "compression";
 import { ConversationModel, MessageModel } from "./models/ChatModel.js";
 const app = express();
 const server = http.createServer(app);
-const io = new WebSocketServer(server);
+const io = new WebSocketServer(server, {
+    cors: {
+        origin: "http://localhost:5173",
+    },
+});
 app.use(morgan("dev"));
+app.use(compression());
+// app.use(cors())
 //API for opening a conversation
 app.post("/api/chat/conversation", expressAsyncHandler(async (req, res) => {
     const { user1, user2 } = req.body;
@@ -91,7 +98,7 @@ io.on("connection", (socket) => {
         }
     });
     //Handeling disconnection
-    socket.on("disconnect", () => {
+    socket.on("disconnected", () => {
         console.log("Disconnected: ", socket.id);
     });
 });
@@ -99,7 +106,7 @@ io.on("connection", (socket) => {
 app.use(ErrorHandler);
 connect(process.env.MONGO_URI)
     .then(() => {
-    server.listen(process.env.PORT, () => console.log("Chat service running"));
+    server.listen(process.env.PORT, () => console.log(`Chat service running at port ${process.env.PORT}`));
 })
     .catch((err) => {
     console.log(err);

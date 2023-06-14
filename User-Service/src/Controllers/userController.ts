@@ -124,14 +124,15 @@ export const updateUser = expressAsyncHandler(
 export const deleteUser = expressAsyncHandler(
   async (req: any, res: Response) => {
     try {
+      const user = req.headers["x-auth-user"]
       await fetch(
-        `http://localhost:${process.env.AUTH_PORT}/api/auth/refreshToken?_id=${req.user.id}`,
+        `http://localhost:${process.env.AUTH_PORT}/api/auth/refreshToken?_id=${user.id}`,
         {
           method: "DELETE",
         }
       )
-      await UserModel.findByIdAndDelete(req.user._id)
-      res.status(200).json(`User [${req.user._id}] deleted successfully!`)
+      await UserModel.findByIdAndDelete(user._id)
+      res.status(200).json(`User [${user._id}] deleted successfully!`)
     } catch (error: any) {
       res.status(400)
       throw new Error(error)
@@ -272,13 +273,11 @@ export const updateGoogleUser = expressAsyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { _id } = req.query
-      console.log(_id)
       const user = await UserModel.findByIdAndUpdate(
         new Types.ObjectId(_id as string),
         req.body,
         { new: true }
       )
-      console.log(user)
       res.status(200).json(user)
     } catch (error: any) {
       res.status(400)
@@ -291,7 +290,9 @@ export const getUsersByIds = expressAsyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const ids: string[] = req.body.ids
-      const users = await UserModel.find({ _id: { $in: ids } })
+      const users = await UserModel.find({ _id: { $in: ids } }).select(
+        "_id nom prenom mail"
+      )
       res.json(users)
     } catch (error: any) {
       res.status(400)

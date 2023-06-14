@@ -5,23 +5,16 @@ import { Link } from "react-router-dom"
 
 export const HeroSection: React.FC = () => {
   return (
-    <header className="w-full h-[80vh] rounded-xl bg-primary overflow-hidden shadow-lg shadow-secondary mb-8">
-      <div className="flex  h-[100%] w-full ">
-        <section className="flex-1 flex flex-col py-16 justify-between p-8">
-          <h1 className="text-accent w-2/3 whitespace-pre-line text-9xl font-black text-stroke font-oi">
+    <header className="w-full h-[30vh]  bg-accent animate-bg overflow-hidden shadow-lg shadow-gray-400">
+      <div className="flex  h-full w-full ">
+        <section className="flex  py-16 justify-between w-1/2  ">
+          <h1 className="text-accent w-full flex flex-col items-center justify-evenly whitespace-pre-line text-7xl font-black text-stroke font-oi">
             Perfect <span className="text-secondary">pet</span>{" "}
             <span className="text-transparent">match</span>
           </h1>
-          <Link
-            to={"/about"}
-            target="_blank"
-            className="btn btn-secondary hover:tracking-widest transition-all duration-200  border-white border-4 text-2xl font-black py-8 flex flex-col items-center w-2/3 text-white"
-          >
-            What is perfect pet match ?
-          </Link>
         </section>
         <section className="">
-          <Lottie animationData={animationData} className="h-full " />
+          <Lottie animationData={animationData} className="h-full w-full " />
         </section>
       </div>
     </header>

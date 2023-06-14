@@ -88,8 +88,9 @@ export const oauthRedirectGoogle = expressAsyncHandler(
         throw new Error("Validation Error Message: Valider votre E-mail")
       }
       const { id, name, given_name, email, family_name, picture } = googleUser
-      const uesr = await UserModel.userExists(email)
+      const user = await UserModel.userExists(email)
       if (!(await UserModel.userExists(email))) {
+        console.log("test", user)
         const newUser = await UserModel.create({
           mail: email,
           nom: family_name ? given_name : name,
@@ -106,6 +107,22 @@ export const oauthRedirectGoogle = expressAsyncHandler(
           _id: newUser._id.toString(),
           role: newUser.role!.toString(),
         })
+        const response = await fetch(
+          `${process.env.GATEWAY_URI}/api/auth/saveRefreshToken`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              _id: newUser._id.toString(),
+              refreshToken,
+            }),
+          }
+        )
+        if (!response.ok) {
+          throw new Error("Failed to fetch!")
+        }
         const queryString = new URLSearchParams({
           _id: newUser._id,
           accessToken,
@@ -138,6 +155,22 @@ export const oauthRedirectGoogle = expressAsyncHandler(
             _id: newUser._id.toString(),
             role: newUser.role!.toString(),
           })
+          const response = await fetch(
+            `${process.env.GATEWAY_URI}/api/auth/saveRefreshToken`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                _id: newUser._id.toString(),
+                refreshToken,
+              }),
+            }
+          )
+          if (!response.ok) {
+            throw new Error("Failed to fetch!")
+          }
           const queryString = new URLSearchParams({
             _id: newUser._id,
             accessToken,

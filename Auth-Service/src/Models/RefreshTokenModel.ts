@@ -1,8 +1,11 @@
-import { Schema, model, Types, SchemaTypes } from "mongoose"
+import { Schema, model, Types, SchemaTypes, Model } from "mongoose"
 
-interface refreshTokenSchemaType {
+interface refreshTokenSchemaType extends Document {
   idUtilisateur: Types.ObjectId
   refreshToken: string
+}
+interface refreshTokenStatics extends Model<refreshTokenSchemaType> {
+  refreshExists: (refresh: string) => Promise<boolean>
 }
 
 const RefreshTokenSchema = new Schema<refreshTokenSchemaType>(
@@ -18,6 +21,13 @@ const RefreshTokenSchema = new Schema<refreshTokenSchemaType>(
   },
   { timestamps: true }
 )
+//Verify if refreshtoken exist
+RefreshTokenSchema.statics.refreshExists = async function (refresh: string) {
+  return !!(await this.findOne({ refreshToken: refresh.toString() }))
+}
 
-const RefreshTokenModel = model("refreshToken", RefreshTokenSchema)
+const RefreshTokenModel = model<refreshTokenSchemaType, refreshTokenStatics>(
+  "refreshToken",
+  RefreshTokenSchema
+)
 export default RefreshTokenModel

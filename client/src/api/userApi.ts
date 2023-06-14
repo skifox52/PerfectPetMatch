@@ -121,3 +121,20 @@ export const updateGoogleUser = async (id: string, data: UserType) => {
     throw error
   }
 }
+//Logou | delete refreshToken from the database
+export const logoutUser = async (refreshToken: string, token: string) => {
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  }
+  try {
+    await axios.delete(
+      `${
+        import.meta.env.VITE_API_GATEWAY
+      }/api/auth/logout?refreshToken=${refreshToken}`,
+      config
+    )
+    return { success: true, message: "Logged out successfully" }
+  } catch (error) {
+    throw error
+  }
+}

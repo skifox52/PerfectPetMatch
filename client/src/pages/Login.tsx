@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import Lottie from "lottie-react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import animationData from "../assets/animations/29280-sleepy-cat.json"
@@ -7,15 +7,27 @@ import getGoogleUrl from "../utils/getGoogleUrl"
 import { toast } from "react-hot-toast"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { findByMail, loginUser, resetPassword } from "../api/userApi"
-import { UserContext } from "../contexts/userContext"
+import { useAuth } from "../hooks/useAuth"
+import { LoadingDog } from "../components/LoadingDog"
 
 export interface UserInputInterface {
   mail: string
   password: string
 }
 export const Login: React.FC = () => {
+  const userContext = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const [loading, setLoading] = useState<boolean>(true)
+  const from = location.state?.from?.pathname || "/"
+  //Redirect user to homepage if he's already authenticated
+  useEffect(() => {
+    if (userContext?.user?.accessToken) {
+      navigate("/")
+    } else {
+      setLoading(false)
+    }
+  }, [])
   //Handle potentiel googleOauth Error due to trying to connect to a non googleAccount
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search)
@@ -41,7 +53,6 @@ export const Login: React.FC = () => {
   //handle user mutation
   let [loadingToast, setLoadingToast] = useState<any>(null)
   //User context
-  const userContext = useContext(UserContext)
   const createUserMutation = useMutation({
     mutationFn: (variables: UserInputInterface) => loginUser(variables),
     onSuccess: (data) => {
@@ -60,7 +71,7 @@ export const Login: React.FC = () => {
       setLoadingToast(null)
       toast.dismiss(loadingToast)
     }
-    createUserMutation.isSuccess && navigate("/")
+    createUserMutation.isSuccess && navigate(from, { replace: true })
   }, [createUserMutation.isLoading, createUserMutation.isSuccess])
   //handle login onSubmit
   const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
@@ -124,6 +135,7 @@ export const Login: React.FC = () => {
       toast.dismiss(resetIsLoading)
     }
   }, [createResetPasswordMutation.isLoading])
+  if (loading) return <LoadingDog />
   return (
     <div className="w-screen py-4 min-h-screen flex flex-col md:flex-row md:justify-between items-center justify-evenly 2xl:h-screen">
       <Lottie

@@ -24,12 +24,7 @@ type SingRefreshTokenType = ({
 export const SignRefreshToken: SingRefreshTokenType = ({ _id, role }) => {
   return jwt.sign({ _id, role }, process.env.REFRESH_TOKEN_SECRET!)
 }
-//Check if RefreshTokenExists
-type RefreshTokenExistsType = (refreshToken: string) => Promise<boolean>
-const RefreshTokenExists: RefreshTokenExistsType = async (refreshToken) => {
-  const refreshExists = await RefreshTokenModel.find({ refreshToken })
-  return refreshExists.length > 0 ? true : false
-}
+
 //Login a User
 export const loginUser = expressAsyncHandler(
   async (req: Request, res: Response) => {
@@ -91,7 +86,7 @@ export const refreshAccessToken = expressAsyncHandler(
         res.status(400)
         throw new Error("No token")
       }
-      if (!(await RefreshTokenExists(refreshToken))) {
+      if (!(await RefreshTokenModel.refreshExists(refreshToken))) {
         res.status(400)
         throw new Error("Invalid refresh token!")
       }
@@ -109,9 +104,9 @@ export const refreshAccessToken = expressAsyncHandler(
 )
 //Logout
 export const logout = expressAsyncHandler(
-  async (req: Request, res: Response) => {
+  async (req: Request<{}, {}, {}, { refreshToken: string }>, res: Response) => {
     try {
-      const { refreshToken }: { refreshToken: string } = req.body
+      const { refreshToken } = req.query
       if (!refreshToken) {
         res.status(400)
         throw new Error("No refreshToken provided!")
@@ -141,6 +136,25 @@ export const handleTokens = expressAsyncHandler(
         refreshToken,
       })
       res.json({ accessToken, refreshToken })
+    } catch (error: any) {
+      res.status(400)
+      throw new Error(error)
+    }
+  }
+)
+//Save refreshToken in the database
+export const saveRefresh = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    try {
+      const { refreshToken, _id } = req.body
+      if (!refreshToken || !_id) {
+        throw new Error("No refresh token provided!")
+      }
+      await RefreshTokenModel.create({
+        idUtilisateur: _id,
+        refreshToken: refreshToken,
+      })
+      res.send({ success: true })
     } catch (error: any) {
       res.status(400)
       throw new Error(error)

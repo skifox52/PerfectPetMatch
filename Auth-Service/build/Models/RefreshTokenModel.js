@@ -9,5 +9,9 @@ const RefreshTokenSchema = new Schema({
         required: true,
     },
 }, { timestamps: true });
+//Verify if refreshtoken exist
+RefreshTokenSchema.statics.refreshExists = async function (refresh) {
+    return !!(await this.findOne({ refreshToken: refresh.toString() }));
+};
 const RefreshTokenModel = model("refreshToken", RefreshTokenSchema);
 export default RefreshTokenModel;

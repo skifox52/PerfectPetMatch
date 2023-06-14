@@ -12,9 +12,14 @@ import type { ConversationInterface } from "./models/ChatModel.js"
 
 const app: Express = express()
 const server = http.createServer(app)
-const io = new WebSocketServer(server)
+const io = new WebSocketServer(server, {
+  cors: {
+    origin: "http://localhost:5173",
+  },
+})
 app.use(morgan("dev"))
 app.use(compression())
+// app.use(cors())
 
 //API for opening a conversation
 app.post(
@@ -109,7 +114,7 @@ io.on("connection", (socket: any) => {
     }
   })
   //Handeling disconnection
-  socket.on("disconnect", () => {
+  socket.on("disconnected", () => {
     console.log("Disconnected: ", socket.id)
   })
 })
@@ -118,7 +123,9 @@ io.on("connection", (socket: any) => {
 app.use(ErrorHandler)
 connect(process.env.MONGO_URI as string)
   .then(() => {
-    server.listen(process.env.PORT, () => console.log("Chat service running"))
+    server.listen(process.env.PORT, () =>
+      console.log(`Chat service running at port ${process.env.PORT}`)
+    )
   })
   .catch((err: any) => {
     console.log(err)

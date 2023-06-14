@@ -13,6 +13,7 @@ app.use(morgan("dev"))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(compression())
+app.use("/assets", express.static("assets"))
 
 const upload = multer({
   storage: multer.memoryStorage(),

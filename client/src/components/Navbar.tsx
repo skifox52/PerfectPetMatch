@@ -1,30 +1,72 @@
-import React from "react"
-import { Link } from "react-router-dom"
+import React, { useEffect, useState } from "react"
+import { NavLink, useNavigate } from "react-router-dom"
+import { useAuth } from "../hooks/useAuth"
+import { useMutation } from "@tanstack/react-query"
+import { logoutUser } from "../api/userApi"
+import { toast } from "react-hot-toast"
 
 export const Navbar: React.FC = ({}) => {
+  const [loadingToast, setLoadingToast] = useState<any>(null)
+  const logoutMutation = useMutation({
+    mutationFn: (variables: { refreshToken: string; token: string }) =>
+      logoutUser(variables.refreshToken, variables.token),
+    onSuccess: (data) => data.success && toast.success(data.message),
+    onError: (error: any) =>
+      toast.error(error.response?.data.err || error.message),
+  })
+  const userContext = useAuth()
+  const navigate = useNavigate()
+  const disconnect = (): void => {
+    logoutMutation.mutate({
+      refreshToken: userContext?.user?.refreshToken as string,
+      token: userContext?.user?.accessToken as string,
+    })
+  }
+  useEffect(() => {
+    if (logoutMutation.isLoading) {
+      setLoadingToast(toast.loading("Loading..."))
+    } else {
+      setLoadingToast(null)
+      toast.dismiss(loadingToast)
+    }
+    if (logoutMutation.isSuccess) {
+      localStorage.removeItem("User")
+      userContext?.setUser(null)
+      navigate("/login")
+    }
+  }, [logoutMutation.isLoading, logoutMutation.isSuccess])
   return (
-    <div className="navbar bg-base-100 flex justify-between fixed  z-50 shadow-md">
+    <div className="navbar bg-base-100 flex justify-between z-50 shadow-md w-full top-4  shadow-gray-500 ">
       <div>
-        <Link to={"/"} className="btn btn-ghost normal-case text-xl">
+        <NavLink to={"/"} className="btn btn-ghost  normal-case text-md">
           <img src="/PPT.png" alt="logo" className="h-full" />
-        </Link>
+        </NavLink>
       </div>
       <div>
-        <ul className="flex  lg:menu-horizontal gap-10 text-gray-600 text-xl font-semibold tracking-wide">
+        <ul className="flex  lg:menu-horizontal gap-12 text-gray-600 text-xl font-semibold tracking-wide">
           <li>
-            <Link to={"/"} className="hover:text-primary  ">
+            <NavLink
+              to={"/"}
+              className="hover:text-black aria-[current=page]:underline aria-[current=page]:text-neutral "
+            >
               Home
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link to={"/about"} className="hover:text-primary">
+            <NavLink
+              to={"/about"}
+              className="hover:text-black aria-[current=page]:underline aria-[current=page]:text-neutral "
+            >
               About
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link to={"/contact"} className="hover:text-primary">
+            <NavLink
+              to={"/contact"}
+              className="hover:text-black aria-[current=page]:underline aria-[current=page]:text-neutral "
+            >
               Contact
-            </Link>
+            </NavLink>
           </li>
         </ul>
       </div>
@@ -32,7 +74,10 @@ export const Navbar: React.FC = ({}) => {
         <div className="dropdown dropdown-end">
           <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
             <div className="w-10 rounded-full">
-              <img src="https://c8.alamy.com/zoomsfr/9/d4c59d90389444e3b1166312d2f7fa51/p9mywr.jpg  " />
+              <img
+                src={userContext?.user?.profilePicture}
+                className="object-cover object-center"
+              />
             </div>
           </label>
           <ul
@@ -46,7 +91,7 @@ export const Navbar: React.FC = ({}) => {
               <a>Pramètres</a>
             </li>
             <li>
-              <a>Déconnexion</a>
+              <button onClick={disconnect}>Déconnexion</button>
             </li>
           </ul>
         </div>

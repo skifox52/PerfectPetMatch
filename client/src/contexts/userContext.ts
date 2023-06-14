@@ -5,9 +5,10 @@ export interface UserContextType {
   role: string
   accessToken: string
   refreshToken: string
+  profilePicture: string
 }
 
 export const UserContext = createContext<{
   user: UserContextType | null
-  setUser: (value: UserContextType) => void
+  setUser: (value: UserContextType | null) => void
 } | null>(null)

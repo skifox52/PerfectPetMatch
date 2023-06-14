@@ -1,24 +1,23 @@
-import { useContext, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { UserContext } from "../contexts/userContext"
-import { HomeContainer } from "../components/HomeContainer"
 import { HeroSection } from "../components/HeroSection"
 import { SideMenu } from "../components/SideMenu"
+import { NewPost } from "../components/NewPost"
+import { FilterPost } from "../components/FilterPost"
+import { Post } from "../components/Post"
 
 export const Home: React.FC = () => {
-  const userContext = useContext(UserContext)
-  const navigate = useNavigate()
-  useEffect(() => {
-    if (userContext?.user === null) navigate("/login")
-  }, [])
   return (
-    <div className="min-h-screen max-w-screen pt-24 p-8 bg-base-200 ">
+    <div className="min-h-screen max-w-screen  bg-base-200  ">
       <header>
         <HeroSection />
       </header>
       {/* <HomeContainer /> */}
-      <main>
-        <SideMenu />
+      <main className=" flex flex-col gap-8 items-center">
+        <div className="gap-4 h-full flex mt-16 w-full">
+          <SideMenu />
+          <NewPost />
+          <FilterPost />
+        </div>
+        <Post />
       </main>
     </div>
   )

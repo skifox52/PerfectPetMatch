@@ -1,4 +1,4 @@
-import { loginUser, logout, refreshAccessToken, handleTokens, deleteRefreshToken, } from "../Controllers/authController.js";
+import { loginUser, logout, refreshAccessToken, handleTokens, deleteRefreshToken, saveRefresh, } from "../Controllers/authController.js";
 import { Router } from "express";
 const authRouter = Router();
 authRouter
@@ -6,5 +6,6 @@ authRouter
     .get("/token", handleTokens)
     .post("/refresh", refreshAccessToken)
     .delete("/logout", logout)
-    .delete("/refreshToken", deleteRefreshToken);
+    .delete("/refreshToken", deleteRefreshToken)
+    .post("/saveRefreshToken", saveRefresh);
 export default authRouter;

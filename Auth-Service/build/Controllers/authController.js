@@ -13,10 +13,6 @@ export const SignToken = ({ _id, role }) => {
 export const SignRefreshToken = ({ _id, role }) => {
     return jwt.sign({ _id, role }, process.env.REFRESH_TOKEN_SECRET);
 };
-const RefreshTokenExists = async (refreshToken) => {
-    const refreshExists = await RefreshTokenModel.find({ refreshToken });
-    return refreshExists.length > 0 ? true : false;
-};
 //Login a User
 export const loginUser = expressAsyncHandler(async (req, res) => {
     try {
@@ -71,7 +67,7 @@ export const refreshAccessToken = expressAsyncHandler(async (req, res) => {
             res.status(400);
             throw new Error("No token");
         }
-        if (!(await RefreshTokenExists(refreshToken))) {
+        if (!(await RefreshTokenModel.refreshExists(refreshToken))) {
             res.status(400);
             throw new Error("Invalid refresh token!");
         }
@@ -87,7 +83,7 @@ export const refreshAccessToken = expressAsyncHandler(async (req, res) => {
 //Logout
 export const logout = expressAsyncHandler(async (req, res) => {
     try {
-        const { refreshToken } = req.body;
+        const { refreshToken } = req.query;
         if (!refreshToken) {
             res.status(400);
             throw new Error("No refreshToken provided!");
@@ -112,6 +108,24 @@ export const handleTokens = expressAsyncHandler(async (req, res) => {
             refreshToken,
         });
         res.json({ accessToken, refreshToken });
+    }
+    catch (error) {
+        res.status(400);
+        throw new Error(error);
+    }
+});
+//Save refreshToken in the database
+export const saveRefresh = expressAsyncHandler(async (req, res) => {
+    try {
+        const { refreshToken, _id } = req.body;
+        if (!refreshToken || !_id) {
+            throw new Error("No refresh token provided!");
+        }
+        await RefreshTokenModel.create({
+            idUtilisateur: _id,
+            refreshToken: refreshToken,
+        });
+        res.send({ success: true });
     }
     catch (error) {
         res.status(400);

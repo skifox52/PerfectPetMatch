@@ -15,19 +15,22 @@ import { Home } from "./pages/Home"
 import { ResetPassword } from "./pages/ResetPassword"
 import { NotFound } from "./components/NotFound"
 import { FillForm } from "./components/FillForm"
+import { ProtectRoutes } from "./hooks/ProtectRoutes"
 import { Messages } from "./pages/Messages"
 
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<Layout />}>
-        <Route index element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/resetPassword" element={<ResetPassword />} />
-        <Route path="/messagerie" element={<Messages />} />
         <Route path="/google-fill-form" element={<FillForm />} />
-        <Route path="/*" element={<NotFound />} />
+        <Route path="/resetPassword" element={<ResetPassword />} />
+        <Route element={<ProtectRoutes allowedRole="user" />}>
+          <Route index element={<Home />} />
+          <Route path="/messagerie" element={<Messages />} />
+          <Route path="/*" element={<NotFound />} />
+        </Route>
       </Route>
     )
   )

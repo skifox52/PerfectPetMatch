@@ -16,6 +16,7 @@ export interface PostInterface extends Document {
   title: string
   content: string
   images: string[]
+  pet: Types.ObjectId
   likes: number
   reports: number
 }
@@ -89,6 +90,10 @@ const PostSchema = new Schema<PostInterface>(
         ref: "Comment",
       },
     ],
+    pet: {
+      type: Schema.Types.ObjectId,
+      ref: "Pet",
+    },
     title: {
       type: String,
       required: true,

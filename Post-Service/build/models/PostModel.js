@@ -55,6 +55,10 @@ const PostSchema = new Schema({
             ref: "Comment",
         },
     ],
+    pet: {
+        type: Schema.Types.ObjectId,
+        ref: "Pet",
+    },
     title: {
         type: String,
         required: true,

@@ -102,7 +102,7 @@ const UserSchema = new Schema<UserType>(
 UserSchema.statics.userExists = async function (
   mail: string
 ): Promise<boolean> {
-  return (await this.findOne({ mail })) !== null
+  return !!(await this.findOne({ mail }))
 }
 //Static method to see if resetKeyExist
 UserSchema.statics.keyExists = async function (mail: string): Promise<string> {
