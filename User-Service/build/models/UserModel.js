@@ -77,7 +77,7 @@ const UserSchema = new Schema({
 }, { timestamps: true });
 //Static method to see if User exists
 UserSchema.statics.userExists = async function (mail) {
-    return (await this.findOne({ mail })) !== null;
+    return !!(await this.findOne({ mail }));
 };
 //Static method to see if resetKeyExist
 UserSchema.statics.keyExists = async function (mail) {

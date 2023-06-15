@@ -120,6 +120,20 @@ export const updateUser = expressAsyncHandler(
     }
   }
 )
+//Fetch current user
+export const fetchCurrentUser = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    try {
+      const user: any = JSON.parse(req.headers["x-auth-user"] as string)
+      console.log(user)
+      const currentUser = await UserModel.findById(user._id)
+      res.status(200).json(currentUser)
+    } catch (error: any) {
+      res.status(400)
+      throw new Error(error)
+    }
+  }
+)
 //Delete a User
 export const deleteUser = expressAsyncHandler(
   async (req: any, res: Response) => {

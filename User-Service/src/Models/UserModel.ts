@@ -1,4 +1,4 @@
-import { Schema, model, Model, Document } from "mongoose"
+import { Schema, model, Model, Document, Types } from "mongoose"
 
 //User type
 export interface UserType extends Document {
@@ -102,8 +102,9 @@ const UserSchema = new Schema<UserType>(
 UserSchema.statics.userExists = async function (
   mail: string
 ): Promise<boolean> {
-  return (await this.findOne({ mail })) !== null
+  return !!(await this.findOne({ mail }))
 }
+
 //Static method to see if resetKeyExist
 UserSchema.statics.keyExists = async function (mail: string): Promise<string> {
   const user = await this.findOne({ mail })

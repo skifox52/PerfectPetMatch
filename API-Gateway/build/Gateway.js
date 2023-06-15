@@ -11,6 +11,7 @@ const excludeUserPaths = [
     "/api/user/register",
     /^\/api\/user\/one\?_id=.*/,
     /^\/api\/user\/updateGoogleUser\?_id=.*/,
+    /^\/api\/user\/userExistsById\?_id=.*/,
     "/api/user/getUsersByIds",
 ];
 const proxy = express();

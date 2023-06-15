@@ -1,5 +1,6 @@
 import {
   deleteUser,
+  fetchCurrentUser,
   findAllUsers,
   findUserById,
   findUserByMail,
@@ -33,5 +34,6 @@ const userRouter = Router()
   .delete("/delete", deleteUser)
   .put("/updateGoogleUser", updateGoogleUser)
   .post("/getUsersByIds", getUsersByIds)
+  .get("/currentUser", fetchCurrentUser)
 
 export default userRouter

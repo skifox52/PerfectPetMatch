@@ -53,14 +53,13 @@ export const FillForm: React.FC = () => {
 
   //OnMount
   useEffect(() => {
+    if (userContext?.user?.accessToken) {
+      navigate("/")
+    }
     if (!_id || !accessToken || !refreshToken) {
       toast.error("Veuillez réesseyer!")
       navigate("/login")
     } else {
-      if (isError) {
-        toast.error(error.response?.data.err || error.message)
-        navigate("/login")
-      }
       if (isSuccess && !isLoading) {
         if (data.ville && data.sexe) {
           userContext?.setUser({
