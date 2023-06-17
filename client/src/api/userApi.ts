@@ -1,5 +1,6 @@
 import axios from "axios"
 import type { UserInputInterface } from "../pages/Login"
+import { useAuth } from "../hooks/useAuth"
 
 export interface UserType {
   nom: string
@@ -134,6 +135,23 @@ export const logoutUser = async (refreshToken: string, token: string) => {
       config
     )
     return { success: true, message: "Logged out successfully" }
+  } catch (error) {
+    throw error
+  }
+}
+//Fetch current user
+export const fetchCurrentUser = async (token: string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_GATEWAY}/api/user/currentUser`,
+      config
+    )
+    return response.data
   } catch (error) {
     throw error
   }

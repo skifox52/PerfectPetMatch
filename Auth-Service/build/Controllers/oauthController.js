@@ -53,7 +53,6 @@ export const oauthRedirectGoogle = expressAsyncHandler(async (req, res) => {
         const { id, name, given_name, email, family_name, picture } = googleUser;
         const user = await UserModel.userExists(email);
         if (!(await UserModel.userExists(email))) {
-            console.log("test", user);
             const newUser = await UserModel.create({
                 mail: email,
                 nom: family_name ? given_name : name,

@@ -52,6 +52,7 @@ export const loginUser = expressAsyncHandler(async (req, res) => {
             accessToken,
             refreshToken,
             role: User[0].role,
+            profilePicture: process.env.MEDIA_SERVICE + User[0].image,
         });
     }
     catch (error) {

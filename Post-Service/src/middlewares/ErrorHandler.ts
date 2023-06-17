@@ -5,7 +5,7 @@ const ErrorHandler: ErrorRequestHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  const statusCode = res.statusCode ? res.statusCode : 500
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode
   res.status(statusCode).json({
     err: err.message,
     stack: err.stack,

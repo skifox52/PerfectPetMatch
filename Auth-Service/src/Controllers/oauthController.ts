@@ -80,25 +80,69 @@ const getGoogleUser: getGoogleUserType = async ({ id_token, access_token }) => {
 //Upsert the User
 export const oauthRedirectGoogle = expressAsyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    try {
-      const code = req.query.code as string
-      const { id_token, access_token } = await getGoogleOauthGoogleToken(code)
-      const googleUser = await getGoogleUser({ id_token, access_token })
-      if (!googleUser.verified_email) {
-        throw new Error("Validation Error Message: Valider votre E-mail")
+    const code = req.query.code as string
+    const { id_token, access_token } = await getGoogleOauthGoogleToken(code)
+    const googleUser = await getGoogleUser({ id_token, access_token })
+    if (!googleUser.verified_email) {
+      throw new Error("Validation Error Message: Valider votre E-mail")
+    }
+    const { id, name, given_name, email, family_name, picture } = googleUser
+    const user = await UserModel.userExists(email)
+    if (!(await UserModel.userExists(email))) {
+      const newUser = await UserModel.create({
+        mail: email,
+        nom: family_name ? given_name : name,
+        prenom: given_name ? given_name : name,
+        image: picture,
+        googleID: id,
+        date_de_naissance: new Date(),
+      })
+      const accessToken: string = SignToken({
+        _id: newUser._id.toString(),
+        role: newUser.role!.toString(),
+      })
+      const refreshToken: string = SignRefreshToken({
+        _id: newUser._id.toString(),
+        role: newUser.role!.toString(),
+      })
+      const response = await fetch(
+        `${process.env.GATEWAY_URI}/api/auth/saveRefreshToken`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            _id: newUser._id.toString(),
+            refreshToken,
+          }),
+        }
+      )
+      if (!response.ok) {
+        throw new Error("Failed to fetch!")
       }
-      const { id, name, given_name, email, family_name, picture } = googleUser
-      const user = await UserModel.userExists(email)
-      if (!(await UserModel.userExists(email))) {
-        console.log("test", user)
-        const newUser = await UserModel.create({
-          mail: email,
+      const queryString = new URLSearchParams({
+        _id: newUser._id,
+        accessToken,
+        refreshToken,
+      })
+      res.redirect(`${process.env.CLIENT_URI}/google-fill-form?${queryString}`)
+    } else {
+      if ((await UserModel.findOne({ mail: email }))?.mot_de_passe) {
+        res.redirect(`${process.env.CLIENT_URI}/login?error=notGoogleAccount`)
+      }
+      const newUser = await UserModel.findOneAndUpdate(
+        { mail: email },
+        {
           nom: family_name ? given_name : name,
           prenom: given_name ? given_name : name,
+          mail: email,
           image: picture,
           googleID: id,
           date_de_naissance: new Date(),
-        })
+        }
+      )
+      if (newUser) {
         const accessToken: string = SignToken({
           _id: newUser._id.toString(),
           role: newUser.role!.toString(),
@@ -131,59 +175,7 @@ export const oauthRedirectGoogle = expressAsyncHandler(
         res.redirect(
           `${process.env.CLIENT_URI}/google-fill-form?${queryString}`
         )
-      } else {
-        if ((await UserModel.findOne({ mail: email }))?.mot_de_passe) {
-          res.redirect(`${process.env.CLIENT_URI}/login?error=notGoogleAccount`)
-        }
-        const newUser = await UserModel.findOneAndUpdate(
-          { mail: email },
-          {
-            nom: family_name ? given_name : name,
-            prenom: given_name ? given_name : name,
-            mail: email,
-            image: picture,
-            googleID: id,
-            date_de_naissance: new Date(),
-          }
-        )
-        if (newUser) {
-          const accessToken: string = SignToken({
-            _id: newUser._id.toString(),
-            role: newUser.role!.toString(),
-          })
-          const refreshToken: string = SignRefreshToken({
-            _id: newUser._id.toString(),
-            role: newUser.role!.toString(),
-          })
-          const response = await fetch(
-            `${process.env.GATEWAY_URI}/api/auth/saveRefreshToken`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                _id: newUser._id.toString(),
-                refreshToken,
-              }),
-            }
-          )
-          if (!response.ok) {
-            throw new Error("Failed to fetch!")
-          }
-          const queryString = new URLSearchParams({
-            _id: newUser._id,
-            accessToken,
-            refreshToken,
-          })
-          res.redirect(
-            `${process.env.CLIENT_URI}/google-fill-form?${queryString}`
-          )
-        }
       }
-    } catch (error: any) {
-      res.status(400)
-      throw new Error(error)
     }
   }
 )

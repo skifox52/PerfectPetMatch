@@ -7,12 +7,22 @@ import { useMutation } from "@tanstack/react-query"
 import { toast } from "react-hot-toast"
 import { type UserType, registerUser } from "../api/userApi"
 import { useAuth } from "../hooks/useAuth"
+import { LoadingDog } from "../components/LoadingDog"
 
 export const Register: React.FC = ({}) => {
   const [loadingToast, setLoadingToast] = useState<any>(null)
+  const [loading, setLoading] = useState<boolean>(true)
   const navigate = useNavigate()
   //User context
   const userContext = useAuth()
+  //Redirect user to homepage if he's already authenticated
+  useEffect(() => {
+    if (userContext?.user?.accessToken) {
+      navigate("/")
+    } else {
+      setLoading(false)
+    }
+  }, [])
   //User form data
   const [userFormData, setUserFormData] = useState<UserType>({
     nom: "",
@@ -89,6 +99,7 @@ export const Register: React.FC = ({}) => {
     })
     createUserMutation.mutate(formData)
   }
+  if (loading) return <LoadingDog />
   return (
     <div className="w-screen min-h-full flex overflow-x-hidden">
       <div className="h-full w-0 md:w-2/5 xl:w-1/2">

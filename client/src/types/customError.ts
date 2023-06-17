@@ -1,7 +1,9 @@
 export interface CustomErrorObject {
-  data: {
-    err: string
-    stack: string
+  response: {
+    data: {
+      err: string
+      stack: string
+    }
   }
   status: number
   componentStack?: string

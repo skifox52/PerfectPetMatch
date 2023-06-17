@@ -14,6 +14,10 @@ const excludeUserPaths = [
     /^\/api\/user\/userExistsById\?_id=.*/,
     "/api/user/getUsersByIds",
 ];
+const exludedPostPaths = [
+    /^\/api\/post\/user\?userId=.*/,
+    "/api/user/getUsersByIds",
+];
 const proxy = express();
 proxy.use(cors({
     origin: "http://localhost:5173",
@@ -68,7 +72,22 @@ proxy.use("/api/auth/*", (req, res, next) => {
     },
 }));
 //Gateway the post service
-proxy.use("/api/post/*", authMiddleware("user"), createProxyMiddleware({
+proxy.use("/api/post/*", (req, res, next) => {
+    const verifyHeader = !exludedPostPaths.some((path) => {
+        if (typeof path === "string") {
+            return path === req.originalUrl;
+        }
+        else if (path instanceof RegExp) {
+            return path.test(req.originalUrl);
+        }
+    });
+    if (verifyHeader) {
+        authMiddleware("user")(req, res, next);
+    }
+    else {
+        next();
+    }
+}, createProxyMiddleware({
     target: process.env.POST_SERVICE,
     changeOrigin: true,
     onProxyReq: (proxyReq, req) => {

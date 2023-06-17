@@ -63,6 +63,7 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
             role: newUser.role,
             accessToken,
             refreshToken,
+            profilePicture: `${process.env.MEDIA_SERVICE}${newUser.image}`,
         });
     }
     catch (error) {
@@ -86,8 +87,7 @@ export const updateUser = expressAsyncHandler(async (req, res) => {
 export const fetchCurrentUser = expressAsyncHandler(async (req, res) => {
     try {
         const user = JSON.parse(req.headers["x-auth-user"]);
-        console.log(user);
-        const currentUser = await UserModel.findById(user._id);
+        const currentUser = await UserModel.findById(user._id).select("-mot_de_passe");
         res.status(200).json(currentUser);
     }
     catch (error) {

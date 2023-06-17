@@ -24,14 +24,12 @@ const petSchema = new Schema({
 //--Comment Schema
 const CommentSchema = new Schema({
     userId: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
+        type: String,
         required: true,
     },
     postId: {
         type: Schema.Types.ObjectId,
         ref: "Post",
-        required: true,
     },
     content: {
         type: String,
@@ -40,6 +38,10 @@ const CommentSchema = new Schema({
     parentComment: {
         type: Schema.Types.ObjectId,
         required: false,
+    },
+    replyCount: {
+        type: Number,
+        default: 0,
     },
 }, { timestamps: true });
 //--Post Schema

@@ -17,6 +17,7 @@ import { NotFound } from "./components/NotFound"
 import { FillForm } from "./components/FillForm"
 import { ProtectRoutes } from "./hooks/ProtectRoutes"
 import { Messages } from "./pages/Messages"
+import { Profile } from "./pages/Profile"
 
 function App() {
   const router = createBrowserRouter(
@@ -29,6 +30,7 @@ function App() {
         <Route element={<ProtectRoutes allowedRole="user" />}>
           <Route index element={<Home />} />
           <Route path="/messagerie" element={<Messages />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/*" element={<NotFound />} />
         </Route>
       </Route>

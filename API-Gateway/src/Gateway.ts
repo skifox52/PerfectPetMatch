@@ -15,6 +15,10 @@ const excludeUserPaths = [
   /^\/api\/user\/userExistsById\?_id=.*/,
   "/api/user/getUsersByIds",
 ]
+const exludedPostPaths = [
+  /^\/api\/post\/user\?userId=.*/,
+  "/api/user/getUsersByIds",
+]
 const proxy: Express = express()
 proxy.use(
   cors({
@@ -79,7 +83,20 @@ proxy.use(
 //Gateway the post service
 proxy.use(
   "/api/post/*",
-  authMiddleware("user"),
+  (req: Request, res: Response, next: NextFunction) => {
+    const verifyHeader: boolean = !exludedPostPaths.some((path) => {
+      if (typeof path === "string") {
+        return path === req.originalUrl
+      } else if (path instanceof RegExp) {
+        return path.test(req.originalUrl)
+      }
+    })
+    if (verifyHeader) {
+      authMiddleware("user")(req, res, next)
+    } else {
+      next()
+    }
+  },
   createProxyMiddleware({
     target: process.env.POST_SERVICE,
     changeOrigin: true,

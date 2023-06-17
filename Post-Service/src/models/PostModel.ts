@@ -3,10 +3,11 @@ import { Schema, Types, model, Document } from "mongoose"
 //Types
 //--Comment Type
 export interface CommentInterface extends Document {
-  userId: Types.ObjectId
+  userId: string
   postId: Types.ObjectId
   content: string
-  parentComment: Types.ObjectId
+  parentComment?: Types.ObjectId
+  replyCount: number
 }
 //--Post Type
 export interface PostInterface extends Document {
@@ -56,14 +57,12 @@ const petSchema = new Schema<petInterface>(
 const CommentSchema = new Schema<CommentInterface>(
   {
     userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
     },
     postId: {
       type: Schema.Types.ObjectId,
       ref: "Post",
-      required: true,
     },
     content: {
       type: String,
@@ -72,6 +71,10 @@ const CommentSchema = new Schema<CommentInterface>(
     parentComment: {
       type: Schema.Types.ObjectId,
       required: false,
+    },
+    replyCount: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }
