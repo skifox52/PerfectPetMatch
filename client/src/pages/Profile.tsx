@@ -4,7 +4,7 @@ import { fetchCurrentUser } from "../api/userApi"
 import { useAuth } from "../hooks/useAuth"
 import { LoadingDog } from "../components/LoadingDog"
 import { toast } from "react-hot-toast"
-import { singleUserInterface } from "../types/user"
+import { singleUserInterface } from "../types/userType"
 
 interface ProfileProps {}
 

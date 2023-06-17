@@ -1,6 +1,7 @@
 import expressAsyncHandler from "express-async-handler"
 import { Request, Response } from "express"
-import { CommentModel, PostModel } from "../models/PostModel.js"
+import { PostModel } from "../models/PostModel.js"
+import { CommentModel } from "../models/CommentModel.js"
 import FormData from "form-data"
 import axios from "axios"
 import "dotenv/config"

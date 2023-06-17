@@ -68,7 +68,7 @@ app.post(
                 }.${format}`
               )
             imagePath.unshift(
-              `./assets/PostPictures/${folderName}/${randomId}-PostPicture${
+              `/assets/PostPictures/${folderName}/${randomId}-PostPicture${
                 i + 1
               }.${format}`
             )

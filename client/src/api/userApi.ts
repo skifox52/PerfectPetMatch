@@ -1,6 +1,5 @@
 import axios from "axios"
 import type { UserInputInterface } from "../pages/Login"
-import { useAuth } from "../hooks/useAuth"
 
 export interface UserType {
   nom: string

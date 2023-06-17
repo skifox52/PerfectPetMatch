@@ -81,7 +81,7 @@ const UserSchema = new Schema<UserType>(
           if (this.sexe === "homme") {
             return "/assets/profilePictures/defaultman.png"
           } else {
-            return "/assets/profilePicture/defaultwoman.png"
+            return "/assets/profilePictures/defaultwoman.png"
           }
         } else {
           return ""

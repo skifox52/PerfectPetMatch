@@ -15,123 +15,93 @@ export const SignRefreshToken = ({ _id, role }) => {
 };
 //Login a User
 export const loginUser = expressAsyncHandler(async (req, res) => {
-    try {
-        const { mail, password } = req.body;
-        if (!mail || !password) {
-            res.status(400);
-            throw new Error("Empty fields!");
-        }
-        //Check User if Exists
-        if (!(await UserModel.userExists(mail))) {
-            res.status(400);
-            throw new Error("L'utilisateur n'éxiste pas!");
-        }
-        const User = await UserModel.find({ mail });
-        if (User[0].googleID) {
-            throw new Error("Connectez vous avec votre compte Google");
-        }
-        const passwordMatch = await bcrypt.compare(password, User[0].mot_de_passe);
-        if (!passwordMatch) {
-            res.status(400);
-            throw new Error("Mot de passe incorrect");
-        }
-        const accessToken = SignToken({
-            _id: User[0]._id.toString(),
-            role: User[0].role.toString(),
-        });
-        const refreshToken = SignRefreshToken({
-            _id: User[0]._id.toString(),
-            role: User[0].role.toString(),
-        });
-        await RefreshTokenModel.create({
-            idUtilisateur: User[0]._id,
-            refreshToken,
-        });
-        res.status(200).json({
-            _id: User[0]._id,
-            accessToken,
-            refreshToken,
-            role: User[0].role,
-            profilePicture: process.env.MEDIA_SERVICE + User[0].image,
-        });
-    }
-    catch (error) {
+    const { mail, password } = req.body;
+    if (!mail || !password) {
         res.status(400);
-        throw new Error(error);
+        throw new Error("Empty fields!");
     }
+    //Check User if Exists
+    if (!(await UserModel.userExists(mail))) {
+        res.status(400);
+        throw new Error("L'utilisateur n'éxiste pas!");
+    }
+    const User = await UserModel.find({ mail });
+    if (User[0].googleID) {
+        throw new Error("Connectez vous avec votre compte Google");
+    }
+    const passwordMatch = await bcrypt.compare(password, User[0].mot_de_passe);
+    if (!passwordMatch) {
+        res.status(400);
+        throw new Error("Mot de passe incorrect");
+    }
+    const accessToken = SignToken({
+        _id: User[0]._id.toString(),
+        role: User[0].role.toString(),
+    });
+    const refreshToken = SignRefreshToken({
+        _id: User[0]._id.toString(),
+        role: User[0].role.toString(),
+    });
+    await RefreshTokenModel.create({
+        idUtilisateur: User[0]._id,
+        refreshToken,
+    });
+    res.status(200).json({
+        _id: User[0]._id,
+        accessToken,
+        refreshToken,
+        role: User[0].role,
+        profilePicture: process.env.MEDIA_SERVICE + User[0].image,
+    });
 });
 //Refresh Access token
 export const refreshAccessToken = expressAsyncHandler(async (req, res) => {
-    try {
-        const { refreshToken } = req.body;
-        if (!refreshToken) {
-            res.status(400);
-            throw new Error("No token");
-        }
-        if (!(await RefreshTokenModel.refreshExists(refreshToken))) {
-            res.status(400);
-            throw new Error("Invalid refresh token!");
-        }
-        const { iat, ...data } = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-        const newAccessToken = SignToken(data);
-        res.status(200).json({ token: newAccessToken });
-    }
-    catch (error) {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
         res.status(400);
-        throw new Error(error);
+        throw new Error("No token");
     }
+    if (!(await RefreshTokenModel.refreshExists(refreshToken))) {
+        res.status(400);
+        throw new Error("Invalid refresh token!");
+    }
+    const { iat, ...data } = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const newAccessToken = SignToken(data);
+    res.status(200).json({ token: newAccessToken });
 });
 //Logout
 export const logout = expressAsyncHandler(async (req, res) => {
-    try {
-        const { refreshToken } = req.query;
-        if (!refreshToken) {
-            res.status(400);
-            throw new Error("No refreshToken provided!");
-        }
-        await RefreshTokenModel.deleteOne({ refreshToken });
-        res.status(200).json("User logged out successfully!");
-    }
-    catch (error) {
+    const { refreshToken } = req.query;
+    if (!refreshToken) {
         res.status(400);
-        throw new Error(error);
+        throw new Error("No refreshToken provided!");
     }
+    await RefreshTokenModel.deleteOne({ refreshToken });
+    res.status(200).json("User logged out successfully!");
 });
 //Utilie Endpoints for COMMUNICATION
 //Generate access token and refreshToken
 export const handleTokens = expressAsyncHandler(async (req, res) => {
-    try {
-        const { _id, role } = req.query;
-        const accessToken = SignToken({ _id, role });
-        const refreshToken = SignRefreshToken({ _id, role });
-        await RefreshTokenModel.create({
-            idUtilisateur: _id,
-            refreshToken,
-        });
-        res.json({ accessToken, refreshToken });
-    }
-    catch (error) {
-        res.status(400);
-        throw new Error(error);
-    }
+    const { _id, role } = req.query;
+    const accessToken = SignToken({ _id, role });
+    const refreshToken = SignRefreshToken({ _id, role });
+    await RefreshTokenModel.create({
+        idUtilisateur: _id,
+        refreshToken,
+    });
+    res.json({ accessToken, refreshToken });
 });
 //Save refreshToken in the database
 export const saveRefresh = expressAsyncHandler(async (req, res) => {
-    try {
-        const { refreshToken, _id } = req.body;
-        if (!refreshToken || !_id) {
-            throw new Error("No refresh token provided!");
-        }
-        await RefreshTokenModel.create({
-            idUtilisateur: _id,
-            refreshToken: refreshToken,
-        });
-        res.send({ success: true });
+    const { refreshToken, _id } = req.body;
+    if (!refreshToken || !_id) {
+        throw new Error("No refresh token provided!");
     }
-    catch (error) {
-        res.status(400);
-        throw new Error(error);
-    }
+    await RefreshTokenModel.create({
+        idUtilisateur: _id,
+        refreshToken: refreshToken,
+    });
+    res.send({ success: true });
 });
 //Delete refreshToken after delete if user online
 export const deleteRefreshToken = expressAsyncHandler(async (req, res) => {

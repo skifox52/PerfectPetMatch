@@ -1,84 +1,21 @@
 import { Schema, Types, model, Document } from "mongoose"
 
 //Types
-//--Comment Type
-export interface CommentInterface extends Document {
-  userId: string
-  postId: Types.ObjectId
-  content: string
-  parentComment?: Types.ObjectId
-  replyCount: number
-}
+
 //--Post Type
 export interface PostInterface extends Document {
   owner: String
-  pets: Types.ObjectId
   comments: Types.ObjectId[]
   title: string
   content: string
   images: string[]
-  pet: Types.ObjectId
+  pet: string
   likes: number
   reports: number
 }
-//--Pet type
-export interface petInterface extends Document {
-  type: "Chat" | "Chien"
-  race: string
-  date_de_naissance: Date
-  description: string
-}
-const animalTypes = Object.freeze(["Chat", "Chien"])
+
 //Schemas
-//--pet schema
-const petSchema = new Schema<petInterface>(
-  {
-    type: {
-      type: String,
-      required: true,
-      enum: animalTypes,
-    },
-    race: {
-      type: String,
-      required: true,
-    },
-    date_de_naissance: {
-      type: Date,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-  },
-  { timestamps: true }
-)
-//--Comment Schema
-const CommentSchema = new Schema<CommentInterface>(
-  {
-    userId: {
-      type: String,
-      required: true,
-    },
-    postId: {
-      type: Schema.Types.ObjectId,
-      ref: "Post",
-    },
-    content: {
-      type: String,
-      required: true,
-    },
-    parentComment: {
-      type: Schema.Types.ObjectId,
-      required: false,
-    },
-    replyCount: {
-      type: Number,
-      default: 0,
-    },
-  },
-  { timestamps: true }
-)
+
 //--Post Schema
 const PostSchema = new Schema<PostInterface>(
   {
@@ -94,8 +31,7 @@ const PostSchema = new Schema<PostInterface>(
       },
     ],
     pet: {
-      type: Schema.Types.ObjectId,
-      ref: "Pet",
+      type: String,
     },
     title: {
       type: String,
@@ -120,6 +56,4 @@ const PostSchema = new Schema<PostInterface>(
   },
   { timestamps: true }
 )
-export const CommentModel = model<CommentInterface>("Comment", CommentSchema)
-export const PetModel = model<petInterface>("Pet", petSchema)
 export const PostModel = model<PostInterface>("Post", PostSchema)

@@ -60,7 +60,7 @@ const UserSchema = new Schema({
                     return "/assets/profilePictures/defaultman.png";
                 }
                 else {
-                    return "/assets/profilePicture/defaultwoman.png";
+                    return "/assets/profilePictures/defaultwoman.png";
                 }
             }
             else {
