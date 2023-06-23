@@ -13,36 +13,34 @@ export const Home: React.FC = () => {
     queryKey: ["posts"],
     queryFn: () => getPosts(userContext?.user?.accessToken as string),
   })
-  console.log(data)
   return (
-    <div className="min-h-screen max-w-screen  bg-base-200  ">
+    <div className="min-h-screen max-w-screen bg-bgPrimary">
       <header>
         <HeroSection />
       </header>
-      {/* <HomeContainer /> */}
-      <main className=" flex flex-col gap-8 items-center">
-        <div className="gap-4 h-full flex mt-16 w-full">
-          <SideMenu />
+      <main className="flex justify-between gap-4 px-4 pt-8 w-full relative mx-auto">
+        <SideMenu />
+        <section className=" w-full flex flex-col items-center gap-6">
           <NewPost />
-          <FilterPost />
-        </div>
-        {data ? (
-          data.map((post) => (
-            <Post
-              key={post._id}
-              nom={post.owner.nom}
-              prenom={post.owner.prenom}
-              profilePicture={post.owner.image}
-              title={post.title}
-              content={post.content}
-              postPicture={post.images[0]}
-              likes={post.likes}
-              commentCount={post.comments.length}
-            />
-          ))
-        ) : (
-          <h1>Loading...</h1>
-        )}
+          {data ? (
+            data.map((post) => (
+              <Post
+                key={post._id}
+                nom={post.owner.nom}
+                prenom={post.owner.prenom}
+                profilePicture={post.owner.image}
+                title={post.title}
+                content={post.content}
+                postPicture={post.images[0]}
+                likes={post.likes}
+                commentCount={post.comments.length}
+              />
+            ))
+          ) : (
+            <h1>Loading...</h1>
+          )}
+        </section>
+        <FilterPost />
       </main>
     </div>
   )

@@ -10,6 +10,9 @@ export default {
         montserrat: ["Titillium Web", "sans-serif"],
         oi: ["Oi", "cursive"],
       },
+      colors: {
+        bgPrimary: "#F0F2F5",
+      },
       keyframes: {
         bg: {
           "0%, 100%": { background: "#a991f7" },

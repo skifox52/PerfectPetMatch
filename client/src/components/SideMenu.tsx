@@ -1,29 +1,51 @@
 import React from "react"
 import { Link } from "react-router-dom"
+import { AiOutlineMessage } from "react-icons/ai"
+import { MdOutlinePets, MdOutlineArticle } from "react-icons/md"
+import { LuShoppingBag } from "react-icons/lu"
+import { useAuth } from "../hooks/useAuth"
 
 interface SideMenuProps {}
 
 export const SideMenu: React.FC<SideMenuProps> = ({}) => {
+  const userContext = useAuth()
   return (
-    <ul className="menu bg-white w-56 rounded-box shadow-md">
+    <ul className="menu bg-white w-72 font-bold text-lg max-w-full rounded-box shadow-md sticky top-4 h-fit">
       <li>
-        <Link to={"/messagerie"}>Méssagerie</Link>
+        <Link to={"/profile"} className="flex items-center gap-2">
+          <img src={userContext?.user?.profilePicture} className="w-10" />{" "}
+          Profile
+        </Link>
+      </li>
+      <li>
+        <Link to={"/messagerie"} className="flex items-center gap-2">
+          <AiOutlineMessage /> Méssagerie
+        </Link>
       </li>
       <li>
         <details open>
-          <summary>Pets</summary>
+          <summary className="flex items-center gap-2">
+            <MdOutlinePets /> Pets
+          </summary>
           <ul>
             <li>
               <Link to={"/pets"}>Show pets</Link>
             </li>
             <li>
-              <Link to={"nPet"}>Add a pet </Link>
+              <Link to={"/Pet"}>Add a pet </Link>
             </li>
           </ul>
         </details>
       </li>
       <li>
-        <Link to="/posts">Posts</Link>
+        <Link to="/market" className="flex items-center gap-2">
+          <LuShoppingBag /> Market
+        </Link>
+      </li>
+      <li>
+        <Link to="/posts" className="flex items-center gap-2">
+          <MdOutlineArticle /> Posts
+        </Link>
       </li>
     </ul>
   )

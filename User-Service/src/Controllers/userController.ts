@@ -233,7 +233,25 @@ export const findUserByMail = expressAsyncHandler(
 //Get All users
 export const findAllUsers = expressAsyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const users = await UserModel.find({})
+    const users = await UserModel.find({ role: "user" })
+    res.status(200).json(users)
+  }
+)
+//Search users by nom || prenom
+export const searchUser = expressAsyncHandler(
+  async (
+    req: Request<{}, {}, { search: string }>,
+    res: Response
+  ): Promise<void> => {
+    const { search } = req.query
+    const searchToLowerCase = search?.toString().toLowerCase()
+    if (search === "") res.status(200).json([])
+    const users = await UserModel.find({
+      $or: [
+        { nom: { $regex: new RegExp(searchToLowerCase as string, "i") } },
+        { prenom: { $regex: new RegExp(searchToLowerCase as string, "i") } },
+      ],
+    }).select("_id nom prenom image googleID")
     res.status(200).json(users)
   }
 )

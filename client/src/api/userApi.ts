@@ -41,6 +41,34 @@ export const registerUser = async (userData: FormData) => {
     throw error
   }
 }
+//Get all users
+export const getAllUsers = async (token: string) => {
+  try {
+    const config = { headers: { Authorization: `Bearer ${token}` } }
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_GATEWAY}/api/user/all`,
+      config
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+//Get users by search
+export const getUsersSearch = async (token: string, searchParam: string) => {
+  try {
+    const config = { headers: { Authorization: `Bearer ${token}` } }
+    const response = await axios.get(
+      `${
+        import.meta.env.VITE_API_GATEWAY
+      }/api/user/search?search=${searchParam}`,
+      config
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
 //Reset passworrd [Sending mail]
 export const resetPassword = async (
   mail: string

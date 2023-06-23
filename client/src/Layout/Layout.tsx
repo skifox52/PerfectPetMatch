@@ -15,7 +15,7 @@ export const Layout: React.FC = () => {
             <Navbar />
           </header>
         )}
-      <main>
+      <main className="font-montserrat">
         <Outlet />
       </main>
     </div>

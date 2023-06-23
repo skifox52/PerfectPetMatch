@@ -36,20 +36,36 @@ export const Navbar: React.FC = ({}) => {
     }
   }, [logoutMutation.isLoading, logoutMutation.isSuccess])
   return (
-    <div className="navbar bg-base-100 flex justify-between z-50 shadow-md w-full top-4  shadow-gray-500 ">
+    <div className="navbar bg-base-100 flex justify-between z-50 shadow-md w-full top-4   shadow-gray-500 ">
       <div>
         <NavLink to={"/"} className="btn btn-ghost  normal-case text-md">
           <img src="/PPT.png" alt="logo" className="h-full" />
         </NavLink>
       </div>
       <div>
-        <ul className="flex  lg:menu-horizontal gap-12 text-gray-600 text-xl font-semibold tracking-wide">
+        <ul className="flex  lg:menu-horizontal gap-12 text-gray-600 text-sm font-semibold tracking-wide">
           <li>
             <NavLink
               to={"/"}
               className="hover:text-black aria-[current=page]:underline aria-[current=page]:text-neutral "
             >
               Home
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to={"/market"}
+              className="hover:text-black aria-[current=page]:underline aria-[current=page]:text-neutral "
+            >
+              Market
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to={"/pets"}
+              className="hover:text-black aria-[current=page]:underline aria-[current=page]:text-neutral "
+            >
+              Pets
             </NavLink>
           </li>
           <li>

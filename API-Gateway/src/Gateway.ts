@@ -13,7 +13,11 @@ const excludeUserPaths = [
   /^\/api\/user\/one\?_id=.*/,
   /^\/api\/user\/updateGoogleUser\?_id=.*/,
   /^\/api\/user\/userExistsById\?_id=.*/,
+  /^\/api\/user\/oneByMail\?mail=.*/,
+  /^\/api\/user\/updatePassword\?mail=.*/,
   "/api/user/getUsersByIds",
+  "/api/user/resetPassword",
+  "/api/user/resetKeyExist",
 ]
 const exludedPostPaths = [
   /^\/api\/post\/user\?userId=.*/,
@@ -109,7 +113,23 @@ proxy.use(
     },
   })
 )
-
+// const exludedChatPaths: string[] = []
+//Gateway the chat service
+proxy.use(
+  "/api/chat/*",
+  authMiddleware("user"),
+  createProxyMiddleware({
+    target: process.env.CHAT_SERVICE,
+    changeOrigin: true,
+    onProxyReq: (proxyReq, req: any) => {
+      if (req.headers["x-auth-user"]) {
+        proxyReq.setHeader("x-auth-user", req.headers["x-auth-user"])
+      }
+      //Handle body
+      fixRequestBody(proxyReq, req)
+    },
+  })
+)
 proxy.use(ErrorHandler)
 proxy.listen(process.env.PROXY_PORT, () =>
   console.log(`PROXY running at port ${process.env.PROXY_PORT}`)

@@ -18,6 +18,8 @@ import { FillForm } from "./components/FillForm"
 import { ProtectRoutes } from "./hooks/ProtectRoutes"
 import { Messages } from "./pages/Messages"
 import { Profile } from "./pages/Profile"
+import { ChatBody } from "./components/ChatBody"
+import { ChatInbox } from "./components/ChatInbox"
 
 function App() {
   const router = createBrowserRouter(
@@ -29,7 +31,13 @@ function App() {
         <Route path="/resetPassword" element={<ResetPassword />} />
         <Route element={<ProtectRoutes allowedRole="user" />}>
           <Route index element={<Home />} />
-          <Route path="/messagerie" element={<Messages />} />
+          <Route path="/messagerie" element={<Messages />}>
+            <Route index element={<ChatInbox />} />
+            <Route
+              path="/messagerie/c/:conversationId"
+              element={<ChatBody />}
+            />
+          </Route>
           <Route path="/profile" element={<Profile />} />
           <Route path="/*" element={<NotFound />} />
         </Route>
