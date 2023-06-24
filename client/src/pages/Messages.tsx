@@ -5,6 +5,7 @@ import io from "socket.io-client"
 import { toast } from "react-hot-toast"
 import { useAuth } from "../hooks/useAuth"
 import { Outlet } from "react-router-dom"
+import chatBackground from "../assets/pictures/chatBackground.png"
 
 export const Messages: React.FC = () => {
   const { accessToken } = useAuth()?.user!
@@ -24,9 +25,14 @@ export const Messages: React.FC = () => {
     }
   }, [])
   return (
-    <div className=" h-screen pt-16 p-8 flex items-center justify-between gap-8 bg-primary">
-      <ChatAside />
-      <Outlet />
+    <div
+      className="h-[92.5vh] pt-8 p-8  flex items-center justify-between  gap-4 bg-center bg-cover"
+      style={{
+        backgroundImage: `url(${chatBackground})`,
+      }}
+    >
+      <ChatAside socket={socket} />
+      <Outlet context={socket} />
       <ChatProfile />
     </div>
   )

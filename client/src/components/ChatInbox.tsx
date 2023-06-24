@@ -1,17 +1,20 @@
-import { useQuery } from "@tanstack/react-query"
-import React, { useEffect, useState } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import React, { useState } from "react"
 import { useAuth } from "../hooks/useAuth"
 import { getUsersSearch } from "../api/userApi"
 import { useDebounce } from "../hooks/useDebounce"
 import { toast } from "react-hot-toast"
+import { joinConversation } from "../api/chatApi"
+import { useNavigate } from "react-router-dom"
 
 interface ChatInboxProps {}
 
 export const ChatInbox: React.FC<ChatInboxProps> = ({}) => {
   //Search input
   const [search, setSearch] = useState<string>("")
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
   //Fetch data
-
   const debounceValue = useDebounce(search, 400)
   const [isModal, setIsModal] = useState<boolean>(false)
   const { accessToken, _id } = useAuth()?.user!
@@ -31,8 +34,30 @@ export const ChatInbox: React.FC<ChatInboxProps> = ({}) => {
     enabled: isModal && debounceValue !== "",
   })
   if (isError) toast.error(error.reponse?.data.err || error.message)
+  //Mutation for creating/joining conversation
+  const joinConversationMutation = useMutation({
+    mutationFn: (variables: { user1: string; user2: string; token: string }) =>
+      joinConversation(variables.user1, variables.user2, variables.token),
+    onError: (error: any) =>
+      toast.error(error.response?.data.err || error.message),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["conversation"])
+      navigate(`/messagerie/c/${data.conversationId}`)
+    },
+  })
+  //joinConvOnclick
+  const handleJoinConversationClick = (
+    elId: string,
+    e: React.MouseEvent<HTMLDivElement>
+  ) => {
+    joinConversationMutation.mutate({
+      user1: _id,
+      user2: elId,
+      token: accessToken,
+    })
+  }
   return (
-    <main className="bg-base-300 flex-1 h-5/6 pt-16 first-letter rounded-3xl p-8 flex flex-col gap-6 items-center shadow-md shadow-gray-600">
+    <main className="bg-bgPrimary flex-1 h-full pt-16 first-letter rounded-3xl p-8 flex flex-col gap-6 items-center shadow-md shadow-gray-600">
       <h2 className="font-bold">Commencer une conversation...</h2>
 
       <label
@@ -60,6 +85,7 @@ export const ChatInbox: React.FC<ChatInboxProps> = ({}) => {
                 .filter((d: any) => d._id !== _id)
                 .map((el: any, i: number) => (
                   <div
+                    onClick={(e) => handleJoinConversationClick(el._id, e)}
                     key={i}
                     className="flex items-center w-full gap-4 px-2 py-3 border-b hover:cursor-pointer hover:bg-bgPrimary border-gray-300 "
                   >

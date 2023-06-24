@@ -3,12 +3,15 @@ import axios from "axios"
 //Join conversation
 export const joinConversation = async (
   user1: string,
-  user2: string
+  user2: string,
+  token: string
 ): Promise<{ conversationId: string }> => {
+  const config = { headers: { Authorization: `Bearer ${token}` } }
   try {
     const response = await axios.post<{ conversationId: string }>(
       `${import.meta.env.VITE_API_GATEWAY}/api/chat/conversation`,
-      { user1, user2 }
+      { user1, user2 },
+      config
     )
     return response.data
   } catch (error) {

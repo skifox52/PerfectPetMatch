@@ -4,8 +4,8 @@ interface ChatProfileProps {}
 
 export const ChatProfile: React.FC<ChatProfileProps> = ({}) => {
   return (
-    <div className=" w-1/6 rounded-3xl flex flex-col gap-4 shadow-md shadow-gray-600 h-5/6 bg-base-300 p-4">
-      <div className="flex justify-center pb-4 border border-b-primary">
+    <div className=" w-1/6 rounded-3xl flex flex-col gap-4 shadow-md shadow-gray-600 h-full bg-bgPrimary p-4">
+      <div className="flex justify-center mb-4 ">
         <img
           src="https://campussafetyconference.com/wp-content/uploads/2020/08/iStock-476085198.jpg"
           alt=" profile"

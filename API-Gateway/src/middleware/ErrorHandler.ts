@@ -1,4 +1,3 @@
-import expressAsyncHandler from "express-async-handler"
 import { ErrorRequestHandler, Request, Response, NextFunction } from "express"
 
 const ErrorHandler: ErrorRequestHandler = (

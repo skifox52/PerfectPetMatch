@@ -129,9 +129,10 @@ io.on("connection", (socket: any) => {
         content: content,
         timeStamps: Date.now(),
       }
-      await redisClient.hmset(conversationId, newMessage)
+      console.log("MESSAGE SENT")
       //Emit the message to the participent of the conversation
       io.to(conversationId).emit("newMessage", newMessage)
+      await redisClient.hmset(conversationId, newMessage)
     } catch (error: any) {
       console.error(error)
       throw new Error(error)
