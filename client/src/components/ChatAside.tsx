@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuth"
 import { useQuery } from "@tanstack/react-query"
 import { getConversations } from "../api/chatApi"
 import { toast } from "react-hot-toast"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { Socket } from "socket.io-client"
 
 interface ChatAsideProps {
@@ -11,8 +11,9 @@ interface ChatAsideProps {
 }
 
 export const ChatAside: React.FC<ChatAsideProps> = ({ socket }) => {
+  const { conversationId } = useParams()
   const navigate = useNavigate()
-  const { accessToken, _id } = useAuth()?.user!
+  const { accessToken } = useAuth()?.user!
   const { data, isLoading, isError, error } = useQuery<
     | {
         convId: string
@@ -46,8 +47,9 @@ export const ChatAside: React.FC<ChatAsideProps> = ({ socket }) => {
             key={conv.convId}
             className="btn bg-white  text-gray-600 font-bold text-xs w-full hover:bg-primary hover:text-white hover:bg-opacity-70 hover:border-gray-200 border-gray-300 relative flex  gap-4 justify-center items-center"
             onClick={(e) => {
+              if (conversationId === conv.convId) return
               socket.emit("joinConversation", conv.convId)
-              navigate(`/messagerie/c/${conv.convId}`)
+              if (location) navigate(`/messagerie/c/${conv.convId}`)
             }}
           >
             <img

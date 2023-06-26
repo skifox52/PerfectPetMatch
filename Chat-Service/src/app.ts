@@ -96,10 +96,15 @@ app.get(
   expressAsyncHandler(
     async (req: Request<{ conversationId: string }>, res: Response) => {
       const { conversationId } = req.params
-      const messages = await MessageModel.find({
-        conversation: conversationId,
-      })
-      res.status(200).json(messages)
+      const redisMessages = await redisClient.lrange(conversationId, 0, -1)
+      if (redisMessages) {
+        res.status(200).json(redisMessages)
+      } else {
+        const messages = await MessageModel.find({
+          conversation: conversationId,
+        })
+        res.status(200).json(messages)
+      }
     }
   )
 )
@@ -113,17 +118,10 @@ io.on("connection", (socket: any) => {
     console.log("Joined conversation number ", conversationId)
     socket.join(conversationId)
   })
-
   //Handeling incoming chat messages from the client
   socket.on("sendMessage", async (data: any) => {
     const { conversationId, senderId, content } = data
     try {
-      // const newMessage = await MessageModel.create({
-      //   conversation: conversationId,
-      //   sender: senderId,
-      //   content: content,
-      // })
-      //Save message to redis
       const newMessage = {
         sender: senderId,
         content: content,
@@ -132,7 +130,7 @@ io.on("connection", (socket: any) => {
       console.log("MESSAGE SENT")
       //Emit the message to the participent of the conversation
       io.to(conversationId).emit("newMessage", newMessage)
-      await redisClient.hmset(conversationId, newMessage)
+      await redisClient.rpush(conversationId, JSON.stringify(newMessage))
     } catch (error: any) {
       console.error(error)
       throw new Error(error)

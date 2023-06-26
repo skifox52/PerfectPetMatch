@@ -13,7 +13,10 @@ export const SideMenu: React.FC<SideMenuProps> = ({}) => {
     <ul className="menu bg-white w-72 font-bold text-lg max-w-full rounded-box shadow-md sticky top-4 h-fit">
       <li>
         <Link to={"/profile"} className="flex items-center gap-2">
-          <img src={userContext?.user?.profilePicture} className="w-10" />{" "}
+          <img
+            src={userContext?.user?.profilePicture}
+            className="w-10 rounded-full"
+          />{" "}
           Profile
         </Link>
       </li>

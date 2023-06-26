@@ -3,15 +3,16 @@ import { FiSend } from "react-icons/fi"
 import { useOutletContext, useParams } from "react-router-dom"
 import { Socket } from "socket.io-client"
 import { useAuth } from "../hooks/useAuth"
+import { useQuery } from "@tanstack/react-query"
+import { getConversationMessages } from "../api/chatApi"
+import toast from "react-hot-toast"
 
 interface ChatBodyProps {}
 
 export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
-  const [recievedMessage, setRecievedMessage] = useState<
-    { sender: string; content: string; timeStamps: number }[]
-  >([])
+  const [messages, setMessages] = useState<string[]>([])
   const socket: Socket = useOutletContext()
-  const { _id } = useAuth()!.user!
+  const { _id, accessToken } = useAuth()!.user!
   const { conversationId } = useParams()
   const [message, setMessage] = useState<string>("")
   //Handle onSubmit
@@ -22,34 +23,57 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
     setMessage("")
     socket.emit("sendMessage", data)
   }
+  //Load conversation loaded messages
+  const { data, error, isError, isLoading, isSuccess } = useQuery<
+    string[],
+    any
+  >({
+    queryKey: ["messages", accessToken, conversationId],
+    queryFn: () =>
+      getConversationMessages(
+        accessToken,
+        conversationId?.toString() as string
+      ),
+    refetchOnMount: "always",
+  })
+  if (isError) {
+    toast.error(error.response?.err.data || error.message)
+  }
+  useEffect(() => {
+    isSuccess && setMessages(data!)
+    return () => setMessages([])
+  }, [conversationId, isLoading])
   //Recieved messages
-  console.log(recievedMessage)
-  useEffect(() => {
-    socket.on("newMessage", (data) => {
-      console.log(data)
-      setRecievedMessage((prev) => {
-        return [
-          ...prev,
-          {
-            sender: data.sender,
-            content: data.content,
-            timeStamps: data.timeStamps,
-          },
-        ]
-      })
+
+  socket.on("newMessage", (data) => {
+    setMessages((prev) => {
+      return [
+        ...prev,
+        JSON.stringify({
+          sender: data.sender,
+          content: data.content,
+          timeStamps: data.timeStamps,
+        }),
+      ]
     })
-  }, [socket])
-  useEffect(() => {
-    setRecievedMessage([])
-  }, [conversationId])
+  })
+  if (isLoading) return <h1>Loading...</h1>
   return (
     <main className="bg-bgPrimary flex-1 h-full first-letter rounded-3xl p-8 flex flex-col gap-6 items-center shadow-md shadow-gray-600">
-      <section className="rounded-3xl bg-base-100 w-full block flex-1 border-gray-300 border shadow-md">
-        {recievedMessage.map((el, i) => (
-          <h2 key={i} className="text-text-xl font-bold">
-            {el.content}
-          </h2>
-        ))}
+      <section className="rounded-3xl bg-base-100 py-8 w-full px-4 block flex-1 border-gray-300 border shadow-md">
+        {isSuccess &&
+          messages.map((el, i) => (
+            <div className="chat chat-end flex flex-col" key={i}>
+              <div className="bg-primary px-2 py-1 rounded-xl font-semibold text-gray-50">
+                {JSON.parse(el).content}
+              </div>
+              <span className="text-xs text-gray-400">
+                {new Date(parseInt(JSON.parse(el).timeStamps)).getHours() +
+                  " : " +
+                  new Date(parseInt(JSON.parse(el).timeStamps)).getMinutes()}
+              </span>
+            </div>
+          ))}
       </section>
       <section className="h-16 w-full rounded-3xl relative flex items-center shadow-md">
         <form onSubmit={handleOnSubmite} className="h-full w-full">

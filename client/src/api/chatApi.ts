@@ -31,3 +31,19 @@ export const getConversations = async (token: string) => {
     throw error
   }
 }
+//Get conversation messages
+export const getConversationMessages = async (
+  token: string,
+  conversationId: string
+) => {
+  try {
+    const config = { headers: { Authorization: `Bearer ${token}` } }
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_GATEWAY}/api/chat/messages/${conversationId}`,
+      config
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}

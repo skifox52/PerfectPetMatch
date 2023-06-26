@@ -75,10 +75,16 @@ app.get("/api/chat/conversation", expressAsyncHandler(async (req, res) => {
 //API for getting conversation history
 app.get("/api/chat/messages/:conversationId", expressAsyncHandler(async (req, res) => {
     const { conversationId } = req.params;
-    const messages = await MessageModel.find({
-        conversation: conversationId,
-    });
-    res.status(200).json(messages);
+    const redisMessages = await redisClient.lrange(conversationId, 0, -1);
+    if (redisMessages) {
+        res.status(200).json(redisMessages);
+    }
+    else {
+        const messages = await MessageModel.find({
+            conversation: conversationId,
+        });
+        res.status(200).json(messages);
+    }
 }));
 //Websockets connections handeling
 io.on("connection", (socket) => {
@@ -92,12 +98,6 @@ io.on("connection", (socket) => {
     socket.on("sendMessage", async (data) => {
         const { conversationId, senderId, content } = data;
         try {
-            // const newMessage = await MessageModel.create({
-            //   conversation: conversationId,
-            //   sender: senderId,
-            //   content: content,
-            // })
-            //Save message to redis
             const newMessage = {
                 sender: senderId,
                 content: content,
@@ -106,7 +106,7 @@ io.on("connection", (socket) => {
             console.log("MESSAGE SENT");
             //Emit the message to the participent of the conversation
             io.to(conversationId).emit("newMessage", newMessage);
-            await redisClient.hmset(conversationId, newMessage);
+            await redisClient.rpush(conversationId, JSON.stringify(newMessage));
         }
         catch (error) {
             console.error(error);
