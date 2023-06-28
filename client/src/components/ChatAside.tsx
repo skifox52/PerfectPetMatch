@@ -49,7 +49,7 @@ export const ChatAside: React.FC<ChatAsideProps> = ({ socket }) => {
             onClick={(e) => {
               if (conversationId === conv.convId) return
               socket.emit("joinConversation", conv.convId)
-              if (location) navigate(`/messagerie/c/${conv.convId}`)
+              navigate(`/messagerie/c/${conv.convId}`)
             }}
           >
             <img

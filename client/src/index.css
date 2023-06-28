@@ -8,3 +8,12 @@
     -webkit-text-stroke-color: rgba(255, 255, 255, 0.8);
   }
 }
+
+::-webkit-scrollbar {
+  width: 8px;
+  background-color: rgb(207, 207, 207);
+}
+::-webkit-scrollbar-thumb {
+  background: #a8a8a8;
+  border-radius: 100vw;
+}

@@ -127,7 +127,6 @@ io.on("connection", (socket: any) => {
         content: content,
         timeStamps: Date.now(),
       }
-      console.log("MESSAGE SENT")
       //Emit the message to the participent of the conversation
       io.to(conversationId).emit("newMessage", newMessage)
       await redisClient.rpush(conversationId, JSON.stringify(newMessage))
