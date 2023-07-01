@@ -11,6 +11,7 @@ interface ChatBodyProps {}
 
 export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
   const chatBoxRef = useRef<HTMLDivElement>(null)
+  const scrollTopElement = useRef<HTMLDivElement>(null)
   const [messages, setMessages] = useState<string[]>([])
   const socket: Socket = useOutletContext()
   const { _id, accessToken } = useAuth()!.user!
@@ -22,15 +23,14 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
   }
   useEffect(() => {
     scrollToBottom()
-    console.log("djf")
   }, [messages])
   //Join conversation
   useEffect(() => {
     socket.emit("joinConversation", conversationId)
     scrollToBottom()
-  }, [])
+  }, [conversationId])
   //Handle onSubmit
-  const hendleSendMessage: any = () => {
+  const handleSendMessage: any = () => {
     if (message === "") return
     const data = { conversationId, senderId: _id, content: message }
     setMessage("")
@@ -47,7 +47,6 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
         accessToken,
         conversationId?.toString() as string
       ),
-    refetchOnMount: "always",
   })
   if (isError) {
     toast.error(error.response?.err.data || error.message)
@@ -55,37 +54,69 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
   useEffect(() => {
     isSuccess && setMessages(data!)
     return () => setMessages([])
-  }, [conversationId, isLoading])
+  }, [conversationId, isLoading, data, socket])
   //Recieved messages
 
   useEffect(() => {
-    socket.on("newMessage", (data) => {
-      setMessages((prev) => {
-        return [
-          ...prev,
-          JSON.stringify({
-            sender: data.sender,
-            content: data.content,
-            timeStamps: data.timeStamps,
-          }),
-        ]
-      })
-    })
-  }, [socket])
+    const handleNewMessage = (data: any) => {
+      if (conversationId === data.conversationId) {
+        setMessages((prev) => {
+          return [
+            ...prev,
+            JSON.stringify({
+              sender: data.sender,
+              content: data.content,
+              timeStamps: data.timeStamps,
+            }),
+          ]
+        })
+      }
+    }
+    socket.on("newMessage", handleNewMessage)
+    return () => {
+      socket.off("newMessage", handleNewMessage)
+    }
+  }, [socket, conversationId])
   if (isLoading) return <h1>Loading...</h1>
   return (
     <main className="bg-bgPrimary flex-1 h-full first-letter rounded-3xl p-8 flex flex-col gap-6 items-center shadow-md shadow-gray-600">
-      <section className="rounded-xl bg-base-100 py-8 h-[80%] overflow-y-auto w-full px-4 block flex-1 border-gray-300 border shadow-md">
+      <section
+        ref={scrollTopElement}
+        className="rounded-xl bg-base-100 py-8 h-[80%] overflow-y-auto w-full px-4 block flex-1 border-gray-300 border shadow-md"
+      >
         {isSuccess &&
           messages.map((el, i) => (
-            <div className="chat chat-end flex flex-col" key={i}>
-              <div className="bg-primary px-2 py-1 rounded-xl font-semibold text-gray-50">
+            <div
+              className={
+                JSON.parse(el).sender === _id
+                  ? "chat chat-end flex flex-col"
+                  : "chat chat-start flex flex-col"
+              }
+              key={JSON.parse(el).timeStamps}
+            >
+              <div
+                className={
+                  JSON.parse(el).sender === _id
+                    ? "bg-primary px-2 py-1 rounded-xl font-semibold text-gray-50  border border-gray-200"
+                    : "bg-bgPrimary px-2 py-1 rounded-xl font-semibold text-gray-60 border border-gray-200"
+                }
+              >
                 {JSON.parse(el).content}
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-gray-400 p-1 pb-2">
+                {JSON.parse(el).sender === _id && (
+                  <span className="font-bold text-gray-600">You</span>
+                )}{" "}
                 {new Date(parseInt(JSON.parse(el).timeStamps)).getHours() +
                   " : " +
-                  new Date(parseInt(JSON.parse(el).timeStamps)).getMinutes()}
+                  (new Date(parseInt(JSON.parse(el).timeStamps))
+                    .getMinutes()
+                    .toString().length === 1
+                    ? "0" +
+                      new Date(parseInt(JSON.parse(el).timeStamps)).getMinutes()
+                    : new Date(
+                        parseInt(JSON.parse(el).timeStamps)
+                      ).getMinutes())}
               </span>
             </div>
           ))}
@@ -99,11 +130,11 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
             placeholder="Saisissez votre message..."
             className="h-full w-full rounded-3xl pl-6  input border-2 input-primary font-bold tracking-wide pr-16"
             value={message}
-            onKeyDown={(e) => e.key === "Enter" && hendleSendMessage(e)}
+            onKeyDown={(e) => e.key === "Enter" && handleSendMessage(e)}
             onChange={(e) => setMessage(e.target.value)}
           />
           <button
-            onClick={hendleSendMessage}
+            onClick={handleSendMessage}
             className="absolute right-6 h-full w-8 text-neutral hover:text-primary cursor-pointer"
           >
             <FiSend className="h-full w-full" />

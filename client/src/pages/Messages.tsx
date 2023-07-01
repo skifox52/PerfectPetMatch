@@ -2,23 +2,21 @@ import React, { useEffect, useState } from "react"
 import { ChatAside } from "../components/ChatAside"
 import { ChatProfile } from "../components/ChatProfile"
 import io from "socket.io-client"
-import { toast } from "react-hot-toast"
-import { useAuth } from "../hooks/useAuth"
 import { Outlet } from "react-router-dom"
 import chatBackground from "../assets/pictures/chatBackground.png"
 
 export const Messages: React.FC = () => {
-  const { accessToken } = useAuth()?.user!
-
+  const [currentUser, setCurrentUser] = useState<{
+    nom: string
+    prenom: string
+    image: string
+    sexe: string
+    adresse: string
+    date_de_naissance: string
+    googleID?: string
+  } | null>(null)
+  //Initialize the socker object
   const socket = io("http://localhost:5005")
-
-  //Join message
-  const sendMessage = (message: string) => {
-    try {
-    } catch (error: any) {
-      toast.error(error.response?.data.err || error.message)
-    }
-  }
   useEffect(() => {
     return () => {
       socket.emit("disconnected")
@@ -31,9 +29,9 @@ export const Messages: React.FC = () => {
         backgroundImage: `url(${chatBackground})`,
       }}
     >
-      <ChatAside socket={socket} />
+      <ChatAside socket={socket} setCurrentUser={setCurrentUser} />
       <Outlet context={socket} />
-      <ChatProfile />
+      <ChatProfile currentUser={currentUser} />
     </div>
   )
 }

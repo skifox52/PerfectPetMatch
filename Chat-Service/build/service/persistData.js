@@ -1,4 +1,3 @@
-import cron from "node-cron";
 import { Redis } from "ioredis";
 import { MessageModel } from "../models/ChatModel.js";
 //Create a redis cleint that par default uses `http://localhost:6379`
@@ -9,8 +8,10 @@ export const persistMessages = async () => {
         const messages = await redisClient.keys("chat-conversation:*");
         if (messages.length > 0) {
             messages.forEach(async (mes) => {
-                ;
-                (await redisClient.lrange(mes, 0, -1)).forEach(async (msg, i) => {
+                const list = await redisClient.lrange(mes, 0, -11);
+                if (list.length === 0)
+                    return;
+                list.forEach(async (msg) => {
                     const message = JSON.parse(msg);
                     await MessageModel.create({
                         conversation: message.conversationId,
@@ -20,7 +21,10 @@ export const persistMessages = async () => {
                     });
                 });
             });
-            await redisClient.del(messages);
+            //Delete persisted messages from redis
+            messages.forEach(async (mes) => {
+                redisClient.ltrim(mes, -10, -1);
+            });
         }
         else {
             return;
@@ -30,8 +34,3 @@ export const persistMessages = async () => {
         throw new Error(error);
     }
 };
-//Use node-cron to execute this function
-cron.schedule("* * * * *", () => {
-    console.log("CRON EXECUTED");
-    persistMessages();
-});

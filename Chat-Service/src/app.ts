@@ -11,7 +11,13 @@ import cors from "cors"
 import { ConversationModel, MessageModel } from "./models/ChatModel.js"
 import type { ConversationInterface } from "./models/ChatModel.js"
 import { Redis } from "ioredis"
+import { persistMessages } from "./service/persistData.js"
+import cron from "node-cron"
 
+//Setting up the cron-job
+cron.schedule("30 * * * *", () => {
+  persistMessages()
+})
 //Setting up the redis client
 const redisClient = new Redis()
 //Express setup
@@ -49,21 +55,6 @@ app.post(
   })
 )
 
-//API for sendig message
-app.post(
-  "/api/chat/message",
-  expressAsyncHandler(async (req: Request, res: Response) => {
-    const { conversationId, sender, message } = req.body
-    const newMessage = await MessageModel.create({
-      conversation: new Types.ObjectId(conversationId),
-      sender: new Types.ObjectId(sender),
-      content: message,
-    })
-    //Emit the messgage to the participant of the conversation
-    io.to(conversationId).emit("newMessage", newMessage)
-    res.status(200).json({ message: "Message sent successfully!" })
-  })
-)
 //API for getting user conversations
 app.get(
   "/api/chat/conversation",
@@ -96,15 +87,12 @@ app.get(
   expressAsyncHandler(
     async (req: Request<{ conversationId: string }>, res: Response) => {
       const { conversationId } = req.params
-      const redisMessages = await redisClient.lrange(conversationId, 0, -1)
-      if (redisMessages) {
-        res.status(200).json(redisMessages)
-      } else {
-        const messages = await MessageModel.find({
-          conversation: conversationId,
-        })
-        res.status(200).json(messages)
-      }
+      const redisMessages = await redisClient.lrange(
+        `chat-conversation:${conversationId}`,
+        0,
+        -1
+      )
+      res.status(200).json(redisMessages)
     }
   )
 )
@@ -123,13 +111,17 @@ io.on("connection", (socket: any) => {
     const { conversationId, senderId, content } = data
     try {
       const newMessage = {
+        conversationId,
         sender: senderId,
         content: content,
         timeStamps: Date.now(),
       }
       //Emit the message to the participent of the conversation
       io.to(conversationId).emit("newMessage", newMessage)
-      await redisClient.rpush(conversationId, JSON.stringify(newMessage))
+      await redisClient.rpush(
+        `chat-conversation:${conversationId}`,
+        JSON.stringify(newMessage)
+      )
     } catch (error: any) {
       console.error(error)
       throw new Error(error)

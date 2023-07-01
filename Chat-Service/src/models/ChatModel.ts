@@ -7,14 +7,15 @@ export interface ConversationInterface extends Document {
 export interface ConversationModelInterface
   extends Model<ConversationInterface> {
   conversationExist: ([patient_one, patient_two]: [
-    Types.ObjectId,
-    Types.ObjectId
+    string,
+    string
   ]) => Promise<ConversationInterface | null>
 }
 export interface MessageInterface extends Document {
   conversation: Types.ObjectId
-  sender: Types.ObjectId
+  sender: string
   content: string
+  timeStamps: number
 }
 
 //Schemas
@@ -22,8 +23,7 @@ const conversationSchema = new Schema<ConversationInterface>(
   {
     users: [
       {
-        type: Schema.Types.ObjectId,
-        ref: "User",
+        type: String,
         required: true,
       },
     ],
@@ -31,25 +31,25 @@ const conversationSchema = new Schema<ConversationInterface>(
   { timestamps: true }
 )
 
-const messageSchema = new Schema<MessageInterface>(
-  {
-    conversation: {
-      type: Schema.Types.ObjectId,
-      ref: "Conversation",
-      required: true,
-    },
-    sender: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    content: {
-      type: String,
-      required: true,
-    },
+const messageSchema = new Schema<MessageInterface>({
+  conversation: {
+    type: Schema.Types.ObjectId,
+    ref: "Conversation",
+    required: true,
   },
-  { timestamps: true }
-)
+  sender: {
+    type: String,
+    required: true,
+  },
+  content: {
+    type: String,
+    required: true,
+  },
+  timeStamps: {
+    type: Number,
+    required: true,
+  },
+})
 
 conversationSchema.statics.conversationExist = async function ([
   participant_one,

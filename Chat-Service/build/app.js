@@ -8,8 +8,14 @@ import ErrorHandler from "./middlewares/ErrorHandler.js";
 import expressAsyncHandler from "express-async-handler";
 import compression from "compression";
 import cors from "cors";
-import { ConversationModel, MessageModel } from "./models/ChatModel.js";
+import { ConversationModel } from "./models/ChatModel.js";
 import { Redis } from "ioredis";
+import { persistMessages } from "./service/persistData.js";
+import cron from "node-cron";
+//Setting up the cron-job
+cron.schedule("30 * * * *", () => {
+    persistMessages();
+});
 //Setting up the redis client
 const redisClient = new Redis();
 //Express setup
@@ -41,18 +47,6 @@ app.post("/api/chat/conversation", expressAsyncHandler(async (req, res) => {
     }
     res.status(200).json({ conversationId: conversationId });
 }));
-//API for sendig message
-app.post("/api/chat/message", expressAsyncHandler(async (req, res) => {
-    const { conversationId, sender, message } = req.body;
-    const newMessage = await MessageModel.create({
-        conversation: new Types.ObjectId(conversationId),
-        sender: new Types.ObjectId(sender),
-        content: message,
-    });
-    //Emit the messgage to the participant of the conversation
-    io.to(conversationId).emit("newMessage", newMessage);
-    res.status(200).json({ message: "Message sent successfully!" });
-}));
 //API for getting user conversations
 app.get("/api/chat/conversation", expressAsyncHandler(async (req, res) => {
     const { _id } = JSON.parse(req.headers["x-auth-user"]);
@@ -75,16 +69,8 @@ app.get("/api/chat/conversation", expressAsyncHandler(async (req, res) => {
 //API for getting conversation history
 app.get("/api/chat/messages/:conversationId", expressAsyncHandler(async (req, res) => {
     const { conversationId } = req.params;
-    const redisMessages = await redisClient.lrange(conversationId, 0, -1);
-    if (redisMessages) {
-        res.status(200).json(redisMessages);
-    }
-    else {
-        const messages = await MessageModel.find({
-            conversation: conversationId,
-        });
-        res.status(200).json(messages);
-    }
+    const redisMessages = await redisClient.lrange(`chat-conversation:${conversationId}`, 0, -1);
+    res.status(200).json(redisMessages);
 }));
 //Websockets connections handeling
 io.on("connection", (socket) => {
@@ -99,14 +85,14 @@ io.on("connection", (socket) => {
         const { conversationId, senderId, content } = data;
         try {
             const newMessage = {
+                conversationId,
                 sender: senderId,
                 content: content,
                 timeStamps: Date.now(),
             };
-            console.log("MESSAGE SENT");
             //Emit the message to the participent of the conversation
             io.to(conversationId).emit("newMessage", newMessage);
-            await redisClient.rpush(conversationId, JSON.stringify(newMessage));
+            await redisClient.rpush(`chat-conversation:${conversationId}`, JSON.stringify(newMessage));
         }
         catch (error) {
             console.error(error);

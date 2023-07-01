@@ -3,8 +3,7 @@ import { Schema, model } from "mongoose";
 const conversationSchema = new Schema({
     users: [
         {
-            type: Schema.Types.ObjectId,
-            ref: "User",
+            type: String,
             required: true,
         },
     ],
@@ -16,15 +15,18 @@ const messageSchema = new Schema({
         required: true,
     },
     sender: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
+        type: String,
         required: true,
     },
     content: {
         type: String,
         required: true,
     },
-}, { timestamps: true });
+    timeStamps: {
+        type: Number,
+        required: true,
+    },
+});
 conversationSchema.statics.conversationExist = async function ([participant_one, participant_two,]) {
     return this.findOne({ users: { $all: [participant_one, participant_two] } });
 };
