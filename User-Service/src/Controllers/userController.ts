@@ -272,7 +272,7 @@ export const getUsersByIds = expressAsyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     const ids: string[] = req.body.ids
     const users = await UserModel.find({ _id: { $in: ids } }).select(
-      "_id nom prenom mail image"
+      "_id nom prenom mail image googleID"
     )
     res.json(users)
   }

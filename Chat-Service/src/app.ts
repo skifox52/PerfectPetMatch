@@ -133,6 +133,34 @@ io.on("connection", (socket: any) => {
   })
 })
 
+//Chat pagination fetching
+app.get(
+  "/api/chat/pagination",
+  expressAsyncHandler(
+    async (
+      req: Request<{}, {}, { conversationId: string; page: number }>,
+      res: Response
+    ) => {
+      const { conversationId, page } = req.query
+      const skip: number = Number(page) * 10
+      const limit: number = 10
+      const count: number = Math.ceil(
+        (await MessageModel.countDocuments()) / 10
+      )
+      const messages = await MessageModel.find({
+        conversation: conversationId,
+      })
+        .sort({ timeStamps: -1 })
+        .skip(skip)
+        .limit(limit)
+      const returnedMessage = messages
+        .sort((a, b) => a.timeStamps - b.timeStamps)
+        .map((mes) => JSON.stringify(mes))
+      res.status(200).json({ messages: returnedMessage, count })
+    }
+  )
+)
+
 //Error Handler
 app.use(ErrorHandler)
 connect(process.env.MONGO_URI as string)

@@ -4,7 +4,7 @@ import { useOutletContext, useParams } from "react-router-dom"
 import { Socket } from "socket.io-client"
 import { useAuth } from "../hooks/useAuth"
 import { useQuery } from "@tanstack/react-query"
-import { getConversationMessages } from "../api/chatApi"
+import { getConversationMessages, getMessagesOnScroll } from "../api/chatApi"
 import toast from "react-hot-toast"
 
 interface ChatBodyProps {}
@@ -24,10 +24,10 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
-  //Join conversation
+  // Join conversation
   useEffect(() => {
     socket.emit("joinConversation", conversationId)
-    scrollToBottom()
+    // scrollToBottom()
   }, [conversationId])
   //Handle onSubmit
   const handleSendMessage: any = () => {
@@ -47,16 +47,64 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
         accessToken,
         conversationId?.toString() as string
       ),
+    refetchOnWindowFocus: true,
   })
   if (isError) {
     toast.error(error.response?.err.data || error.message)
   }
+
   useEffect(() => {
     isSuccess && setMessages(data!)
-    return () => setMessages([])
-  }, [conversationId, isLoading, data, socket])
-  //Recieved messages
 
+    return () => {
+      setMessages([])
+      setPage(0)
+    }
+  }, [conversationId, isLoading, data, socket])
+  //Fetch on scroll
+  //--fetch on scroll query
+  const [page, setPage] = useState<number>(1)
+  const [scrollFetch, setScrollFetch] = useState<boolean>(false)
+  const {
+    data: scrollMessages,
+    isError: isErrorScrollMessages,
+    isSuccess: isSuccessScrollMessages,
+    error: errorScroll,
+    refetch,
+  } = useQuery<any, any>({
+    queryKey: ["onScrollMessages", accessToken, conversationId, page],
+    queryFn: () =>
+      getMessagesOnScroll(accessToken, conversationId as string, page),
+    enabled: scrollFetch,
+  })
+  const handleScroll = () => {
+    if (scrollTopElement.current?.scrollTop === 0) {
+      setScrollFetch(true)
+      setPage(page + 1)
+    }
+  }
+  console.log(scrollMessages)
+  console.log(page)
+  useEffect(() => {
+    scrollTopElement.current?.addEventListener("scroll", handleScroll)
+    return () => {
+      console.log("test")
+      scrollTopElement.current?.removeEventListener("scroll", handleScroll)
+    }
+  }, [scrollTopElement.current])
+  useEffect(() => {
+    setScrollFetch(true)
+  }, [page])
+
+  if (isErrorScrollMessages)
+    toast.error(errorScroll.response?.data.err || errorScroll.message)
+  useEffect(() => {
+    isSuccessScrollMessages &&
+      setMessages((prev) => {
+        return [...scrollMessages.messages, ...prev]
+      })
+  }, [isSuccessScrollMessages])
+  //Recieved messages
   useEffect(() => {
     const handleNewMessage = (data: any) => {
       if (conversationId === data.conversationId) {
@@ -92,7 +140,7 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
                   ? "chat chat-end flex flex-col"
                   : "chat chat-start flex flex-col"
               }
-              key={JSON.parse(el).timeStamps}
+              key={JSON.parse(el).timeStamps + i}
             >
               <div
                 className={

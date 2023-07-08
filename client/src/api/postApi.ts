@@ -18,3 +18,20 @@ export const getPosts = async (
     throw error
   }
 }
+//Post a post
+export const postPost = async (
+  token: string,
+  postData: FormData
+): Promise<{ Status: boolean; Post: PostInterface }> => {
+  try {
+    const config = { headers: { Authorization: `Bearer ${token}` } }
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_GATEWAY}/api/post/`,
+      postData,
+      config
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}

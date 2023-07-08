@@ -6,7 +6,9 @@ import axios from "axios";
 import "dotenv/config";
 //Get all posts
 export const getAllPosts = expressAsyncHandler(async (req, res) => {
-    const allPosts = await PostModel.find();
+    const allPosts = await PostModel.find()
+        .populate("pet")
+        .sort({ createdAt: -1 });
     //Get the id of all users
     const usersId = allPosts.map((post) => post.owner);
     const filteredUsersId = usersId.filter((id, i, usersId) => {
@@ -25,30 +27,35 @@ export const getAllPosts = expressAsyncHandler(async (req, res) => {
 //Post a post
 export const postPost = expressAsyncHandler(async (req, res) => {
     const { _id } = req.headers["x-auth-user"] && JSON.parse(req.headers["x-auth-user"]);
-    const { title, content } = req.body;
-    if (!title || !content) {
+    const { title, content, type, race, date_de_naissance } = req.body;
+    if (!title || !content || !type || !race || !date_de_naissance) {
         res.status(400);
         throw new Error("Empty fields!");
     }
-    const files = req.files;
-    const formData = new FormData();
-    files?.length &&
-        files?.forEach((f) => {
-            formData.append("images", f.buffer, {
-                filename: f.originalname,
-                contentType: f.mimetype,
+    let responseData;
+    if (req.files.length) {
+        const files = req.files;
+        const formData = new FormData();
+        files?.length &&
+            files?.forEach((f) => {
+                formData.append("images", f.buffer, {
+                    filename: f.originalname,
+                    contentType: f.mimetype,
+                });
             });
+        const response = await axios.post(process.env.MEDIA_SERVICE_URI, formData, {
+            headers: {
+                ...formData.getHeaders(),
+            },
         });
-    const response = await axios.post(process.env.MEDIA_SERVICE_URI, formData, {
-        headers: {
-            ...formData.getHeaders(),
-        },
-    });
+        responseData = response.data;
+    }
     const newPost = await PostModel.create({
         owner: _id,
         title,
         content,
-        images: response.data ? response.data : [],
+        pet: { type, race, date_de_naissance },
+        images: responseData ? responseData : [],
     });
     res.status(201).json({ Status: "Success", Post: newPost });
 });
@@ -165,7 +172,10 @@ export const deleteComment = expressAsyncHandler(async (req, res) => {
 //Like section
 //Like a post
 export const likePost = expressAsyncHandler(async (req, res) => {
-    await PostModel.findByIdAndUpdate(req.query.postId, { $inc: { likes: 1 } });
+    const { _id } = JSON.parse(req.headers["x-auth-user"]);
+    await PostModel.findByIdAndUpdate(req.query.postId, {
+        $push: { likes: _id },
+    });
     res.status(200).json({ success: true, message: "Post liked successfully!" });
 });
 //Remove a like

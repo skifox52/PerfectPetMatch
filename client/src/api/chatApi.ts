@@ -47,3 +47,22 @@ export const getConversationMessages = async (
     throw error
   }
 }
+//Get messages on scroll
+export const getMessagesOnScroll = async (
+  token: string,
+  conversationId: string,
+  page: number = 1
+) => {
+  try {
+    const config = { headers: { Authorization: `Bearer ${token}` } }
+    const response = await axios.get(
+      `${
+        import.meta.env.VITE_API_GATEWAY
+      }/api/chat/pagination?conversationId=${conversationId}&page=${page}`,
+      config
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}

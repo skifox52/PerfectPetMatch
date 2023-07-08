@@ -8,7 +8,7 @@ import ErrorHandler from "./middlewares/ErrorHandler.js";
 import expressAsyncHandler from "express-async-handler";
 import compression from "compression";
 import cors from "cors";
-import { ConversationModel } from "./models/ChatModel.js";
+import { ConversationModel, MessageModel } from "./models/ChatModel.js";
 import { Redis } from "ioredis";
 import { persistMessages } from "./service/persistData.js";
 import cron from "node-cron";
@@ -104,6 +104,23 @@ io.on("connection", (socket) => {
         console.log("Disconnected: ", socket.id);
     });
 });
+//Chat pagination fetching
+app.get("/api/chat/pagination", expressAsyncHandler(async (req, res) => {
+    const { conversationId, page } = req.query;
+    const skip = Number(page) * 10;
+    const limit = 10;
+    const count = Math.ceil((await MessageModel.countDocuments()) / 10);
+    const messages = await MessageModel.find({
+        conversation: conversationId,
+    })
+        .sort({ timeStamps: -1 })
+        .skip(skip)
+        .limit(limit);
+    const returnedMessage = messages
+        .sort((a, b) => a.timeStamps - b.timeStamps)
+        .map((mes) => JSON.stringify(mes));
+    res.status(200).json({ messages: returnedMessage, count });
+}));
 //Error Handler
 app.use(ErrorHandler);
 connect(process.env.MONGO_URI)

@@ -195,6 +195,6 @@ export const updateGoogleUser = expressAsyncHandler(async (req, res) => {
 //Get all users by their id
 export const getUsersByIds = expressAsyncHandler(async (req, res) => {
     const ids = req.body.ids;
-    const users = await UserModel.find({ _id: { $in: ids } }).select("_id nom prenom mail image");
+    const users = await UserModel.find({ _id: { $in: ids } }).select("_id nom prenom mail image googleID");
     res.json(users);
 });

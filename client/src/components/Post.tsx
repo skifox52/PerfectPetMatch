@@ -4,29 +4,40 @@ interface PostProps {
   nom: string
   prenom: string
   profilePicture: string
-  postPicture: string
+  postPicture: string[]
   title: string
   content: string
   likes: number
   commentCount: number
+  googleID: string | undefined
+  pet: any
+  createdAt: Date
 }
 
 export const Post: React.FC<PostProps> = ({
   nom,
   prenom,
   profilePicture,
+  googleID,
   postPicture,
   title,
   content,
   likes,
   commentCount,
+  pet,
+  createdAt,
 }) => {
+  const timeDiff: number =
+    (new Date().getTime() - new Date(createdAt).getTime()) / 1000 / 3600
+
   return (
-    <div className="flex flex-col  p-6 space-y-6 overflow-hidden rounded-lg shadow-lg border bg-white border-gray-300  w-full max-w-3xl white:bg-gray-900 dark:text-gray-100">
+    <div className="flex flex-col  p-6 space-y-6 overflow-hidden rounded-lg shadow-lg border bg-white border-gray-300 w-full max-w-2xl white:bg-gray-900 dark:text-gray-100">
       <div className="flex space-x-4">
         <img
           alt=""
-          src={"http://localhost:5555" + profilePicture}
+          src={
+            googleID ? profilePicture : "http://localhost:5555" + profilePicture
+          }
           className=" object-contain object-center w-12 h-12 rounded-full shadow dark:bg-gray-200"
         />
         <div className="flex flex-col space-y-1">
@@ -37,15 +48,27 @@ export const Post: React.FC<PostProps> = ({
           >
             {nom} {prenom}
           </a>
-          <span className="text-xs dark:text-gray-400">4 hours ago</span>
+          <span className="text-xs dark:text-gray-400">
+            {timeDiff >= 1
+              ? `Il y'a ${Math.floor(timeDiff)} heures`
+              : `Il y'a ${Math.floor(timeDiff * 60)} minutes`}
+          </span>
         </div>
       </div>
       <div>
-        <img
-          src={"http://localhost:5555" + postPicture}
-          alt=""
-          className="object-cover object-center w-full mb-4 h-60 sm:h-96 dark:bg-gray-500"
-        />
+        {postPicture && (
+          <div className=" carousel rounded-box">
+            {postPicture.map((pp, i) => (
+              <div className="carousel-item w-full" key={i}>
+                <img
+                  src={"http://localhost:5555" + pp}
+                  alt="post images"
+                  className="object-contain border  border-gray-200 object-center w-full  h-auto  dark:bg-bgPrimary"
+                />
+              </div>
+            ))}
+          </div>
+        )}
         <h2 className="mb-1 text-xl font-semibold text-gray-700">{title}</h2>
         <p className="text-sm dark:text-gray-500">{content}</p>
       </div>

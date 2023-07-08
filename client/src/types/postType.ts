@@ -5,6 +5,7 @@ interface OwnerType {
   prenom: string
   _id: string
   mail: string
+  googleID: string | undefined
 }
 
 //--Post Type
@@ -18,4 +19,5 @@ export interface PostInterface {
   pet: string
   likes: number
   reports: number
+  createdAt: Date
 }

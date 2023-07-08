@@ -1,5 +1,11 @@
 import { Schema, model } from "mongoose";
 //Schemas
+//Pet Schema
+const PetSchema = new Schema({
+    type: String,
+    race: String,
+    date_de_naissance: Date,
+});
 //--Post Schema
 const PostSchema = new Schema({
     owner: {
@@ -14,7 +20,8 @@ const PostSchema = new Schema({
         },
     ],
     pet: {
-        type: String,
+        type: PetSchema,
+        required: true,
     },
     title: {
         type: String,
@@ -28,10 +35,11 @@ const PostSchema = new Schema({
         type: [String],
         required: false,
     },
-    likes: {
-        type: Number,
-        default: 0,
-    },
+    likes: [
+        {
+            type: String,
+        },
+    ],
     reports: {
         type: Number,
         default: 0,

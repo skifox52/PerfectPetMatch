@@ -1,4 +1,5 @@
 import React from "react"
+import { useParams } from "react-router-dom"
 
 interface ChatProfileProps {
   currentUser: {
@@ -11,9 +12,13 @@ interface ChatProfileProps {
     googleID?: string
   } | null
 }
-
 export const ChatProfile: React.FC<ChatProfileProps> = ({ currentUser }) => {
-  // console.log(currentUser)
+  const { conversationId } = useParams()
+  if (!conversationId)
+    return (
+      <div className=" w-1/6 rounded-3xl flex flex-col gap-4 shadow-md shadow-gray-600 h-full bg-bgPrimary p-4"></div>
+    )
+
   return (
     <div className=" w-1/6 rounded-3xl flex flex-col gap-4 shadow-md shadow-gray-600 h-full bg-bgPrimary p-4">
       <div className="flex justify-center mb-4 ">

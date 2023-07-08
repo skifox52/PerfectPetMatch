@@ -49,19 +49,21 @@ export const ChatAside: React.FC<ChatAsideProps> = ({
     queryFn: () => getConversations(accessToken),
   })
   useEffect(() => {
-    const currUser =
-      data?.length &&
-      (data.filter((conv) => conv.convId === conversationId) as any)
-    isSuccess &&
-      setCurrentUser({
-        nom: currUser[0].user.nom,
-        prenom: currUser[0].user.prenom,
-        date_de_naissance: currUser[0].user.date_de_naissance,
-        image: currUser[0].user.image,
-        sexe: currUser[0].user.sexe,
-        adresse: currUser[0].user.adresse,
-        googleID: currUser[0].user.googleID || null,
-      })
+    if (conversationId) {
+      const currUser =
+        data?.length &&
+        (data.filter((conv) => conv.convId === conversationId) as any)
+      isSuccess &&
+        setCurrentUser({
+          nom: currUser[0].user.nom,
+          prenom: currUser[0].user.prenom,
+          date_de_naissance: currUser[0].user.date_de_naissance,
+          image: currUser[0].user.image,
+          sexe: currUser[0].user.sexe,
+          adresse: currUser[0].user.adresse,
+          googleID: currUser[0].user.googleID || null,
+        })
+    }
   }, [conversationId, isSuccess])
 
   if (isError) toast.error(error.response?.data.err || error.message)

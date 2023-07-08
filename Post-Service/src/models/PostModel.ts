@@ -1,7 +1,12 @@
 import { Schema, Types, model, Document } from "mongoose"
 
 //Types
-
+//--Pet type
+interface petType {
+  type: string
+  race: string
+  date_de_naissance: Date
+}
 //--Post Type
 export interface PostInterface extends Document {
   owner: String
@@ -9,13 +14,18 @@ export interface PostInterface extends Document {
   title: string
   content: string
   images: string[]
-  pet: string
-  likes: number
+  pet: petType
+  likes: string[]
   reports: number
 }
 
 //Schemas
-
+//Pet Schema
+const PetSchema = new Schema<petType>({
+  type: String,
+  race: String,
+  date_de_naissance: Date,
+})
 //--Post Schema
 const PostSchema = new Schema<PostInterface>(
   {
@@ -31,7 +41,8 @@ const PostSchema = new Schema<PostInterface>(
       },
     ],
     pet: {
-      type: String,
+      type: PetSchema,
+      required: true,
     },
     title: {
       type: String,
@@ -45,10 +56,11 @@ const PostSchema = new Schema<PostInterface>(
       type: [String],
       required: false,
     },
-    likes: {
-      type: Number,
-      default: 0,
-    },
+    likes: [
+      {
+        type: String,
+      },
+    ],
     reports: {
       type: Number,
       default: 0,

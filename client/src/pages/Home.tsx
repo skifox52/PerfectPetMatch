@@ -27,13 +27,16 @@ export const Home: React.FC = () => {
               <Post
                 key={post._id}
                 nom={post.owner.nom}
+                googleID={post.owner.googleID}
                 prenom={post.owner.prenom}
+                pet={post.pet}
                 profilePicture={post.owner.image}
                 title={post.title}
                 content={post.content}
-                postPicture={post.images[0]}
+                postPicture={post.images}
                 likes={post.likes}
                 commentCount={post.comments.length}
+                createdAt={post.createdAt}
               />
             ))
           ) : (
