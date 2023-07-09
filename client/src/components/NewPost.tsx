@@ -18,16 +18,18 @@ export const NewPost: React.FC<NewPostProps> = ({}) => {
   const checkBoxRef = useRef<HTMLInputElement>(null)
   const client = useQueryClient()
   const [formData, setFormData] = useState<{
-    title: string
-    content: string
+    category: string
+    description: string
     type: string
     race: string
+    sexe: string
     date_de_naissance: Date | null
   }>({
-    title: "",
-    content: "",
+    category: "",
+    description: "",
     type: "",
     race: "",
+    sexe: "",
     date_de_naissance: null,
   })
   //Input onchange
@@ -87,6 +89,15 @@ export const NewPost: React.FC<NewPostProps> = ({}) => {
     }
     if (postMutaion.isSuccess) {
       toast.success("Post ajouter avec succès!")
+      setImagePreview([])
+      setFormData({
+        category: "",
+        description: "",
+        date_de_naissance: null,
+        type: "",
+        race: "",
+        sexe: "",
+      })
       client.invalidateQueries(["posts"])
       if (checkBoxRef.current) {
         checkBoxRef.current.checked = false
@@ -118,18 +129,24 @@ export const NewPost: React.FC<NewPostProps> = ({}) => {
             onSubmit={handleOnSubmit}
             encType="multipart/form-data"
           >
-            <input
-              type="text"
-              placeholder="Titre du poste..."
-              className="input input-bordered input-primary w-full"
-              name="title"
-              required
+            <select
+              name="category"
+              value={formData.category}
               onChange={handleOnChange}
-            />
+              className=" select select-primary "
+              required
+            >
+              <option value="" hidden disabled>
+                Sélectionnez une catégorie
+              </option>
+              <option value="adoption">Adoption</option>
+              <option value="accouplement">Accouplement</option>
+            </select>
             <textarea
               className="textarea textarea-primary w-full"
-              placeholder="Contenue du poste..."
-              name="content"
+              placeholder="Description..."
+              name="description"
+              value={formData.description}
               required
               onChange={handleOnChange}
             ></textarea>
@@ -172,18 +189,37 @@ export const NewPost: React.FC<NewPostProps> = ({}) => {
                         </option>
                       ))}
                 </select>
-                <div className="col-span-2 flex flex-col items-center gap-2">
-                  <label htmlFor="date" className="label-text">
-                    Date de naissance de votre animal
-                  </label>
-                  <input
-                    type="date"
+                <div className="flex items-end gap-4 col-span-2">
+                  <div className="w-1/2 flex flex-col gap-2">
+                    <label
+                      htmlFor="date"
+                      className="label-text text-xs text-gray-600"
+                    >
+                      Date de naissance
+                    </label>
+                    <input
+                      type="date"
+                      id="date"
+                      name="date_de_naissance"
+                      className="input input-primary input-sm w-full"
+                      onChange={handleOnChange}
+                      required
+                    />
+                  </div>
+
+                  <select
                     id="date"
-                    name="date_de_naissance"
-                    className="input input-primary input-sm w-full"
+                    name="sexe"
+                    className="input input-primary input-sm w-1/2"
+                    value={formData.sexe}
                     onChange={handleOnChange}
-                    required
-                  />
+                  >
+                    <option value="" hidden disabled>
+                      Sexe
+                    </option>
+                    <option value={"male"}>Male</option>
+                    <option value={"femelle"}>Femelle</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -224,11 +260,13 @@ export const NewPost: React.FC<NewPostProps> = ({}) => {
               type="submit"
               className="btn btn-success font-bold text-gray-50"
               disabled={
-                formData.title === "" ||
-                formData.content === "" ||
+                formData.category === "" ||
+                formData.description === "" ||
                 formData.race === "" ||
                 formData.type === "" ||
-                formData.date_de_naissance === null
+                formData.sexe === "" ||
+                formData.date_de_naissance === null ||
+                postMutaion.isLoading === true
               }
             >
               Ajouter
@@ -241,11 +279,12 @@ export const NewPost: React.FC<NewPostProps> = ({}) => {
               onClick={() => {
                 setImagePreview([])
                 setFormData({
-                  title: "",
-                  content: "",
+                  category: "",
+                  description: "",
                   date_de_naissance: null,
                   type: "",
                   race: "",
+                  sexe: "",
                 })
               }}
             >

@@ -39,8 +39,16 @@ export const postPost = expressAsyncHandler(
   async (req: any, res: Response): Promise<void> => {
     const { _id } =
       req.headers["x-auth-user"] && JSON.parse(req.headers["x-auth-user"])
-    const { title, content, type, race, date_de_naissance } = req.body
-    if (!title || !content || !type || !race || !date_de_naissance) {
+    const { category, description, type, race, date_de_naissance, sexe } =
+      req.body
+    if (
+      !category ||
+      !description ||
+      !type ||
+      !race ||
+      !date_de_naissance ||
+      !sexe
+    ) {
       res.status(400)
       throw new Error("Empty fields!")
     }
@@ -68,9 +76,9 @@ export const postPost = expressAsyncHandler(
     }
     const newPost = await PostModel.create({
       owner: _id,
-      title,
-      content,
-      pet: { type, race, date_de_naissance },
+      category,
+      description,
+      pet: { type, race, date_de_naissance, sexe },
       images: responseData ? responseData : [],
     })
     res.status(201).json({ Status: "Success", Post: newPost })

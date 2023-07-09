@@ -1,16 +1,16 @@
 import React from "react"
+import { Link } from "react-router-dom"
 
 interface PostProps {
   nom: string
   prenom: string
   profilePicture: string
   postPicture: string[]
-  title: string
-  content: string
+  description: string
+  category: string
   likes: number
   commentCount: number
   googleID: string | undefined
-  pet: any
   createdAt: Date
 }
 
@@ -20,11 +20,10 @@ export const Post: React.FC<PostProps> = ({
   profilePicture,
   googleID,
   postPicture,
-  title,
-  content,
   likes,
   commentCount,
-  pet,
+  description,
+  category,
   createdAt,
 }) => {
   const timeDiff: number =
@@ -32,30 +31,48 @@ export const Post: React.FC<PostProps> = ({
 
   return (
     <div className="flex flex-col  p-6 space-y-6 overflow-hidden rounded-lg shadow-lg border bg-white border-gray-300 w-full max-w-2xl white:bg-gray-900 dark:text-gray-100">
-      <div className="flex space-x-4">
-        <img
-          alt=""
-          src={
-            googleID ? profilePicture : "http://localhost:5555" + profilePicture
-          }
-          className=" object-contain object-center w-12 h-12 rounded-full shadow dark:bg-gray-200"
-        />
-        <div className="flex flex-col space-y-1">
-          <a
-            rel="noopener noreferrer"
-            href="#"
-            className="text-sm font-bold text-gray-600 "
-          >
-            {nom} {prenom}
-          </a>
-          <span className="text-xs dark:text-gray-400">
-            {timeDiff >= 1
-              ? `Il y'a ${Math.floor(timeDiff)} heures`
-              : `Il y'a ${Math.floor(timeDiff * 60)} minutes`}
-          </span>
+      <div className="flex justify-between">
+        <div className="flex space-x-4">
+          <img
+            alt="profile picture"
+            src={
+              googleID
+                ? profilePicture
+                : "http://localhost:5555" + profilePicture
+            }
+            className=" object-contain object-center w-12 h-12 rounded-full shadow dark:bg-gray-200"
+          />
+          <div className="flex flex-col space-y-1">
+            <Link
+              rel="noopener noreferrer"
+              to="#"
+              className="text-sm font-bold text-gray-600 "
+            >
+              {nom} {prenom}
+            </Link>
+            <span className="text-xs dark:text-gray-400">
+              {timeDiff >= 1
+                ? `Il y'a ${Math.floor(timeDiff)} heures`
+                : Math.floor(timeDiff * 60) == 0
+                ? "A l'instant"
+                : `Il y'a ${Math.floor(timeDiff * 60)} minutes`}
+            </span>
+          </div>
         </div>
+        <span
+          className={
+            category === "adoption"
+              ? "py-2 px-3 shadow-md  rounded-3xl bg-accent text-gray-50 font-bold text-lg"
+              : "py-2 px-3 shadow-md  rounded-3xl bg-secondary text-gray-50 font-bold text-lg"
+          }
+        >
+          {category.charAt(0).toUpperCase() + category.slice(1)}
+        </span>
       </div>
       <div>
+        <p className="text-lg font-semibold dark:text-gray-700 mb-8">
+          {description}
+        </p>
         {postPicture && (
           <div className=" carousel rounded-box">
             {postPicture.map((pp, i) => (
@@ -69,8 +86,6 @@ export const Post: React.FC<PostProps> = ({
             ))}
           </div>
         )}
-        <h2 className="mb-1 text-xl font-semibold text-gray-700">{title}</h2>
-        <p className="text-sm dark:text-gray-500">{content}</p>
       </div>
       <div className="flex flex-wrap justify-between">
         <div className="space-x-2">

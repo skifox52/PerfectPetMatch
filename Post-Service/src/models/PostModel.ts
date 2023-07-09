@@ -5,25 +5,31 @@ import { Schema, Types, model, Document } from "mongoose"
 interface petType {
   type: string
   race: string
+  sexe: "male" | "femelle"
   date_de_naissance: Date
 }
 //--Post Type
 export interface PostInterface extends Document {
   owner: String
   comments: Types.ObjectId[]
-  title: string
-  content: string
+  category: "adoption" | "accouplement"
+  description: string
   images: string[]
   pet: petType
   likes: string[]
   reports: number
 }
-
 //Schemas
+const sexe = ["male", "femelle"] as const
+const category = ["adoption", "accouplement"] as const
 //Pet Schema
 const PetSchema = new Schema<petType>({
   type: String,
   race: String,
+  sexe: {
+    type: String,
+    enum: sexe,
+  },
   date_de_naissance: Date,
 })
 //--Post Schema
@@ -44,11 +50,12 @@ const PostSchema = new Schema<PostInterface>(
       type: PetSchema,
       required: true,
     },
-    title: {
+    category: {
       type: String,
+      enum: category,
       required: true,
     },
-    content: {
+    description: {
       type: String,
       required: true,
     },

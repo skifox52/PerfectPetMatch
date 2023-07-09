@@ -13,8 +13,8 @@ export interface PostInterface {
   _id: string
   owner: OwnerType
   comments: string[]
-  title: string
-  content: string
+  category: string
+  description: string
   images: string[]
   pet: string
   likes: number

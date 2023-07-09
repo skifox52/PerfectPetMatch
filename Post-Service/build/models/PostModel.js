@@ -1,9 +1,15 @@
 import { Schema, model } from "mongoose";
 //Schemas
+const sexe = ["male", "femelle"];
+const category = ["adoption", "accouplement"];
 //Pet Schema
 const PetSchema = new Schema({
     type: String,
     race: String,
+    sexe: {
+        type: String,
+        enum: sexe,
+    },
     date_de_naissance: Date,
 });
 //--Post Schema
@@ -23,11 +29,12 @@ const PostSchema = new Schema({
         type: PetSchema,
         required: true,
     },
-    title: {
+    category: {
         type: String,
+        enum: category,
         required: true,
     },
-    content: {
+    description: {
         type: String,
         required: true,
     },
