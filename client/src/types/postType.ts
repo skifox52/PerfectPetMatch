@@ -21,3 +21,12 @@ export interface PostInterface {
   reports: number
   createdAt: Date
 }
+
+//--Comment type
+export interface CommentInterface {
+  _id: string
+  content: string
+  postId: string
+  createdAt: string
+  userId: OwnerType
+}

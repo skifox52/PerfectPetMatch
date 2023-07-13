@@ -1,5 +1,13 @@
-import React from "react"
+import React, { useState } from "react"
 import { Link } from "react-router-dom"
+import { BiCommentDots, BiLike } from "react-icons/bi"
+import { AiOutlineSend } from "react-icons/ai"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import type { CommentInterface } from "../types/postType"
+import { postComment } from "../api/postApi"
+import { toast } from "react-hot-toast"
+import { useAuth } from "../hooks/useAuth"
+import { Comments } from "./Comments"
 
 interface PostProps {
   nom: string
@@ -12,6 +20,7 @@ interface PostProps {
   commentCount: number
   googleID: string | undefined
   createdAt: Date
+  postId: string
 }
 
 export const Post: React.FC<PostProps> = ({
@@ -25,12 +34,43 @@ export const Post: React.FC<PostProps> = ({
   description,
   category,
   createdAt,
+  postId,
 }) => {
+  const queryClient = useQueryClient()
+  const token: string = useAuth()?.user?.accessToken as string
+  const [fetchComments, setFetchComments] = useState<boolean>(false)
+  const [openComment, setOpenComment] = useState<boolean>(false)
+  const [commentInput, setCommentInput] = useState<string>("")
   const timeDiff: number =
     (new Date().getTime() - new Date(createdAt).getTime()) / 1000 / 3600
-
+  //Comment section
+  //--Add comment mutation
+  const postCommentMutation = useMutation<
+    CommentInterface,
+    any,
+    { token: string; content: string; postId: string }
+  >({
+    mutationFn: (variables: {
+      token: string
+      content: string
+      postId: string
+    }) => postComment(variables.token, variables.content, variables.postId),
+    onError: (err) => toast.error(err.response?.date.err || err.message),
+    onSuccess: (data) => {
+      setCommentInput("")
+      queryClient.invalidateQueries(["comments"])
+    },
+  })
+  //Comment onsubmit
+  const handleCommentOnSubmit: React.FormEventHandler<HTMLFormElement> = (
+    e
+  ) => {
+    e.preventDefault()
+    if (commentInput === "") return
+    postCommentMutation.mutate({ token, content: commentInput, postId })
+  }
   return (
-    <div className="flex flex-col  p-6 space-y-6 overflow-hidden rounded-lg shadow-lg border bg-white border-gray-300 w-full max-w-2xl white:bg-gray-900 dark:text-gray-100">
+    <div className="flex flex-col  p-6 pb-4 space-y-6 overflow-hidden rounded-lg shadow-lg border bg-white border-gray-300 w-full max-w-2xl white:bg-gray-900 dark:text-gray-100">
       <div className="flex justify-between">
         <div className="flex space-x-4">
           <img
@@ -38,7 +78,7 @@ export const Post: React.FC<PostProps> = ({
             src={
               googleID
                 ? profilePicture
-                : "http://localhost:5555" + profilePicture
+                : `${import.meta.env.VITE_MEDIA_SERVIC}${profilePicture}`
             }
             className=" object-contain object-center w-12 h-12 rounded-full shadow dark:bg-gray-200"
           />
@@ -78,7 +118,7 @@ export const Post: React.FC<PostProps> = ({
             {postPicture.map((pp, i) => (
               <div className="carousel-item w-full" key={i}>
                 <img
-                  src={"http://localhost:5555" + pp}
+                  src={`${import.meta.env.VITE_MEDIA_SERVICE}${pp}`}
                   alt="post images"
                   className="object-contain border  border-gray-200 object-center w-full  h-auto  dark:bg-bgPrimary"
                 />
@@ -113,7 +153,11 @@ export const Post: React.FC<PostProps> = ({
           </button>
         </div>
         <div className="flex space-x-2 text-sm dark:text-gray-400">
-          <button type="button" className="flex items-center p-1 space-x-1.5">
+          <label
+            htmlFor="my_modal_7"
+            onClick={() => setFetchComments((prev) => !prev)}
+            className="flex hover:cursor-pointer items-center p-1 space-x-1.5"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 512 512"
@@ -124,7 +168,7 @@ export const Post: React.FC<PostProps> = ({
               <path d="M60.185,317.476a220.491,220.491,0,0,0,34.808-63.023l4.22-11.975-9.207-7.066C62.918,214.626,48,186.728,48,156.857,48,96.833,109.009,48,184,48c55.168,0,102.767,26.43,124.077,64.3,3.957-.192,7.931-.3,11.923-.3q12.027,0,23.834,1.167c-8.235-21.335-22.537-40.811-42.2-56.961C270.072,30.279,228.3,16,184,16S97.928,30.279,66.364,56.206C33.886,82.885,16,118.63,16,156.857c0,35.8,16.352,70.295,45.25,96.243a188.4,188.4,0,0,1-40.563,60.729L16,318.515V352H32a190.643,190.643,0,0,0,85.231-20.125,157.3,157.3,0,0,1-5.071-33.645A158.729,158.729,0,0,1,60.185,317.476Z"></path>
             </svg>
             <span>{commentCount}</span>
-          </button>
+          </label>
           <button type="button" className="flex items-center p-1 space-x-1.5">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -139,6 +183,38 @@ export const Post: React.FC<PostProps> = ({
           </button>
         </div>
       </div>
+      <div className="w-full text-slate-500 border-t pt-3 flex justify-between">
+        <div className="w-1/2  font-semibold text-lg flex items-center justify-center">
+          <span className="flex items-center hover:cursor-pointer gap-2">
+            <BiLike /> J'aime
+          </span>
+        </div>
+        <div className="w-1/2  font-semibold text-lg flex gap-2 items-center justify-center">
+          <span
+            onClick={() => setOpenComment(!openComment)}
+            className="flex items-center hover:cursor-pointer gap-2"
+          >
+            <BiCommentDots /> Commenter
+          </span>
+        </div>
+      </div>
+      {openComment && (
+        <form className="w-full relative" onSubmit={handleCommentOnSubmit}>
+          <input
+            type="text"
+            name="comment"
+            value={commentInput}
+            onChange={(e) => setCommentInput(e.target.value)}
+            disabled={postCommentMutation.isLoading}
+            placeholder="Entrez un commentaire..."
+            className="input input-ghost rounded-sm w-full pr-8"
+          />
+          <button type="submit" disabled={postCommentMutation.isLoading}>
+            <AiOutlineSend className="absolute right-1  h-full text-xl hover:cursor-pointer hover:fill-primary  fill-gray-400 top-0 bottom-2" />
+          </button>
+        </form>
+      )}
+      {fetchComments && <Comments postId={postId} />}
     </div>
   )
 }

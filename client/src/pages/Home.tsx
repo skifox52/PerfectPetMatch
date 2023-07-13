@@ -31,6 +31,7 @@ export const Home: React.FC = () => {
                 prenom={post.owner.prenom}
                 profilePicture={post.owner.image}
                 category={post.category}
+                postId={post._id}
                 description={post.description}
                 postPicture={post.images}
                 likes={post.likes}

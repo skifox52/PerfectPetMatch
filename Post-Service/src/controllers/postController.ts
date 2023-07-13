@@ -151,12 +151,48 @@ export const comentReply = expressAsyncHandler(
   }
 )
 //Find all coments
+export interface UserInterface {
+  _id: string
+  nom: string
+  prenom: string
+  mail: string
+  image: string
+  googleID?: string
+}
 export const findAllComments = expressAsyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
+  async (
+    req: Request<{ idPost: string }, {}, {}, { page: number }>,
+    res: Response
+  ): Promise<void> => {
+    const { page } = req.query
+    const { idPost } = req.params
+    const commentsPerPage: number = 6
+    const totalComments = await CommentModel.find({
+      parentComment: { $exists: false },
+      postId: idPost,
+    }).countDocuments()
+    const totalPages: number = Math.ceil(totalComments / commentsPerPage)
+    const skip: number = (page - 1) * commentsPerPage
     const comments = await CommentModel.find({
       parentComment: { $exists: false },
+      postId: idPost,
     })
-    res.status(200).json(comments)
+      .skip(skip)
+      .limit(commentsPerPage)
+    const ids: any[] = comments.map((com) => com.userId)
+    const response = await axios.post<UserInterface[]>(
+      `${process.env.USER_SERVICE_URI}/getUsersByIds`,
+      { ids }
+    )
+    const users: UserInterface[] = response.data
+    const populatedComments = comments.map((com) => ({
+      ...com.toObject(),
+      userId: { ...users.filter((u) => u._id === com.userId)[0] },
+    }))
+    res.status(200).json({
+      pages: populatedComments,
+      pageCount: totalPages,
+    })
   }
 )
 //Get reply

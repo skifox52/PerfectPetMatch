@@ -124,12 +124,33 @@ export const comentReply = expressAsyncHandler(async (req, res) => {
     });
     res.status(200).json(reply);
 });
-//Find all coments
 export const findAllComments = expressAsyncHandler(async (req, res) => {
+    const { page } = req.query;
+    const { idPost } = req.params;
+    const commentsPerPage = 6;
+    const totalComments = await CommentModel.find({
+        parentComment: { $exists: false },
+        postId: idPost,
+    }).countDocuments();
+    const totalPages = Math.ceil(totalComments / commentsPerPage);
+    const skip = (page - 1) * commentsPerPage;
     const comments = await CommentModel.find({
         parentComment: { $exists: false },
+        postId: idPost,
+    })
+        .skip(skip)
+        .limit(commentsPerPage);
+    const ids = comments.map((com) => com.userId);
+    const response = await axios.post(`${process.env.USER_SERVICE_URI}/getUsersByIds`, { ids });
+    const users = response.data;
+    const populatedComments = comments.map((com) => ({
+        ...com.toObject(),
+        userId: { ...users.filter((u) => u._id === com.userId)[0] },
+    }));
+    res.status(200).json({
+        pages: populatedComments,
+        pageCount: totalPages,
     });
-    res.status(200).json(comments);
 });
 //Get reply
 export const getReplyComment = expressAsyncHandler(async (req, res) => {
