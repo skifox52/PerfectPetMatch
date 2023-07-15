@@ -36,7 +36,7 @@ export const Navbar: React.FC = ({}) => {
     }
   }, [logoutMutation.isLoading, logoutMutation.isSuccess])
   return (
-    <div className="navbar bg-base-100 flex justify-between z-50 shadow-md w-full top-4   shadow-gray-500 ">
+    <div className="navbar bg-bgPrimary flex justify-between z-50  w-full">
       <div>
         <NavLink to={"/"} className="btn btn-ghost  normal-case text-md">
           <img src="/PPT.png" alt="logo" className="h-full" />

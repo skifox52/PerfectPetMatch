@@ -17,7 +17,7 @@ export interface PostInterface {
   description: string
   images: string[]
   pet: string
-  likes: number
+  likes: string[]
   reports: number
   createdAt: Date
 }

@@ -4,13 +4,17 @@ import { AiOutlineMessage } from "react-icons/ai"
 import { MdOutlinePets, MdOutlineArticle } from "react-icons/md"
 import { LuShoppingBag } from "react-icons/lu"
 import { useAuth } from "../hooks/useAuth"
+import { Notification } from "./Notification"
 
 interface SideMenuProps {}
 
 export const SideMenu: React.FC<SideMenuProps> = ({}) => {
   const userContext = useAuth()
   return (
-    <ul className="menu bg-white w-72 font-bold text-lg max-w-full rounded-box shadow-md sticky top-4 h-fit">
+    <ul className="menu bg-white w-2/3 font-bold text-lg max-w-full rounded-box shadow-md sticky top-4 h-fit">
+      <li>
+        <Notification />
+      </li>
       <li>
         <Link to={"/profile"} className="flex items-center gap-2">
           <img

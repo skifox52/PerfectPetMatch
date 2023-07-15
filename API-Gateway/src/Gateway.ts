@@ -21,6 +21,7 @@ const excludeUserPaths = [
 ]
 const exludedPostPaths = [
   /^\/api\/post\/user\?userId=.*/,
+  /^\/api\/post\/one\?_id=.*/,
   "/api/user/getUsersByIds",
 ]
 const proxy: Express = express()
@@ -120,6 +121,22 @@ proxy.use(
   authMiddleware("user"),
   createProxyMiddleware({
     target: process.env.CHAT_SERVICE,
+    changeOrigin: true,
+    onProxyReq: (proxyReq, req: any) => {
+      if (req.headers["x-auth-user"]) {
+        proxyReq.setHeader("x-auth-user", req.headers["x-auth-user"])
+      }
+      //Handle body
+      fixRequestBody(proxyReq, req)
+    },
+  })
+)
+//Gateway the notification service
+proxy.use(
+  "/api/notifications",
+  authMiddleware("user"),
+  createProxyMiddleware({
+    target: process.env.NOTIFICATION_SERVICE,
     changeOrigin: true,
     onProxyReq: (proxyReq, req: any) => {
       if (req.headers["x-auth-user"]) {

@@ -17,3 +17,7 @@
   background: #a8a8a8;
   border-radius: 100vw;
 }
+
+.list-side-bar {
+  @apply w-full border-b border-gray-300 py-4;
+}

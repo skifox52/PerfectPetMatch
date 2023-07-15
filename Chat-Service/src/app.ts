@@ -1,4 +1,4 @@
-import express, { Express, Request, Response, response } from "express"
+import express, { Express, Request, Response } from "express"
 import http from "node:http"
 import { connect, Types } from "mongoose"
 import { Server as WebSocketServer } from "socket.io"

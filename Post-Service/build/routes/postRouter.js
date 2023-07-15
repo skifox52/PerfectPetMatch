@@ -1,6 +1,6 @@
 import { Router } from "express";
 import multer, { memoryStorage } from "multer";
-import { afterUserDelete, comentReply, deleteComment, deletePost, dislikePost, findAllComments, getAllPosts, getReplyComment, likePost, postComment, postPost, removePortReport, reportPost, updateComment, updatePost, } from "../controllers/postController.js";
+import { afterUserDelete, comentReply, deleteComment, deletePost, dislikePost, findAllComments, getAllPosts, getPostById, getReplyComment, likePost, postComment, postPost, removePortReport, reportPost, updateComment, updatePost, } from "../controllers/postController.js";
 //Setup upload
 const upload = multer({
     storage: memoryStorage(),
@@ -11,8 +11,8 @@ const upload = multer({
 const postRouter = Router()
     .post("/", upload.array("images"), postPost)
     .get("/all", getAllPosts)
+    .get("/one", getPostById)
     .put("/:postId", updatePost)
-    .delete("/:postId", deletePost)
     .post("/comment", postComment)
     .post("/comment/reply", comentReply)
     .get("/comment/:idPost", findAllComments)
@@ -21,6 +21,7 @@ const postRouter = Router()
     .delete("/comment/:commentId", deleteComment)
     .post("/like", likePost)
     .delete("/like", dislikePost)
+    .delete("/:postId", deletePost)
     .post("/report", reportPost)
     .delete("/report", removePortReport)
     .delete("/user", afterUserDelete);

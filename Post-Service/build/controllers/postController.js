@@ -127,7 +127,7 @@ export const comentReply = expressAsyncHandler(async (req, res) => {
 export const findAllComments = expressAsyncHandler(async (req, res) => {
     const { page } = req.query;
     const { idPost } = req.params;
-    const commentsPerPage = 6;
+    const commentsPerPage = 4;
     const totalComments = await CommentModel.find({
         parentComment: { $exists: false },
         postId: idPost,
@@ -206,7 +206,10 @@ export const likePost = expressAsyncHandler(async (req, res) => {
 });
 //Remove a like
 export const dislikePost = expressAsyncHandler(async (req, res) => {
-    await PostModel.findByIdAndUpdate(req.query.postId, { $inc: { likes: -1 } });
+    const { _id } = JSON.parse(req.headers["x-auth-user"]);
+    await PostModel.findByIdAndUpdate(req.query.postId, {
+        $pull: { likes: _id },
+    });
     res
         .status(200)
         .json({ success: true, message: "Post disliked successfully!" });
@@ -244,4 +247,9 @@ export const afterUserDelete = expressAsyncHandler(async (req, res) => {
         success: true,
         message: "User posts and comments deleted successfulyy",
     });
+});
+//Utilities
+export const getPostById = expressAsyncHandler(async (req, res) => {
+    const { _id } = req.query;
+    res.status(200).json(await PostModel.findById(_id));
 });
