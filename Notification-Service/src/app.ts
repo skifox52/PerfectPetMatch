@@ -7,6 +7,7 @@ import morgan from "morgan"
 import cors from "cors"
 import "dotenv/config"
 import compression from "compression"
+import { NotificationType } from "./types/notificationTypes.js"
 
 const app: Express = express()
 //Redis client/subscriber initialization
@@ -43,11 +44,16 @@ wss.on("connection", (socket: WebSocket) => {
         const response = await fetch(
           `${process.env.API_GATEWAY}/api/user/one?_id=${message.split("-")[3]}`
         )
-        const { nom, prenom } = await response.json()
+        const { nom, prenom, image, googleID } = await response.json()
         const hashedMessage: string = JSON.stringify({
           type: message.split("-")[1],
           post: message.split("-")[2],
-          user: `${nom} ${prenom}`,
+          user: {
+            nom,
+            prenom,
+            image,
+            googleID,
+          },
           comment: message.split("-")[4] || null,
           timeStamps: Date.now(),
           isSeen: false,
@@ -72,7 +78,21 @@ app.get(
         req.headers["x-auth-user"] &&
         JSON.parse(req.headers["x-auth-user"] as string)
       const notifications = await redisClient.zrevrange(_id, 0, -1)
-      res.status(200).json(notifications)
+      const parsedNotifications: NotificationType[] | [] = notifications
+        .map((not) => JSON.parse(not))
+        .sort((a, b) => b.timeStamps - a.timeStamps)
+      res.status(200).json(parsedNotifications)
+    } catch (error: any) {
+      res.status(400).json(error.message)
+    }
+  }
+)
+//Mark as seen
+app.put(
+  "/api/notification/:id",
+  async (req: Request<{ id: string }>, res: Response): Promise<void> => {
+    try {
+      const { id } = req.params
     } catch (error: any) {
       res.status(400).json(error.message)
     }

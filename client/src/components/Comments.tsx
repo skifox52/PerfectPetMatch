@@ -41,7 +41,7 @@ export const Comments: React.FC<CommentsProps> = ({ postId }) => {
   )
 
   return (
-    <section className="text-gray-800 flex flex-col gap-4">
+    <section className="text-gray-800 flex flex-col gap-4 ">
       {data?.pages.map((page) =>
         page.pages.map((com) => (
           <SingleComment com={com} key={com._id} postId={postId} />

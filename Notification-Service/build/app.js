@@ -37,11 +37,16 @@ wss.on("connection", (socket) => {
         else {
             redisSubscriber.on("message", async (_, message) => {
                 const response = await fetch(`${process.env.API_GATEWAY}/api/user/one?_id=${message.split("-")[3]}`);
-                const { nom, prenom } = await response.json();
+                const { nom, prenom, image, googleID } = await response.json();
                 const hashedMessage = JSON.stringify({
                     type: message.split("-")[1],
                     post: message.split("-")[2],
-                    user: `${nom} ${prenom}`,
+                    user: {
+                        nom,
+                        prenom,
+                        image,
+                        googleID,
+                    },
                     comment: message.split("-")[4] || null,
                     timeStamps: Date.now(),
                     isSeen: false,
@@ -62,7 +67,19 @@ app.get("/api/notifications", async (req, res) => {
         const { _id } = req.headers["x-auth-user"] &&
             JSON.parse(req.headers["x-auth-user"]);
         const notifications = await redisClient.zrevrange(_id, 0, -1);
-        res.status(200).json(notifications);
+        const parsedNotifications = notifications
+            .map((not) => JSON.parse(not))
+            .sort((a, b) => b.timeStamps - a.timeStamps);
+        res.status(200).json(parsedNotifications);
+    }
+    catch (error) {
+        res.status(400).json(error.message);
+    }
+});
+//Mark as seen
+app.put("/api/notification/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
     }
     catch (error) {
         res.status(400).json(error.message);
