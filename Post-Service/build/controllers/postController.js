@@ -3,7 +3,10 @@ import { PostModel } from "../models/PostModel.js";
 import { CommentModel } from "../models/CommentModel.js";
 import FormData from "form-data";
 import axios from "axios";
+import { Redis } from "ioredis";
 import "dotenv/config";
+//Redis Publisher
+const redisPublisher = new Redis();
 //Get all posts
 export const getAllPosts = expressAsyncHandler(async (req, res) => {
     const allPosts = await PostModel.find()
@@ -106,6 +109,9 @@ export const postComment = expressAsyncHandler(async (req, res) => {
     await PostModel.findByIdAndUpdate(postId, {
         $push: { comments: newComment._id },
     });
+    const post = await PostModel.findById(postId);
+    //Push notification
+    await redisPublisher.publish("notification", `${post?.owner}-comment-${postId}-${_id}`);
     res.status(200).json(newComment);
 });
 //Reply to a comment
@@ -198,10 +204,14 @@ export const deleteComment = expressAsyncHandler(async (req, res) => {
 //Like section
 //Like a post
 export const likePost = expressAsyncHandler(async (req, res) => {
+    const { postId } = req.query;
     const { _id } = JSON.parse(req.headers["x-auth-user"]);
-    await PostModel.findByIdAndUpdate(req.query.postId, {
+    await PostModel.findByIdAndUpdate(postId, {
         $push: { likes: _id },
     });
+    const post = await PostModel.findById(postId);
+    //Push notification
+    await redisPublisher.publish("notification", `${post?.owner}-like-${postId}-${_id}`);
     res.status(200).json({ success: true, message: "Post liked successfully!" });
 });
 //Remove a like

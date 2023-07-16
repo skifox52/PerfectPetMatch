@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { fetchNotifications } from "../api/notificationApi"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  fetchNotifications,
+  markNotificationsAsSeen,
+} from "../api/notificationApi"
 import { useAuth } from "../hooks/useAuth"
 import { toast } from "react-hot-toast"
 import { MdNotificationsNone } from "react-icons/md"
@@ -11,21 +14,26 @@ interface NotificationProps {}
 
 export const Notification: React.FC<NotificationProps> = ({}) => {
   const [message, setMessage] = useState<NotificationType[]>([])
+  const queryClient = useQueryClient()
   const notificationRef = useRef<HTMLDivElement>(null)
   const [count, setCount] = useState<number>(0)
-  const accessToken = useAuth()?.user?.accessToken as string
+  const accessToken: string = useAuth()?.user?.accessToken as string
+  const currentUserId: string = useAuth()?.user?._id as string
   const [showNotifications, setShowNotifications] = useState<boolean>(false)
   //WebSocket configuration
   const webSocket = new WebSocket("ws://localhost:5052")
   useEffect(() => {
     webSocket.addEventListener("message", (ev: MessageEvent<string>) => {
-      setCount((prev) => prev + 1)
+      if (JSON.parse(ev.data).owner === currentUserId) {
+        console.log("hle")
+        setCount((prev) => prev + 1)
+      }
       setMessage((prev) => [JSON.parse(ev.data), ...prev])
     })
     return () => webSocket.close()
   }, [webSocket])
   //Fetch notifications
-  const { data, isError, isSuccess, error, isLoading } = useQuery<
+  const { data, isError, isSuccess, error, isLoading, isFetching } = useQuery<
     NotificationType[],
     any,
     NotificationType[]
@@ -33,14 +41,13 @@ export const Notification: React.FC<NotificationProps> = ({}) => {
     queryKey: ["notifications", accessToken],
     queryFn: () => fetchNotifications(accessToken),
   })
-
   useEffect(() => {
     if (isError) toast.error(error.reponse?.date?.err || error.message)
     if (isSuccess) {
       setMessage(data)
-      setCount(data.length)
+      setCount(data.filter((d) => d.isSeen === false).length)
     }
-  }, [isSuccess, isError])
+  }, [isSuccess, isError, isFetching])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -54,14 +61,28 @@ export const Notification: React.FC<NotificationProps> = ({}) => {
     document.addEventListener("click", handleClickOutside)
     return () => document.removeEventListener("click", handleClickOutside)
   }, [])
+  //Mark notifications as seen
+  const markNotifcationsAsSeenMutation = useMutation<
+    { success: boolean; message: string },
+    any,
+    { token: string }
+  >({
+    mutationFn: (varaibles: { token: string }) =>
+      markNotificationsAsSeen(varaibles.token),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["notifications", accessToken])
+    },
+    onError: (error) => toast.error(error.response?.data?.err || error.message),
+  })
   return (
-    <li className="p-0 ">
+    <li className="p-0">
       <button
-        className="w-full h-full flex items-center gap-8"
+        className="w-full h-full flex items-center gap-8 rounded-xl"
         disabled={isLoading}
         onClick={(e) => {
           e.stopPropagation()
           setShowNotifications((prev) => !prev)
+          markNotifcationsAsSeenMutation.mutate({ token: accessToken })
         }}
       >
         <MdNotificationsNone className="text-2xl text-gray-600" />

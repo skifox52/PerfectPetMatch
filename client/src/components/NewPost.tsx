@@ -108,7 +108,7 @@ export const NewPost: React.FC<NewPostProps> = ({}) => {
     <React.Fragment>
       <label
         htmlFor="my_modal_6"
-        className="btn btn-primary font-bold text-gray-50 flex items-center gap-4 mt-8"
+        className="btn btn-primary font-bold w-64 h-16 rounded-xl text-gray-50 flex  items-center gap-4"
       >
         Ajouter un post <AiOutlinePlusCircle className="text-2xl" />
       </label>

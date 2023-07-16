@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { AiOutlineMessage } from "react-icons/ai"
+import { AiOutlineInfoCircle, AiOutlineMessage } from "react-icons/ai"
+import { RiContactsBookLine } from "react-icons/ri"
 import { MdOutlineArticle } from "react-icons/md"
 import { LuShoppingBag } from "react-icons/lu"
 import { useAuth } from "../hooks/useAuth"
@@ -51,7 +52,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({}) => {
             <li className="w-full">
               <Link
                 to={"/profile"}
-                className="flex items-center gap-2 justify-center text-gray-50 bg-primary"
+                className="flex items-center hover:bg-accent  focus:bg-success gap-2 justify-center text-gray-50 bg-primary"
               >
                 Afficher le profile
               </Link>
@@ -59,25 +60,43 @@ export const SideMenu: React.FC<SideMenuProps> = ({}) => {
           </div>
         </div>
       )}
+      <div className="flex flex-col  justify-between shadow-lg mb-8 bg-white rounded-xl">
+        <Notification />
+      </div>
+      <div className="flex flex-col  justify-between shadow-lg mb-8 bg-white rounded-xl">
+        <li>
+          <Link
+            to={"/messagerie"}
+            className="flex py-4 items-center gap-8 rounded-t-xl"
+          >
+            <AiOutlineMessage className="text-2xl text-gray-600" /> Méssagerie
+          </Link>
+        </li>
 
-      <Notification />
-
-      <li>
-        <Link to={"/messagerie"} className="flex items-center gap-8">
-          <AiOutlineMessage className="text-2xl text-gray-600" /> Méssagerie
-        </Link>
-      </li>
-
-      <li>
-        <Link to="/market" className="flex items-center gap-8">
-          <LuShoppingBag className="text-2xl text-gray-600" /> Market
-        </Link>
-      </li>
-      <li>
-        <Link to="/posts" className="flex items-center gap-8">
-          <MdOutlineArticle className="text-2xl text-gray-600" /> Posts
-        </Link>
-      </li>
+        <li>
+          <Link to="/market" className="flex py-4 items-center gap-8 ">
+            <LuShoppingBag className="text-2xl text-gray-600" /> Market
+          </Link>
+        </li>
+        <li>
+          <Link to="/posts" className="flex py-4 items-center gap-8">
+            <MdOutlineArticle className="text-2xl text-gray-600" /> Posts
+          </Link>
+        </li>
+        <li>
+          <Link to="/posts" className="flex py-4 items-center gap-8">
+            <AiOutlineInfoCircle className="text-2xl text-gray-600" /> About us
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/posts"
+            className="flex py-4 items-center gap-8 rounded-b-xl"
+          >
+            <RiContactsBookLine className="text-2xl text-gray-600" /> Contact us
+          </Link>
+        </li>
+      </div>
     </ul>
   )
 }

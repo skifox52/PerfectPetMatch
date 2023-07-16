@@ -10,7 +10,7 @@ interface petType {
 }
 //--Post Type
 export interface PostInterface extends Document {
-  owner: String
+  owner: string
   comments: Types.ObjectId[]
   category: "adoption" | "accouplement"
   description: string
@@ -36,8 +36,7 @@ const PetSchema = new Schema<petType>({
 const PostSchema = new Schema<PostInterface>(
   {
     owner: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
     },
     comments: [

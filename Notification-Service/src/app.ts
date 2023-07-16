@@ -48,6 +48,7 @@ wss.on("connection", (socket: WebSocket) => {
         const hashedMessage: string = JSON.stringify({
           type: message.split("-")[1],
           post: message.split("-")[2],
+          owner: message.split("-")[0],
           user: {
             nom,
             prenom,
@@ -89,15 +90,38 @@ app.get(
 )
 //Mark as seen
 app.put(
-  "/api/notification/:id",
-  async (req: Request<{ id: string }>, res: Response): Promise<void> => {
+  "/api/notifications",
+  async (req: Request, res: Response): Promise<void> => {
     try {
-      const { id } = req.params
+      const { _id } =
+        req.headers["x-auth-user"] &&
+        JSON.parse(req.headers["x-auth-user"] as string)
+      const notifications: NotificationType[] | [] = (
+        await redisClient.zrevrange(_id, 0, -1)
+      ).map((not) => {
+        const parsedNotification = JSON.parse(not)
+        parsedNotification.isSeen === false
+          ? (parsedNotification.isSeen = true)
+          : parsedNotification.isSeen
+        return parsedNotification
+      })
+      await redisClient.zremrangebyrank(_id, 0, -1)
+      for (const updatedNotification of notifications) {
+        await redisClient.zadd(
+          _id,
+          Date.now(),
+          JSON.stringify(updatedNotification)
+        )
+      }
+      res
+        .status(202)
+        .json({ success: true, message: "Notifications have been seen!" })
     } catch (error: any) {
       res.status(400).json(error.message)
     }
   }
 )
+//Delete old notifications
 server.listen(process.env.PORT, () =>
   console.log(`Notification service running on port ${process.env.PORT}`)
 )

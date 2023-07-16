@@ -15,8 +15,7 @@ const PetSchema = new Schema({
 //--Post Schema
 const PostSchema = new Schema({
     owner: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
+        type: String,
         required: true,
     },
     comments: [
