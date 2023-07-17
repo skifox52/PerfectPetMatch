@@ -10,6 +10,7 @@ export interface singleUserInterface {
   ville: string
   role: "user" | "admin"
   image: string
+  googleID?: string
   age: number
   createdAt: Date
   updatedAt: Date

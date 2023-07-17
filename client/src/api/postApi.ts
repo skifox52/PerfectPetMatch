@@ -35,7 +35,17 @@ export const postPost = async (
     throw error
   }
 }
-
+//Get post by ID
+export const postById = async (id: string): Promise<PostInterface> => {
+  try {
+    const response = await axios.get<PostInterface>(
+      `${import.meta.env.VITE_API_GATEWAY}/api/post/one?_id=${id}`
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
 //Comment section
 //--Add a comment
 export const postComment = async (

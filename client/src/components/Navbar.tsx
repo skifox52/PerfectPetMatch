@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { NavLink, useNavigate } from "react-router-dom"
+import { Link, NavLink, useNavigate } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import { useMutation } from "@tanstack/react-query"
 import { logoutUser } from "../api/userApi"
@@ -43,11 +43,11 @@ export const Navbar: React.FC = ({}) => {
         </NavLink>
       </div>
       <div>
-        <ul className="flex  lg:menu-horizontal gap-12 text-gray-600 text-sm font-semibold tracking-wide">
+        <ul className="flex  lg:menu-horizontal gap-12 text-gray-600 text-lg font-semibold tracking-wide">
           <li>
             <NavLink
               to={"/"}
-              className="hover:text-black aria-[current=page]:underline aria-[current=page]:text-neutral "
+              className="hover:text-black aria-[current=page]:text-accent aria-[current=page]:font-bold "
             >
               Home
             </NavLink>
@@ -55,23 +55,15 @@ export const Navbar: React.FC = ({}) => {
           <li>
             <NavLink
               to={"/market"}
-              className="hover:text-black aria-[current=page]:underline aria-[current=page]:text-neutral "
+              className="hover:text-black aria-[current=page]:text-accent aria-[current=page]:font-bold "
             >
               Market
             </NavLink>
           </li>
           <li>
             <NavLink
-              to={"/pets"}
-              className="hover:text-black aria-[current=page]:underline aria-[current=page]:text-neutral "
-            >
-              Pets
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
               to={"/about"}
-              className="hover:text-black aria-[current=page]:underline aria-[current=page]:text-neutral "
+              className="hover:text-black aria-[current=page]:text-accent aria-[current=page]:font-bold "
             >
               About
             </NavLink>
@@ -79,7 +71,7 @@ export const Navbar: React.FC = ({}) => {
           <li>
             <NavLink
               to={"/contact"}
-              className="hover:text-black aria-[current=page]:underline aria-[current=page]:text-neutral "
+              className="hover:text-black aria-[current=page]:text-accent aria-[current=page]:font-bold "
             >
               Contact
             </NavLink>
@@ -101,10 +93,9 @@ export const Navbar: React.FC = ({}) => {
             className="mt-3 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 font-semibold"
           >
             <li>
-              <a className="justify-between">Profile</a>
-            </li>
-            <li>
-              <a>Pramètres</a>
+              <Link to="/profile" className="justify-between">
+                Profile
+              </Link>
             </li>
             <li>
               <button onClick={disconnect}>Déconnexion</button>

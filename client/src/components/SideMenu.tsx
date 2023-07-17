@@ -90,7 +90,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({}) => {
         </li>
         <li>
           <Link
-            to="/posts"
+            to="/contact"
             className="flex py-4 items-center gap-8 rounded-b-xl"
           >
             <RiContactsBookLine className="text-2xl text-gray-600" /> Contact us

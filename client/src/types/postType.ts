@@ -16,7 +16,13 @@ export interface PostInterface {
   category: string
   description: string
   images: string[]
-  pet: string
+  pet: {
+    type: "chat" | "chien"
+    race: string
+    sexe: "male" | "femelle"
+    date_de_naissance: Date
+    _id: string
+  }
   likes: string[]
   reports: number
   createdAt: Date

@@ -20,6 +20,8 @@ import { Messages } from "./pages/Messages"
 import { Profile } from "./pages/Profile"
 import { ChatBody } from "./components/ChatBody"
 import { ChatInbox } from "./components/ChatInbox"
+import { Contact } from "./pages/Contact"
+import { SinglePost } from "./pages/SinglePost"
 
 function App() {
   const router = createBrowserRouter(
@@ -27,6 +29,8 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/post/:id" element={<SinglePost />} />
         <Route path="/google-fill-form" element={<FillForm />} />
         <Route path="/resetPassword" element={<ResetPassword />} />
         <Route element={<ProtectRoutes allowedRole="user" />}>

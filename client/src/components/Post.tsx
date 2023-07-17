@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
-import { BiCommentDots, BiLike } from "react-icons/bi"
+import { BiCommentDots } from "react-icons/bi"
 import { AiOutlineLike, AiOutlineSend, AiTwotoneLike } from "react-icons/ai"
+import { TbCat, TbDog } from "react-icons/tb"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { CommentInterface } from "../types/postType"
 import { dislikePost, likePost, postComment } from "../api/postApi"
@@ -23,6 +24,14 @@ interface PostProps {
   googleID: string | undefined
   createdAt: Date
   postId: string
+  id?: string
+  pet: {
+    type: "chat" | "chien"
+    race: string
+    sexe: "male" | "femelle"
+    date_de_naissance: Date
+    _id: string
+  }
 }
 
 export const Post: React.FC<PostProps> = ({
@@ -37,17 +46,39 @@ export const Post: React.FC<PostProps> = ({
   category,
   createdAt,
   postId,
+  pet,
+  id,
 }) => {
   const queryClient = useQueryClient()
   const commentInputRef = useRef<HTMLDivElement>(null)
   const commentsRef = useRef<HTMLDivElement>(null)
+  const showDescriptionRef = useRef<HTMLDivElement>(null)
   const token: string = useAuth()?.user?.accessToken as string
   const currenUserId: string = useAuth()?.user?._id as string
   const [fetchComments, setFetchComments] = useState<boolean>(false)
+  const [showPostDescription, setShowPostDescription] = useState<boolean>(false)
   const [openComment, setOpenComment] = useState<boolean>(false)
   const [commentInput, setCommentInput] = useState<string>("")
   const timeDiff: number =
     (new Date().getTime() - new Date(createdAt).getTime()) / 1000 / 3600
+  //function that calculates pet age
+  const calculatePetAge = (birthDate: Date): string => {
+    const now = new Date()
+    const petAgeDiff = Date.now() - new Date(birthDate).getTime()
+
+    const years = Math.floor(petAgeDiff / (1000 * 60 * 60 * 24 * 365))
+    const remainingMonths =
+      Math.floor(petAgeDiff / (1000 * 60 * 60 * 24 * 30)) % 12
+    if (years > 0 && remainingMonths > 0) {
+      return `${years}an${years > 1 ? "s" : ""} et ${remainingMonths}moi${
+        remainingMonths > 1 ? "s" : ""
+      }`
+    } else if (years > 0) {
+      return `${years} an${years > 1 ? "s" : ""}`
+    } else {
+      return `${remainingMonths} moi${remainingMonths > 1 ? "s" : ""}`
+    }
+  }
   //Comment section
   //--Add comment mutation
   const postCommentMutation = useMutation<
@@ -61,9 +92,11 @@ export const Post: React.FC<PostProps> = ({
       postId: string
     }) => postComment(variables.token, variables.content, variables.postId),
     onError: (err) => toast.error(err.response?.date.err || err.message),
-    onSuccess: (data) => {
+    onSuccess: () => {
       setCommentInput("")
       queryClient.invalidateQueries(["comments"])
+      queryClient.invalidateQueries(["posts"])
+      queryClient.invalidateQueries(["SinglePost", id])
     },
   })
   //Comment onsubmit
@@ -79,7 +112,8 @@ export const Post: React.FC<PostProps> = ({
   }, [commentInputRef])
   useEffect(() => {
     commentsRef.current && autoAnimate(commentsRef.current)
-  }, [commentsRef])
+    showDescriptionRef.current && autoAnimate(showDescriptionRef.current)
+  }, [commentsRef, showDescriptionRef])
   //Like post mutation
   const likePostMutation = useMutation<
     { success: boolean; message: string },
@@ -149,9 +183,46 @@ export const Post: React.FC<PostProps> = ({
         </span>
       </div>
       <div>
-        <p className="text-lg font-semibold dark:text-gray-700 mb-8">
-          {description}
-        </p>
+        <section className="text-accent text-xl font-semibold bg-bgPrimary shadow-lg border border-gray-200 rounded-xl p-4 flex justify-between">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="flex items-center gap-4 bg-white px-4 py-1 w-fit rounded-full border border-gray-200">
+              <span className="text-xs text-primary font-normal">Type</span>
+              {pet.type.charAt(0).toUpperCase()}
+              {pet.type.slice(1)}
+            </div>
+            <div className="flex items-center gap-4 bg-white px-4 py-1 w-fit rounded-full border border-gray-200">
+              <span className="text-sm text-primary font-normal">Race</span>{" "}
+              {pet.race}
+            </div>
+            <div className="flex items-center gap-4 bg-white px-4 py-1 w-fit rounded-full border border-gray-200">
+              <span className="text-sm text-primary font-normal">Sexe</span>{" "}
+              {pet.sexe.charAt(0).toUpperCase()}
+              {pet.sexe.slice(1)}
+            </div>
+            <div className="flex items-center gap-4 bg-white px-4 py-1 w-fit rounded-full border border-gray-200">
+              <span className="text-sm text-primary font-normal">Age</span>{" "}
+              {calculatePetAge(pet.date_de_naissance)}
+            </div>
+          </div>
+          {pet.type === "chat" ? (
+            <TbCat className="text-8xl h-full my-auto text-primary" />
+          ) : (
+            <TbDog className="text-8xl h-full my-auto text-primary" />
+          )}
+        </section>
+        <div className="flex items-end flex-col" ref={showDescriptionRef}>
+          <p
+            className="text-purple-500 mt-6 mb-1 hover:cursor-pointer hover:underline hover:text-purple-700 w-fit"
+            onClick={() => setShowPostDescription((prev) => !prev)}
+          >
+            Show details
+          </p>
+          {showPostDescription && (
+            <p className="text-lg font-semibold w-full p-4 text-justify bg-bgPrimary rounded-xl border border-gray-200 shadow-lg mt-2 dark:text-gray-700 mb-6">
+              {description}
+            </p>
+          )}
+        </div>
         {postPicture && (
           <div className=" carousel rounded-box">
             {postPicture.map((pp, i) => (
@@ -228,12 +299,7 @@ export const Post: React.FC<PostProps> = ({
         {fetchComments && <Comments postId={postId} />}
       </div>
       <div className="w-full text-slate-500 border-t pt-3 flex justify-between">
-        <div className="w-1/2  font-semibold text-lg flex items-center justify-center">
-          <span className="flex items-center hover:cursor-pointer gap-2">
-            <BiLike /> J'aime
-          </span>
-        </div>
-        <div className="w-1/2  font-semibold text-lg flex gap-2 items-center justify-center">
+        <div className="w-full font-semibold text-lg flex gap-2 items-center justify-center">
           <span
             onClick={() => setOpenComment(!openComment)}
             className="flex items-center hover:cursor-pointer gap-2"

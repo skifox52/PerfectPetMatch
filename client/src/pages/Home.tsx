@@ -15,7 +15,7 @@ export const Home: React.FC = () => {
     cacheTime: 3600000,
   })
   return (
-    <div className="min-h-screen max-w-screen bg-bgPrimary">
+    <div className="min-h-screen max-w-screen">
       <header>
         <HeroSection />
       </header>
@@ -38,6 +38,7 @@ export const Home: React.FC = () => {
                 likes={post.likes}
                 commentCount={post.comments.length}
                 createdAt={post.createdAt}
+                pet={post.pet}
               />
             ))
           ) : (

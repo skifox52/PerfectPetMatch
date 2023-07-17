@@ -33,6 +33,7 @@ export const SingleComment: React.FC<SingleCommentProps> = ({
     onSuccess: (data) => {
       toast.success(data.message)
       queryClient.invalidateQueries(["comments", postId])
+      queryClient.invalidateQueries(["posts"])
     },
     onError: (err) => {
       toast.error(err.response?.data.err || err.message)

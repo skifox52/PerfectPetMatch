@@ -44,12 +44,13 @@ wss.on("connection", (socket: WebSocket) => {
         const response = await fetch(
           `${process.env.API_GATEWAY}/api/user/one?_id=${message.split("-")[3]}`
         )
-        const { nom, prenom, image, googleID } = await response.json()
+        const { nom, prenom, image, googleID, _id } = await response.json()
         const hashedMessage: string = JSON.stringify({
           type: message.split("-")[1],
           post: message.split("-")[2],
           owner: message.split("-")[0],
           user: {
+            _id,
             nom,
             prenom,
             image,
@@ -81,6 +82,7 @@ app.get(
       const notifications = await redisClient.zrevrange(_id, 0, -1)
       const parsedNotifications: NotificationType[] | [] = notifications
         .map((not) => JSON.parse(not))
+        .filter((el) => el.user._id !== _id)
         .sort((a, b) => b.timeStamps - a.timeStamps)
       res.status(200).json(parsedNotifications)
     } catch (error: any) {

@@ -24,8 +24,10 @@ export const Notification: React.FC<NotificationProps> = ({}) => {
   const webSocket = new WebSocket("ws://localhost:5052")
   useEffect(() => {
     webSocket.addEventListener("message", (ev: MessageEvent<string>) => {
-      if (JSON.parse(ev.data).owner === currentUserId) {
-        console.log("hle")
+      if (
+        JSON.parse(ev.data).owner === currentUserId &&
+        JSON.parse(ev.data).user._id !== currentUserId
+      ) {
         setCount((prev) => prev + 1)
       }
       setMessage((prev) => [JSON.parse(ev.data), ...prev])
@@ -101,7 +103,7 @@ export const Notification: React.FC<NotificationProps> = ({}) => {
           {message.length > 0
             ? message.map((msg, i: number) => (
                 <Link
-                  to={`post/${msg}`}
+                  to={`post/${msg.post}`}
                   key={i}
                   className="bg-bgPrimary z-50 py-2 px-3 w-full rounded-md flex border border-gray-200 items-center gap-4"
                 >
