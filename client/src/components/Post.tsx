@@ -10,7 +10,9 @@ import { toast } from "react-hot-toast"
 import { useAuth } from "../hooks/useAuth"
 import { Comments } from "./Comments"
 import autoAnimate from "@formkit/auto-animate"
-import { GoCommentDiscussion } from "react-icons/go"
+import { GoCommentDiscussion, GoReport } from "react-icons/go"
+import { MdOutlineKeyboardArrowDown } from "react-icons/md"
+import { reports } from "../data/reportData.json"
 
 interface PostProps {
   nom: string
@@ -53,8 +55,10 @@ export const Post: React.FC<PostProps> = ({
   const commentInputRef = useRef<HTMLDivElement>(null)
   const commentsRef = useRef<HTMLDivElement>(null)
   const showDescriptionRef = useRef<HTMLDivElement>(null)
+  const modalRef = useRef<HTMLDivElement>(null)
   const token: string = useAuth()?.user?.accessToken as string
   const currenUserId: string = useAuth()?.user?._id as string
+  const [showReport, setShowReport] = useState<boolean>(false)
   const [fetchComments, setFetchComments] = useState<boolean>(false)
   const [showPostDescription, setShowPostDescription] = useState<boolean>(false)
   const [openComment, setOpenComment] = useState<boolean>(false)
@@ -140,6 +144,15 @@ export const Post: React.FC<PostProps> = ({
       queryClient.invalidateQueries(["posts"])
     },
   })
+  useEffect(() => {
+    const handleClickOutsideModal = (e: Event) => {
+      if (modalRef && !modalRef.current?.contains(e.target as Node))
+        setShowReport(false)
+    }
+    document.addEventListener("click", handleClickOutsideModal)
+    return () => document.removeEventListener("click", handleClickOutsideModal)
+  }, [])
+
   return (
     <div className="flex flex-col  p-6 pb-0 space-y-4 overflow-hidden rounded-lg shadow-lg border bg-white border-gray-300 w-full max-w-2xl white:bg-gray-900 dark:text-gray-100">
       <div className="flex justify-between">
@@ -238,29 +251,47 @@ export const Post: React.FC<PostProps> = ({
         )}
       </div>
       <div className="flex flex-wrap justify-between">
-        <div className="space-x-2">
-          <button
-            aria-label="Share this post"
-            type="button"
-            className="p-2 text-center"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 512 512"
-              className="w-4 h-4 fill-current dark:text-violet-400"
-            >
-              <path d="M404,344a75.9,75.9,0,0,0-60.208,29.7L179.869,280.664a75.693,75.693,0,0,0,0-49.328L343.792,138.3a75.937,75.937,0,1,0-13.776-28.976L163.3,203.946a76,76,0,1,0,0,104.108l166.717,94.623A75.991,75.991,0,1,0,404,344Zm0-296a44,44,0,1,1-44,44A44.049,44.049,0,0,1,404,48ZM108,300a44,44,0,1,1,44-44A44.049,44.049,0,0,1,108,300ZM404,464a44,44,0,1,1,44-44A44.049,44.049,0,0,1,404,464Z"></path>
-            </svg>
-          </button>
-          <button aria-label="Bookmark this post" type="button" className="p-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 512 512"
-              className="w-4 h-4 fill-current dark:text-violet-400"
-            >
-              <path d="M424,496H388.75L256.008,381.19,123.467,496H88V16H424ZM120,48V456.667l135.992-117.8L392,456.5V48Z"></path>
-            </svg>
-          </button>
+        <div className="relative w-fit h-fit ">
+          <GoReport
+            className="text-2xl text-gray-800 hover:cursor-pointer hover:text-gray-600"
+            onClick={(e) => {
+              e.stopPropagation()
+              setShowReport((prev) => !prev)
+            }}
+          />
+
+          <input
+            type="checkbox"
+            checked={showReport}
+            className="modal-toggle"
+          />
+          <div className="modal text-gray-800">
+            <div className="modal-box" ref={modalRef}>
+              <div className="bg-white">
+                {reports.map((rep, i) => (
+                  <div key={i}>
+                    <input
+                      type="radio"
+                      name="radio-2"
+                      className="radio radio-primary"
+                      value={rep.reason}
+                      checked
+                    />
+                    <div>
+                      <div>
+                        <p>{rep.reason}</p>
+                        <MdOutlineKeyboardArrowDown />
+                      </div>
+                      <p>{rep.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <label className="modal-backdrop" htmlFor="my_modal_7">
+              Close
+            </label>
+          </div>
         </div>
         <div className="flex space-x-4 text-sm dark:text-gray-400">
           <button

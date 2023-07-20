@@ -3,6 +3,7 @@ import React from "react"
 import heroImage from "../assets/pictures/heroSection.png"
 import { GoSearch } from "react-icons/go"
 import logo from "/PPT.png"
+import { Link } from "react-router-dom"
 
 export const HeroSection: React.FC = () => {
   return (
@@ -20,9 +21,12 @@ export const HeroSection: React.FC = () => {
         alt="logo"
         className="absolute w-[15vw] top-1/2 left-1/2 -translate-x-[100%]"
       />
-      <button className="absolute bottom-16 left-10 btn btn-accent text-white text-[1.3vw] w-1/5  h-14 text-center font-black ">
+      <Link
+        to="/contact"
+        className="absolute bottom-16 left-10 btn btn-accent text-white text-[1.3vw] w-1/5  h-14 text-center font-black "
+      >
         Contactez nous
-      </button>
+      </Link>
     </header>
   )
 }

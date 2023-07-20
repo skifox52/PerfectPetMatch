@@ -9,9 +9,15 @@ import "dotenv/config";
 const redisPublisher = new Redis();
 //Get all posts
 export const getAllPosts = expressAsyncHandler(async (req, res) => {
+    const { page } = req.query;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+    const totalPages = Math.ceil((await PostModel.find().countDocuments()) / limit);
     const allPosts = await PostModel.find()
-        .populate("pet")
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("pet");
     //Get the id of all users
     const usersId = allPosts.map((post) => post.owner);
     const filteredUsersId = usersId.filter((id, i, usersId) => {
@@ -25,7 +31,7 @@ export const getAllPosts = expressAsyncHandler(async (req, res) => {
             owner: response.data.filter((user) => user._id.toString() === post.owner.toString())[0],
         };
     });
-    res.status(200).json(populatedPosts);
+    res.status(200).json({ posts: populatedPosts, totalPages });
 });
 //Post a post
 export const postPost = expressAsyncHandler(async (req, res) => {
@@ -144,6 +150,7 @@ export const findAllComments = expressAsyncHandler(async (req, res) => {
         parentComment: { $exists: false },
         postId: idPost,
     })
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(commentsPerPage);
     const ids = comments.map((com) => com.userId);
@@ -227,8 +234,18 @@ export const dislikePost = expressAsyncHandler(async (req, res) => {
 //Report section
 //Report a post
 export const reportPost = expressAsyncHandler(async (req, res) => {
+    const { reason } = req.body;
+    if (!reason)
+        throw new Error("Please provide a reason for the report!");
+    const { _id } = req.headers["x-auth-user"] &&
+        JSON.parse(req.headers["x-auth-user"]);
     await PostModel.findByIdAndUpdate(req.query.postId, {
-        $inc: { reports: 1 },
+        $push: {
+            reports: {
+                reason,
+                user: _id,
+            },
+        },
     });
     res
         .status(200)
@@ -237,11 +254,11 @@ export const reportPost = expressAsyncHandler(async (req, res) => {
 //Remove report from a post
 export const removePortReport = expressAsyncHandler(async (req, res) => {
     await PostModel.findByIdAndUpdate(req.query.postId, {
-        $inc: { reports: -1 },
+        $set: { reports: [] },
     });
     res.status(200).json({
         success: true,
-        message: "Report removed from the post successfully!",
+        message: "Reports removed from the post successfully!",
     });
 });
 //Utilities

@@ -3,16 +3,17 @@ import type { PostInterface, CommentInterface } from "../types/postType"
 
 //Get all posts
 export const getPosts = async (
-  token: string
-): Promise<PostInterface[] | []> => {
+  token: string,
+  page: number
+): Promise<{ posts: PostInterface[]; totalPages: number }> => {
   try {
     const config = {
       headers: { Authorization: `Bearer ${token}` },
     }
-    const response = await axios.get<PostInterface[] | []>(
-      `${import.meta.env.VITE_API_GATEWAY}/api/post/all`,
-      config
-    )
+    const response = await axios.get<{
+      posts: PostInterface[]
+      totalPages: number
+    }>(`${import.meta.env.VITE_API_GATEWAY}/api/post/all?page=${page}`, config)
     return response.data
   } catch (error) {
     throw error

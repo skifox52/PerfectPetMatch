@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query"
 import { isResetKeyValide, updatePassword } from "../api/userApi"
 import { LoadingDog } from "../components/LoadingDog"
 import Lottie from "lottie-react"
-import animationData from "../assets/animations/pet-reset-password.json"
+import animationData from "../assets/animations/43901-cute-dog.json"
 import { toast } from "react-hot-toast"
 
 export const ResetPassword: React.FC = () => {

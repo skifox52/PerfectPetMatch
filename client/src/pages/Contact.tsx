@@ -41,7 +41,7 @@ export const Contact: React.FC<ContactProps> = ({}) => {
     }
   }, [loading])
   return (
-    <div className="h-[92.5vh] flex justify-between">
+    <div className="h-[93.1vh] flex justify-between">
       <img
         src={contactPage}
         alt="contact page"

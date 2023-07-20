@@ -17,11 +17,17 @@ export interface PostInterface extends Document {
   images: string[]
   pet: petType
   likes: string[]
-  reports: number
+  reports: { reason: string; user: string }[]
 }
 //Schemas
 const sexe = ["male", "femelle"] as const
 const category = ["adoption", "accouplement"] as const
+const reports = [
+  "Signalement pour une publication inappropriée",
+  "Signalement pour un comportement abusif dans les commentaires",
+  "Signalement pour un faux compte ou une arnaque",
+  "Signalement pour une annonce suspecte",
+] as const
 //Pet Schema
 const PetSchema = new Schema<petType>({
   type: String,
@@ -38,6 +44,7 @@ const PostSchema = new Schema<PostInterface>(
     owner: {
       type: String,
       required: true,
+      unique: true,
     },
     comments: [
       {
@@ -67,10 +74,15 @@ const PostSchema = new Schema<PostInterface>(
         type: String,
       },
     ],
-    reports: {
-      type: Number,
-      default: 0,
-    },
+    reports: [
+      {
+        reason: {
+          type: String,
+          enum: reports,
+        },
+        user: String,
+      },
+    ],
   },
   { timestamps: true }
 )

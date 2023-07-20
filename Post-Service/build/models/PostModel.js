@@ -2,6 +2,12 @@ import { Schema, model } from "mongoose";
 //Schemas
 const sexe = ["male", "femelle"];
 const category = ["adoption", "accouplement"];
+const reports = [
+    "Signalement pour une publication inappropriée",
+    "Signalement pour un comportement abusif dans les commentaires",
+    "Signalement pour un faux compte ou une arnaque",
+    "Signalement pour une annonce suspecte",
+];
 //Pet Schema
 const PetSchema = new Schema({
     type: String,
@@ -17,6 +23,7 @@ const PostSchema = new Schema({
     owner: {
         type: String,
         required: true,
+        unique: true,
     },
     comments: [
         {
@@ -46,9 +53,14 @@ const PostSchema = new Schema({
             type: String,
         },
     ],
-    reports: {
-        type: Number,
-        default: 0,
-    },
+    reports: [
+        {
+            reason: {
+                type: String,
+                enum: reports,
+            },
+            user: String,
+        },
+    ],
 }, { timestamps: true });
 export const PostModel = model("Post", PostSchema);

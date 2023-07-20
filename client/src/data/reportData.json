@@ -1,0 +1,20 @@
+{
+  "reports": [
+    {
+      "reason": "Signalement pour une publication inappropriée",
+      "detail": " Je souhaite signaler une publication qui me semble inappropriée. La photo et la description de cette publication ne respectent pas les règles de contenu de l'application. Merci de vérifier cette publication."
+    },
+    {
+      "reason": "Signalement pour un comportement abusif dans les commentaires",
+      "detail": " Je constate un comportement abusif dans les commentaires d'une publication. Un utilisateur utilise un langage offensant et harcèle d'autres utilisateurs. Veuillez prendre des mesures appropriées."
+    },
+    {
+      "reason": "Signalement pour un faux compte ou une arnaque",
+      "detail": " Je crois qu'il y a un faux compte sur l'application qui tente de faire de l'arnaque ou de la publicité non autorisée. Le compte en question publie des contenus trompeurs et demande des informations sensibles. Merci d'intervenir rapidement."
+    },
+    {
+      "reason": "Signalement pour une annonce suspecte",
+      "detail": "J'ai trouvé une annonce qui me semble suspecte. L'utilisateur demande des informations personnelles inappropriées dans sa publication pour l'accouplement de son animal. Je pense que cela pourrait être une tentative de fraude. Veuillez examiner cette annonce attentivement."
+    }
+  ]
+}

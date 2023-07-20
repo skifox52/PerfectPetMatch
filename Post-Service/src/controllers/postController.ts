@@ -12,10 +12,21 @@ const redisPublisher = new Redis()
 
 //Get all posts
 export const getAllPosts = expressAsyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
+  async (
+    req: Request<{}, {}, {}, { page: number }>,
+    res: Response
+  ): Promise<void> => {
+    const { page } = req.query
+    const limit: number = 5
+    const skip: number = (page - 1) * limit
+    const totalPages: number = Math.ceil(
+      (await PostModel.find().countDocuments()) / limit
+    )
     const allPosts = await PostModel.find()
-      .populate("pet")
       .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("pet")
     //Get the id of all users
     const usersId = allPosts.map((post) => post.owner)
     const filteredUsersId = usersId.filter((id, i, usersId) => {
@@ -34,7 +45,7 @@ export const getAllPosts = expressAsyncHandler(
         )[0],
       }
     })
-    res.status(200).json(populatedPosts)
+    res.status(200).json({ posts: populatedPosts, totalPages })
   }
 )
 
@@ -187,6 +198,7 @@ export const findAllComments = expressAsyncHandler(
       parentComment: { $exists: false },
       postId: idPost,
     })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(commentsPerPage)
     const ids: any[] = comments.map((com) => com.userId)
@@ -289,9 +301,22 @@ export const dislikePost = expressAsyncHandler(
 //Report section
 //Report a post
 export const reportPost = expressAsyncHandler(
-  async (req: Request<{}, {}, { postId: string }>, res: Response) => {
+  async (
+    req: Request<{}, {}, { reason: string }, { postId: string }>,
+    res: Response
+  ) => {
+    const { reason } = req.body
+    if (!reason) throw new Error("Please provide a reason for the report!")
+    const { _id } =
+      req.headers["x-auth-user"] &&
+      JSON.parse(req.headers["x-auth-user"] as string)
     await PostModel.findByIdAndUpdate(req.query.postId, {
-      $inc: { reports: 1 },
+      $push: {
+        reports: {
+          reason,
+          user: _id,
+        },
+      },
     })
     res
       .status(200)
@@ -300,13 +325,13 @@ export const reportPost = expressAsyncHandler(
 )
 //Remove report from a post
 export const removePortReport = expressAsyncHandler(
-  async (req: Request<{}, {}, { postId: string }>, res: Response) => {
+  async (req: Request<{}, {}, {}, { postId: string }>, res: Response) => {
     await PostModel.findByIdAndUpdate(req.query.postId, {
-      $inc: { reports: -1 },
+      $set: { reports: [] },
     })
     res.status(200).json({
       success: true,
-      message: "Report removed from the post successfully!",
+      message: "Reports removed from the post successfully!",
     })
   }
 )
