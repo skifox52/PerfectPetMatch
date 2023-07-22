@@ -9,11 +9,36 @@ import "dotenv/config";
 const redisPublisher = new Redis();
 //Get all posts
 export const getAllPosts = expressAsyncHandler(async (req, res) => {
-    const { page } = req.query;
+    const { page, wilaya, age, type, race, category } = req.query;
+    //add filter queries
+    const filter = {};
+    if (!!age) {
+        const currentDateMin = new Date();
+        const currentDateMax = new Date();
+        const maxAge = new Date(currentDateMin.setFullYear(currentDateMin.getFullYear() - parseInt(age)));
+        const minAge = new Date(currentDateMax.setFullYear(currentDateMax.getFullYear() - (parseInt(age) - 1)));
+        if (parseInt(age) === 6) {
+            filter["pet.date_de_naissance"] = {
+                $gte: new Date(maxAge.toISOString()),
+            };
+        }
+        else {
+            filter["pet.date_de_naissance"] = {
+                $gte: new Date(maxAge.toISOString()),
+                $lte: new Date(minAge.toISOString()),
+            };
+        }
+    }
+    !!wilaya && (filter["wilaya"] = wilaya);
+    !!category && (filter["category"] = category);
+    !!type && (filter["pet.type"] = type);
+    !!race && (filter["pet.race"] = race);
+    console.log(filter);
+    //Limit per page
     const limit = 5;
     const skip = (page - 1) * limit;
-    const totalPages = Math.ceil((await PostModel.find().countDocuments()) / limit);
-    const allPosts = await PostModel.find()
+    const totalPages = Math.ceil((await PostModel.find(filter).countDocuments()) / limit);
+    const allPosts = await PostModel.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)

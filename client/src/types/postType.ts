@@ -26,6 +26,7 @@ export interface PostInterface {
   likes: string[]
   reports: number
   createdAt: Date
+  wilaya: string
 }
 
 //--Comment type

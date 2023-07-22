@@ -82,6 +82,29 @@ app.post(
   })
 )
 
+//Post article image
+app.post(
+  "/api/media/article",
+  upload.single("image"),
+  expressAsyncHandler(async (req: Request, res: Response): Promise<void> => {
+    try {
+      const file = req.file
+      console.log(file)
+      const randomId: number = Date.now()
+      const { format } = await sharp(file?.buffer).metadata()
+      await sharp(file?.buffer)
+        .resize(1000, 1000)
+        .jpeg({ quality: 100 })
+        .toFile(`./assets/ArticlePictures/${randomId}-ArticlePicture.${format}`)
+      const imagePath: string = `/assets/ArticlePictures/${randomId}-ArticlePicture.${format}`
+      res.json({ imagePath })
+    } catch (error: any) {
+      res.status(400)
+      throw new Error(error)
+    }
+  })
+)
+
 //Not found Route
 app.use("/*", (req: Request, res: Response) => {
   res.status(400)

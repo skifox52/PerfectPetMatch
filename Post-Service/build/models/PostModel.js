@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import "dotenv/config";
 //Schemas
 const sexe = ["male", "femelle"];
 const category = ["adoption", "accouplement"];
@@ -23,7 +24,6 @@ const PostSchema = new Schema({
     owner: {
         type: String,
         required: true,
-        unique: true,
     },
     comments: [
         {
@@ -44,6 +44,7 @@ const PostSchema = new Schema({
         type: String,
         required: true,
     },
+    wilaya: { type: String },
     images: {
         type: [String],
         required: false,
@@ -63,4 +64,18 @@ const PostSchema = new Schema({
         },
     ],
 }, { timestamps: true });
+PostSchema.pre("save", async function (next) {
+    try {
+        const response = await fetch(`${process.env.API_GATEWAY}/api/user/one?_id=${this.owner}`);
+        if (!response.ok)
+            throw new Error(`Failed to fetch user data. Status: ${response.status}`);
+        const { ville } = await response.json();
+        this.wilaya = ville;
+        next();
+    }
+    catch (error) {
+        console.error("Error in post pre-save hook:", error);
+        next(error);
+    }
+});
 export const PostModel = model("Post", PostSchema);

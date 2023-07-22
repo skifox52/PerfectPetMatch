@@ -1,19 +1,42 @@
 import React, { useState } from "react"
 import searchSection from "../assets/pictures/searchSection.jpeg"
-import { FaDog, FaCat, FaFilter } from "react-icons/fa"
+import { FaDog, FaCat } from "react-icons/fa"
 import wilayas from "../data/wilayas.json"
 import raceChein from "../data/dogs.json"
 import raceChat from "../data/cats.json"
+import { MdFilterAlt, MdFilterAltOff } from "react-icons/md"
+import toast from "react-hot-toast"
 
-interface FilterPostProps {}
+interface FilterPostProps {
+  queryParams: {
+    wilaya?: string
+    age?: string
+    type?: "chat" | "chien"
+    race?: string
+    category?: "adoption" | "accouplement"
+  }
+  setQueryParams: React.Dispatch<
+    React.SetStateAction<{
+      wilaya?: string | undefined
+      age?: string | undefined
+      type?: "chat" | "chien" | undefined
+      race?: string | undefined
+      category?: "adoption" | "accouplement" | undefined
+    }>
+  >
+}
 
-export const FilterPost: React.FC<FilterPostProps> = ({}) => {
+export const FilterPost: React.FC<FilterPostProps> = ({
+  queryParams,
+  setQueryParams,
+}) => {
   const [searchData, setSearchData] = useState<{
     wilaya: string
-    animal: string
+    animal: "chien" | "chat" | ""
     race: string
     age: string
-  }>({ wilaya: "", animal: "", race: "", age: "" })
+    category: "adoption" | "accouplement" | ""
+  }>({ wilaya: "", animal: "", race: "", age: "", category: "" })
   const handleOnChange: React.ChangeEventHandler<HTMLSelectElement> = (e) => {
     setSearchData((prev) => ({
       ...prev,
@@ -23,6 +46,14 @@ export const FilterPost: React.FC<FilterPostProps> = ({}) => {
   //Handle on submit
   const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
+    const { wilaya, animal, race, age, category } = searchData
+    if (!wilaya && !animal && !race && !age && !category)
+      return toast.error("Choisissez une option pour filtrer vos annonces!")
+    wilaya && setQueryParams((prev) => ({ ...prev, wilaya }))
+    animal && setQueryParams((prev) => ({ ...prev, type: animal }))
+    race && setQueryParams((prev) => ({ ...prev, race }))
+    age && setQueryParams((prev) => ({ ...prev, age }))
+    category && setQueryParams((prev) => ({ ...prev, category }))
   }
   return (
     <div className="w-2/3 h-full flex flex-col items-center justify-between shadow-lg mb-8 overflow-hidden pb-4 bg-white rounded-xl sticky top-4">
@@ -42,6 +73,18 @@ export const FilterPost: React.FC<FilterPostProps> = ({}) => {
             <FaDog className="fill-purple-500" />
             <FaCat className="fill-accent" />
           </div>
+          <select
+            name="category"
+            value={searchData.category}
+            onChange={handleOnChange}
+            className="w-full  select select-primary select-sm col-span-2"
+          >
+            <option value="" hidden disabled>
+              Filtrer par catégorie
+            </option>
+            <option value="accouplement">Accouplement</option>
+            <option value="adoption">Adoption</option>
+          </select>
           <select
             name="wilaya"
             className="w-full  select select-primary select-sm"
@@ -107,11 +150,40 @@ export const FilterPost: React.FC<FilterPostProps> = ({}) => {
                   </option>
                 ))}
           </select>
+
           <button
             type="submit"
-            className="flex items-center text-lg gap-4 font-normal shadow text-gray-50 col-span-2 btn btn-accent btn-sm mt-2"
+            className="flex items-center text-lg lowercase gap-4 font-normal shadow text-gray-50  btn btn-accent btn-sm mt-2"
           >
-            Filtrer <FaFilter className="text-sm" />
+            <p>
+              <span className="uppercase">F</span>iltrer
+            </p>
+            <MdFilterAlt className="text-lg" />
+          </button>
+          <button
+            type="button"
+            className="flex items-center text-lg gap-4 lowercase font-normal shadow text-gray-50  btn btn-primary btn-sm mt-2"
+            onClick={() => {
+              setSearchData({
+                wilaya: "",
+                animal: "",
+                race: "",
+                age: "",
+                category: "",
+              })
+              setQueryParams({
+                wilaya: undefined,
+                age: undefined,
+                type: undefined,
+                race: undefined,
+                category: undefined,
+              })
+            }}
+          >
+            <p>
+              <span className="uppercase">T</span>out afficher
+            </p>
+            <MdFilterAltOff className="text-lg" />
           </button>
         </form>
       </section>

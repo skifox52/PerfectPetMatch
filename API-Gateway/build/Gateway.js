@@ -116,6 +116,18 @@ proxy.use("/api/chat/*", authMiddleware("user"), createProxyMiddleware({
         fixRequestBody(proxyReq, req);
     },
 }));
+//Gateway foo article service
+proxy.use("/api/article/*", authMiddleware("user"), createProxyMiddleware({
+    target: process.env.ARTICLE_SERVICE,
+    changeOrigin: true,
+    onProxyReq: (proxyReq, req) => {
+        if (req.headers["x-auth-user"]) {
+            proxyReq.setHeader("x-auth-user", req.headers["x-auth-user"]);
+        }
+        //Handle body
+        fixRequestBody(proxyReq, req);
+    },
+}));
 //Gateway the notification service
 proxy.use("/api/notifications", authMiddleware("user"), createProxyMiddleware({
     target: process.env.NOTIFICATION_SERVICE,

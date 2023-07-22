@@ -4,16 +4,34 @@ import type { PostInterface, CommentInterface } from "../types/postType"
 //Get all posts
 export const getPosts = async (
   token: string,
-  page: number
+  page: number,
+  queryParams?: {
+    wilaya?: string
+    age?: string
+    type?: "chat" | "chien" | ""
+    race?: string
+    category?: "adoption" | "accouplement"
+  }
 ): Promise<{ posts: PostInterface[]; totalPages: number }> => {
   try {
     const config = {
       headers: { Authorization: `Bearer ${token}` },
     }
+    let apiURI: string = `${
+      import.meta.env.VITE_API_GATEWAY
+    }/api/post/all?page=${page}`
+    if (queryParams) {
+      const { wilaya, age, type, race, category } = queryParams
+      !!wilaya && (apiURI += `&wilaya=${encodeURIComponent(wilaya)}`)
+      !!age && (apiURI += `&age=${encodeURIComponent(age)}`)
+      !!type && (apiURI += `&type=${encodeURIComponent(type)}`)
+      !!race && (apiURI += `&race=${encodeURIComponent(race)}`)
+      !!category && (apiURI += `&category=${encodeURIComponent(category)}`)
+    }
     const response = await axios.get<{
       posts: PostInterface[]
       totalPages: number
-    }>(`${import.meta.env.VITE_API_GATEWAY}/api/post/all?page=${page}`, config)
+    }>(apiURI, config)
     return response.data
   } catch (error) {
     throw error
@@ -167,6 +185,27 @@ export const dislikePost = async (
       config
     )
     return response.data
+  } catch (error) {
+    throw error
+  }
+}
+//Report a post
+export const reportPost = async (
+  token: string,
+  postId: string,
+  reason: string
+): Promise<{ success: boolean; message: string }> => {
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  }
+  try {
+    return (
+      await axios.post(
+        `${import.meta.env.VITE_API_GATEWAY}/api/post/report?postId=${postId}`,
+        { reason },
+        config
+      )
+    ).data
   } catch (error) {
     throw error
   }

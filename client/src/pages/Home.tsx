@@ -8,10 +8,17 @@ import { getPosts } from "../api/postApi"
 import { useAuth } from "../hooks/useAuth"
 import { PostInterface } from "../types/postType"
 import InfiniteScroll from "react-infinite-scroll-component"
+import { useState } from "react"
 
 export const Home: React.FC = () => {
   const userContext = useAuth()
-
+  const [queryParams, setQueryParams] = useState<{
+    wilaya?: string
+    age?: string
+    type?: "chat" | "chien"
+    race?: string
+    category?: "adoption" | "accouplement"
+  }>({})
   const { data, fetchNextPage, isLoading, hasNextPage } = useInfiniteQuery<
     {
       posts: PostInterface[]
@@ -23,8 +30,9 @@ export const Home: React.FC = () => {
       totalPages: number
     }
   >(
-    ["posts"],
-    ({ pageParam = 1 }) => getPosts(userContext?.user?.accessToken!, pageParam),
+    ["posts", queryParams],
+    ({ pageParam = 1 }) =>
+      getPosts(userContext?.user?.accessToken!, pageParam, queryParams),
     {
       getNextPageParam: (lastPage, page) =>
         page.length < lastPage.totalPages ? page.length + 1 : undefined,
@@ -52,48 +60,53 @@ export const Home: React.FC = () => {
         <SideMenu />
         <section className="w-full flex flex-col items-center gap-6">
           <NewPost />
-          <InfiniteScroll
-            dataLength={posts ? posts.length : 0}
-            next={() => fetchNextPage()}
-            hasMore={hasNextPage as boolean}
-            loader={
-              <div className="flex items-center justify-center space-x-2 mt-4 mb-6">
-                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-primary"></div>
-                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-accent"></div>
-                <div className="w-4 h-4 rounded-full animate-pulse dark:bg-secondary"></div>
-              </div>
-            }
-            endMessage={
-              <div className="w-full bg-white border border-300 shadow-lg  flex justify-center font-semibold text-purple-500 text-xl  my-8 bg-opacity-60 px-4 py-2 rounded-lg">
-                <p>Aucun post a afficher!</p>
-              </div>
-            }
-            className="w-full flex flex-col gap-6"
-          >
-            {posts ? (
-              posts.map((post) => (
-                <Post
-                  key={post._id}
-                  nom={post.owner.nom}
-                  googleID={post.owner.googleID}
-                  prenom={post.owner.prenom}
-                  profilePicture={post.owner.image}
-                  category={post.category}
-                  postId={post._id}
-                  description={post.description}
-                  postPicture={post.images}
-                  likes={post.likes}
-                  commentCount={post.comments.length}
-                  createdAt={post.createdAt}
-                  pet={post.pet}
-                />
-              ))
-            ) : (
-              <h1>Loading...</h1>
-            )}
-          </InfiniteScroll>
+          {isLoading ? (
+            <h1 className="font-bold text-2xl text-primary mt-16 tracking-wide">
+              Loading...
+            </h1>
+          ) : (
+            <InfiniteScroll
+              dataLength={posts ? posts.length : 0}
+              next={() => fetchNextPage()}
+              hasMore={hasNextPage as boolean}
+              loader={
+                <div className="flex items-center justify-center space-x-2 mt-4 mb-6">
+                  <div className="w-4 h-4 rounded-full animate-pulse dark:bg-primary"></div>
+                  <div className="w-4 h-4 rounded-full animate-pulse dark:bg-accent"></div>
+                  <div className="w-4 h-4 rounded-full animate-pulse dark:bg-secondary"></div>
+                </div>
+              }
+              endMessage={
+                <div className="w-full bg-white border border-300 shadow-lg  flex justify-center font-semibold text-purple-500 text-xl  my-8 bg-opacity-60 px-4 py-2 rounded-lg">
+                  <p>Aucun post a afficher!</p>
+                </div>
+              }
+              className="w-full flex flex-col gap-6"
+            >
+              {posts &&
+                posts?.length > 0 &&
+                posts.map((post) => (
+                  <Post
+                    key={post._id}
+                    nom={post.owner.nom}
+                    googleID={post.owner.googleID}
+                    prenom={post.owner.prenom}
+                    profilePicture={post.owner.image}
+                    category={post.category}
+                    postId={post._id}
+                    description={post.description}
+                    postPicture={post.images}
+                    likes={post.likes}
+                    commentCount={post.comments.length}
+                    createdAt={post.createdAt}
+                    pet={post.pet}
+                    wilaya={post.wilaya}
+                  />
+                ))}
+            </InfiniteScroll>
+          )}
         </section>
-        <FilterPost />
+        <FilterPost queryParams={queryParams} setQueryParams={setQueryParams} />
       </main>
     </div>
   )

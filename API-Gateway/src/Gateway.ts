@@ -131,6 +131,22 @@ proxy.use(
     },
   })
 )
+//Gateway foo article service
+proxy.use(
+  "/api/article*",
+  authMiddleware("user"),
+  createProxyMiddleware({
+    target: process.env.ARTICLE_SERVICE,
+    changeOrigin: true,
+    onProxyReq: (proxyReq, req: any) => {
+      if (req.headers["x-auth-user"]) {
+        proxyReq.setHeader("x-auth-user", req.headers["x-auth-user"])
+      }
+      //Handle body
+      fixRequestBody(proxyReq, req)
+    },
+  })
+)
 //Gateway the notification service
 proxy.use(
   "/api/notifications",

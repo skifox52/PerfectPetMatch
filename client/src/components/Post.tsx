@@ -5,14 +5,14 @@ import { AiOutlineLike, AiOutlineSend, AiTwotoneLike } from "react-icons/ai"
 import { TbCat, TbDog } from "react-icons/tb"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { CommentInterface } from "../types/postType"
-import { dislikePost, likePost, postComment } from "../api/postApi"
+import { dislikePost, likePost, postComment, reportPost } from "../api/postApi"
 import { toast } from "react-hot-toast"
 import { useAuth } from "../hooks/useAuth"
 import { Comments } from "./Comments"
 import autoAnimate from "@formkit/auto-animate"
 import { GoCommentDiscussion, GoReport } from "react-icons/go"
-import { MdOutlineKeyboardArrowDown } from "react-icons/md"
 import { reports } from "../data/reportData.json"
+import { SingleReport } from "./SingleReport"
 
 interface PostProps {
   nom: string
@@ -34,6 +34,7 @@ interface PostProps {
     date_de_naissance: Date
     _id: string
   }
+  wilaya: string
 }
 
 export const Post: React.FC<PostProps> = ({
@@ -49,6 +50,7 @@ export const Post: React.FC<PostProps> = ({
   createdAt,
   postId,
   pet,
+  wilaya,
   id,
 }) => {
   const queryClient = useQueryClient()
@@ -61,6 +63,7 @@ export const Post: React.FC<PostProps> = ({
   const [showReport, setShowReport] = useState<boolean>(false)
   const [fetchComments, setFetchComments] = useState<boolean>(false)
   const [showPostDescription, setShowPostDescription] = useState<boolean>(false)
+  const [reportData, setReportData] = useState<string>("")
   const [openComment, setOpenComment] = useState<boolean>(false)
   const [commentInput, setCommentInput] = useState<string>("")
   const timeDiff: number =
@@ -152,7 +155,32 @@ export const Post: React.FC<PostProps> = ({
     document.addEventListener("click", handleClickOutsideModal)
     return () => document.removeEventListener("click", handleClickOutsideModal)
   }, [])
-
+  useEffect(() => {
+    showReport === false && setReportData("")
+  }, [showReport])
+  //Report mutation
+  const reportMutation = useMutation<
+    { success: boolean; message: string },
+    any,
+    { token: string; postId: string; reason: string }
+  >({
+    mutationFn: (variables: {
+      token: string
+      postId: string
+      reason: string
+    }) => reportPost(variables.token, variables.postId, variables.reason),
+    onSuccess: () =>
+      toast.success("Post signaler avec succès\nMerci pour votre contribution"),
+    onError: (err) => {
+      toast.error(err.response?.date?.err || err.message)
+    },
+  })
+  //Post onclickHandler
+  const reportPostHandler = () => {
+    if (reportData === "") toast.error("Choisissez une option")
+    reportMutation.mutate({ token, postId, reason: reportData })
+    setShowReport(false)
+  }
   return (
     <div className="flex flex-col  p-6 pb-0 space-y-4 overflow-hidden rounded-lg shadow-lg border bg-white border-gray-300 w-full max-w-2xl white:bg-gray-900 dark:text-gray-100">
       <div className="flex justify-between">
@@ -172,7 +200,7 @@ export const Post: React.FC<PostProps> = ({
               to="#"
               className="text-sm font-bold text-gray-600 "
             >
-              {nom} {prenom}
+              {nom} {prenom} {wilaya}
             </Link>
             <span className="text-xs dark:text-gray-400">
               {timeDiff >= 1
@@ -250,7 +278,7 @@ export const Post: React.FC<PostProps> = ({
           </div>
         )}
       </div>
-      <div className="flex flex-wrap justify-between">
+      <div className="flex flex-wrap justify-between items-center">
         <div className="relative w-fit h-fit ">
           <GoReport
             className="text-2xl text-gray-800 hover:cursor-pointer hover:text-gray-600"
@@ -263,29 +291,29 @@ export const Post: React.FC<PostProps> = ({
           <input
             type="checkbox"
             checked={showReport}
+            onChange={() => {
+              setShowReport(!showReport)
+            }}
             className="modal-toggle"
           />
           <div className="modal text-gray-800">
             <div className="modal-box" ref={modalRef}>
-              <div className="bg-white">
+              <div className="bg-white flex flex-col gap-6">
                 {reports.map((rep, i) => (
-                  <div key={i}>
-                    <input
-                      type="radio"
-                      name="radio-2"
-                      className="radio radio-primary"
-                      value={rep.reason}
-                      checked
-                    />
-                    <div>
-                      <div>
-                        <p>{rep.reason}</p>
-                        <MdOutlineKeyboardArrowDown />
-                      </div>
-                      <p>{rep.detail}</p>
-                    </div>
-                  </div>
+                  <SingleReport
+                    key={i}
+                    rep={rep}
+                    setReportData={setReportData}
+                    reportData={reportData}
+                  />
                 ))}
+                <button
+                  onClick={reportPostHandler}
+                  disabled={reportMutation.isLoading}
+                  className="btn btn-primary bg-opacity-25 btn-sm rounded-lg mt-2 font-bold hover:text-gray-50"
+                >
+                  Signaler
+                </button>
               </div>
             </div>
             <label className="modal-backdrop" htmlFor="my_modal_7">

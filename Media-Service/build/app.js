@@ -62,6 +62,25 @@ app.post("/api/media/post", upload.array("images"), expressAsyncHandler(async (r
         throw new Error(error);
     }
 }));
+//Post article image
+app.post("/api/media/article", upload.single("image"), expressAsyncHandler(async (req, res) => {
+    try {
+        const file = req.file;
+        console.log(file);
+        const randomId = Date.now();
+        const { format } = await sharp(file?.buffer).metadata();
+        await sharp(file?.buffer)
+            .resize(1000, 1000)
+            .jpeg({ quality: 100 })
+            .toFile(`./assets/ArticlePictures/${randomId}-ArticlePicture.${format}`);
+        const imagePath = `/assets/ArticlePictures/${randomId}-ArticlePicture.${format}`;
+        res.json({ imagePath });
+    }
+    catch (error) {
+        res.status(400);
+        throw new Error(error);
+    }
+}));
 //Not found Route
 app.use("/*", (req, res) => {
     res.status(400);

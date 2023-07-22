@@ -67,6 +67,7 @@ const UserSchema = new Schema<UserType>(
     },
     ville: {
       type: String,
+      required: true,
     },
     role: {
       type: String,
