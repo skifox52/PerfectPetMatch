@@ -42,13 +42,13 @@ export const Contact: React.FC<ContactProps> = ({}) => {
   }, [loading])
   return (
     <div className="h-[93.1vh] flex justify-between">
-      <img
-        src={contactPage}
-        alt="contact page"
-        className="w-2/5 object-center object-cover"
-      />
-      <div className="flex items-center justify-center w-full">
-        <div className="w-3/5 bg-white border border-gray-200 rounded-2xl shadow-xl px-16 py-8">
+      <div className="flex w-4/6 h-[80vh] my-auto border border-gray-200 rounded-3xl shadow-xl overflow-hidden mx-auto ">
+        <img
+          src={contactPage}
+          alt="contact page"
+          className="w-auto object-center h-full object-cover"
+        />
+        <div className="w-3/5 bg-white px-16 py-8">
           <h1 className="text-center font-bold mb-8 text-purple-500 text-5xl">
             Nous contacter
           </h1>

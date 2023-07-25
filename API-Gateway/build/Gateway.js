@@ -25,7 +25,7 @@ const exludedPostPaths = [
 ];
 const proxy = express();
 proxy.use(cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost:3000"],
 }));
 proxy.use(express.json());
 proxy.use(express.urlencoded({ extended: true }));
@@ -117,7 +117,7 @@ proxy.use("/api/chat/*", authMiddleware("user"), createProxyMiddleware({
     },
 }));
 //Gateway foo article service
-proxy.use("/api/article/*", authMiddleware("user"), createProxyMiddleware({
+proxy.use("/api/article*", authMiddleware("user"), createProxyMiddleware({
     target: process.env.ARTICLE_SERVICE,
     changeOrigin: true,
     onProxyReq: (proxyReq, req) => {

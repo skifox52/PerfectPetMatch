@@ -1,5 +1,6 @@
 import {
   deleteUser,
+  deleteUserById,
   fetchCurrentUser,
   findAllUsers,
   findUserById,
@@ -32,6 +33,7 @@ const userRouter = Router()
   .put("/resetPassword", resetPasswordForm)
   .post("/resetKeyExist", resetKeyIsValid)
   .put("/updatePassword", updateUserPassword)
+  .delete("/deleteUser/:id", deleteUserById)
   .delete("/delete", deleteUser)
   .put("/updateGoogleUser", updateGoogleUser)
   .post("/getUsersByIds", getUsersByIds)

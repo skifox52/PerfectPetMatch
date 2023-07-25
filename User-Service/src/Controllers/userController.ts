@@ -138,6 +138,24 @@ export const deleteUser = expressAsyncHandler(
     res.status(200).json(`User [${user._id}] deleted successfully!`)
   }
 )
+//Delete a User by id
+export const deleteUserById = expressAsyncHandler(
+  async (req: any, res: Response) => {
+    const user = req.headers["x-auth-user"]
+    const { id } = req.params
+    await fetch(
+      `http://localhost:${process.env.AUTH_PORT}/api/auth/refreshToken?_id=${id}`,
+      {
+        method: "DELETE",
+      }
+    )
+    await fetch(`${process.env.GATEWAY_URI}/api/post/user?userId=${id}`, {
+      method: "DELETE",
+    })
+    await UserModel.findByIdAndDelete(id)
+    res.status(200).json(`User [${id}] deleted successfully!`)
+  }
+)
 //Reset password form
 export const resetPasswordForm = expressAsyncHandler(
   async (req: Request, res: Response): Promise<void> => {
@@ -233,8 +251,7 @@ export const findUserByMail = expressAsyncHandler(
 //Get All users
 export const findAllUsers = expressAsyncHandler(
   async (req: Request, res: Response): Promise<void> => {
-    const users = await UserModel.find({ role: "user" })
-    res.status(200).json(users)
+    res.status(200).json(await UserModel.find({ role: "user" }))
   }
 )
 //Search users by nom || prenom

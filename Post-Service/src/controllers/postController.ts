@@ -378,6 +378,12 @@ export const removePortReport = expressAsyncHandler(
     })
   }
 )
+//Get all reported posts
+export const getReportedPosts = expressAsyncHandler(
+  async (req: Request, res: Response) => {
+    res.status(200).json(await PostModel.find({ reports: { $ne: [] } }))
+  }
+)
 //Utilities
 //Delete post and comments if user is deleted
 export const afterUserDelete = expressAsyncHandler(

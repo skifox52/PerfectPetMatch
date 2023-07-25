@@ -3,6 +3,7 @@ import multer, { Multer } from "multer"
 import {
   PostArticle,
   getAllArticles,
+  getArticleById,
 } from "../controllers/articleController.js"
 
 const update: Multer = multer({
@@ -15,3 +16,4 @@ const update: Multer = multer({
 export const articleRouter = Router()
   .post("/", update.single("image"), PostArticle)
   .get("/all", getAllArticles)
+  .get("/one/:id", getArticleById)

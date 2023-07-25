@@ -27,7 +27,7 @@ const exludedPostPaths = [
 const proxy: Express = express()
 proxy.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://localhost:3000"],
   })
 )
 proxy.use(express.json())

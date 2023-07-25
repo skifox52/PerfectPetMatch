@@ -10,6 +10,7 @@ import {
   getAllPosts,
   getPostById,
   getReplyComment,
+  getReportedPosts,
   likePost,
   postComment,
   postPost,
@@ -41,6 +42,7 @@ const postRouter = Router()
   .post("/like", likePost)
   .delete("/like", dislikePost)
   .delete("/:postId", deletePost)
+  .get("/report", getReportedPosts)
   .post("/report", reportPost)
   .delete("/report", removePortReport)
   .delete("/user", afterUserDelete)

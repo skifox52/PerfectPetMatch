@@ -89,6 +89,19 @@ export const deleteUser = expressAsyncHandler(async (req, res) => {
     await UserModel.findByIdAndDelete(user._id);
     res.status(200).json(`User [${user._id}] deleted successfully!`);
 });
+//Delete a User by id
+export const deleteUserById = expressAsyncHandler(async (req, res) => {
+    const user = req.headers["x-auth-user"];
+    const { id } = req.params;
+    await fetch(`http://localhost:${process.env.AUTH_PORT}/api/auth/refreshToken?_id=${id}`, {
+        method: "DELETE",
+    });
+    await fetch(`${process.env.GATEWAY_URI}/api/post/user?userId=${id}`, {
+        method: "DELETE",
+    });
+    await UserModel.findByIdAndDelete(id);
+    res.status(200).json(`User [${id}] deleted successfully!`);
+});
 //Reset password form
 export const resetPasswordForm = expressAsyncHandler(async (req, res) => {
     const { mail } = req.body;
@@ -169,8 +182,7 @@ export const findUserByMail = expressAsyncHandler(async (req, res) => {
 });
 //Get All users
 export const findAllUsers = expressAsyncHandler(async (req, res) => {
-    const users = await UserModel.find({ role: "user" });
-    res.status(200).json(users);
+    res.status(200).json(await UserModel.find({ role: "user" }));
 });
 //Search users by nom || prenom
 export const searchUser = expressAsyncHandler(async (req, res) => {

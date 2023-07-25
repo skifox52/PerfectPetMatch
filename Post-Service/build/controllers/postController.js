@@ -286,6 +286,10 @@ export const removePortReport = expressAsyncHandler(async (req, res) => {
         message: "Reports removed from the post successfully!",
     });
 });
+//Get all reported posts
+export const getReportedPosts = expressAsyncHandler(async (req, res) => {
+    res.status(200).json(await PostModel.find({ reports: { $ne: [] } }));
+});
 //Utilities
 //Delete post and comments if user is deleted
 export const afterUserDelete = expressAsyncHandler(async (req, res) => {

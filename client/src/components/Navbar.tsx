@@ -54,10 +54,10 @@ export const Navbar: React.FC = ({}) => {
           </li>
           <li>
             <NavLink
-              to={"/market"}
+              to={"/articles"}
               className="hover:text-black aria-[current=page]:text-accent aria-[current=page]:font-bold "
             >
-              Market
+              Articles
             </NavLink>
           </li>
           <li>
@@ -65,7 +65,7 @@ export const Navbar: React.FC = ({}) => {
               to={"/about"}
               className="hover:text-black aria-[current=page]:text-accent aria-[current=page]:font-bold "
             >
-              About
+              À propos
             </NavLink>
           </li>
           <li>

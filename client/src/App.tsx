@@ -22,6 +22,9 @@ import { ChatBody } from "./components/ChatBody"
 import { ChatInbox } from "./components/ChatInbox"
 import { Contact } from "./pages/Contact"
 import { SinglePost } from "./pages/SinglePost"
+import { Articles } from "./pages/Articles"
+import { DetailArticle } from "./pages/DetailArticle"
+import { About } from "./pages/About"
 
 function App() {
   const router = createBrowserRouter(
@@ -30,6 +33,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/articles" element={<Articles />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/articles/:id" element={<DetailArticle />} />
         <Route path="/post/:id" element={<SinglePost />} />
         <Route path="/google-fill-form" element={<FillForm />} />
         <Route path="/resetPassword" element={<ResetPassword />} />

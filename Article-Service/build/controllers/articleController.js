@@ -35,5 +35,25 @@ export const PostArticle = expressAsyncHandler(async (req, res) => {
 });
 //Get all articles
 export const getAllArticles = expressAsyncHandler(async (req, res) => {
-    res.status(200).json(await ArticleModel.find());
+    const { page } = req.query;
+    const limit = 4;
+    const skip = (page - 1) * limit;
+    const totalPages = Math.ceil((await ArticleModel.find().countDocuments()) / limit);
+    const latestArticle = await ArticleModel.find()
+        .sort({ createdAt: -1 })
+        .limit(1);
+    res.status(200).json({
+        latestArticle,
+        articles: await ArticleModel.find()
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit),
+        totalPages,
+    });
+});
+//Fetch digle article
+export const getArticleById = expressAsyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const article = await ArticleModel.findById(id);
+    res.status(200).json(article);
 });
