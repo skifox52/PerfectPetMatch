@@ -1,4 +1,4 @@
-import { deleteUser, deleteUserById, fetchCurrentUser, findAllUsers, findUserById, findUserByMail, getUsersByIds, registerUser, resetKeyIsValid, resetPasswordForm, searchUser, updateGoogleUser, updateUser, updateUserPassword, } from "../Controllers/userController.js";
+import { deleteUser, deleteUserById, fetchCurrentUser, findAll, findAllUsers, findUserById, findUserByMail, getUsersByIds, registerUser, resetKeyIsValid, resetPasswordForm, searchUser, updateGoogleUser, updateUser, updateUserPassword, } from "../Controllers/userController.js";
 import { Router } from "express";
 import multer from "multer";
 //Configure multer to store the image as a Buffer Object in memory so we can send it to the Media-Service
@@ -12,6 +12,7 @@ const userRouter = Router()
     .get("/one", findUserById)
     .get("/oneByMail", findUserByMail)
     .get("/all", findAllUsers)
+    .get("/tous", findAll)
     .post("/register", upload.single("image"), registerUser)
     .put("/update", updateUser)
     .put("/resetPassword", resetPasswordForm)

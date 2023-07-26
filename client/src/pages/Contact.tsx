@@ -42,57 +42,65 @@ export const Contact: React.FC<ContactProps> = ({}) => {
   }, [loading])
   return (
     <div className="h-[93.1vh] flex justify-between">
-      <div className="flex w-4/6 h-[80vh] my-auto border border-gray-200 rounded-3xl shadow-xl overflow-hidden mx-auto ">
+      <div className="flex flex-col lg:flex-row w-[90%] lg:w-4/6 h-[90vh] lg:h-[80vh] my-auto border border-gray-200 rounded-3xl shadow-xl overflow-hidden mx-auto ">
         <img
           src={contactPage}
           alt="contact page"
-          className="w-auto object-center h-full object-cover"
+          className="w-auto object-center h-1/3 lg:h-full lg:w-1/3 object-cover"
         />
-        <div className="w-3/5 bg-white px-16 py-8">
-          <h1 className="text-center font-bold mb-8 text-purple-500 text-5xl">
+        <div className="w-full flex h-2/3 lg:h-full flex-col lg:justify-center bg-white px-6 lg:px-16 py-8">
+          <h1 className="text-center font-bold mb-2 lg:mb-8 text-purple-500 text-2xl lg:text-5xl">
             Nous contacter
           </h1>
           <form
             ref={form}
             onSubmit={sendEmail}
-            className="flex flex-col gap-1 w-4/5 mx-auto"
+            className="flex flex-col px-1 gap-1 w-full lg:w-4/5 mx-auto overflow-y-auto my-auto"
           >
-            <label className="text-md text-gray-600">Name</label>
+            <label className="text-sm md:text-md lg:text-md text-gray-600">
+              Name
+            </label>
             <input
               type="text"
               name="name"
               placeholder="Votre nom..."
               required
-              className="mb-4 input input-primary input-md text-lg bg-gray-50"
+              className="lg:mb-4 mb-2  input input-primary input-sm md:input-lg lg:input-md text-lg bg-gray-50"
             />
-            <label className="text-md text-gray-600">Subject</label>
+            <label className="text-sm md:text-md lg:text-md text-gray-600">
+              Subject
+            </label>
             <input
               type="text"
               name="subject"
               placeholder="Sujet..."
               required
-              className="mb-4 input input-primary input-md text-lg bg-gray-50"
+              className="lg:mb-4 mb-2  input input-primary input-sm md:input-lg lg:input-md text-lg bg-gray-50"
             />
-            <label className="text-md text-gray-600">Email</label>
+            <label className="text-sm md:text-md lg:text-md text-gray-600">
+              Email
+            </label>
             <input
               type="email"
               placeholder="Votre adresse mail..."
               name="mail"
               required
-              className="mb-4 input input-primary input-md text-lg bg-gray-50"
+              className="lg:mb-4 mb-2  input input-primary input-sm md:input-lg lg:input-md text-lg bg-gray-50"
             />
-            <label className="text-md text-gray-600">Message</label>
+            <label className="text-sm md:text-md lg:text-md text-gray-600">
+              Message
+            </label>
             <textarea
               placeholder="Votre message..."
               name="message"
               required
-              className="mb-4 textarea textarea-primary textarea-md text-lg bg-gray-50"
+              className="lg:mb-4 mb-2  textarea textarea-primary textarea-sm md:textarea-md lg:textarea-md text-lg bg-gray-50"
             />
             <input
               type="submit"
               value="Envoyer"
               disabled={loading}
-              className="btn btn-accent btn-md text-lg text-gray-50 shadow-md focus:bg-success"
+              className="btn btn-accent btn-sm  md:btn-md text-lg text-gray-50 shadow-md focus:bg-success"
             />
           </form>
         </div>

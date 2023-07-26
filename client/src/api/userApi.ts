@@ -183,3 +183,47 @@ export const fetchCurrentUser = async (token: string) => {
     throw error
   }
 }
+//Fetch user by id
+export const fetchUserById = async (id: string, token: string) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+  try {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_GATEWAY}/api/user/one?_id=${id}`,
+      config
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+//Update user
+export const updateUser = async (
+  formData: {
+    nom: string
+    prenom: string
+    sexe: string
+    adresse: string
+    ville: string
+  },
+  token: string
+) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+  try {
+    const response = await axios.put(
+      `${import.meta.env.VITE_API_GATEWAY}/api/user/update`,
+      formData,
+      config
+    )
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}

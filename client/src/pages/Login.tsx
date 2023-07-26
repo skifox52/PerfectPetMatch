@@ -56,8 +56,11 @@ export const Login: React.FC = () => {
   const createUserMutation = useMutation({
     mutationFn: (variables: UserInputInterface) => loginUser(variables),
     onSuccess: (data) => {
+      if (data.role !== "user")
+        return toast.error("You have to connect as an administrator!")
       userContext?.setUser(data)
       localStorage.setItem("User", JSON.stringify(data))
+      navigate(from, { replace: true })
     },
     onError: (error: any) => {
       toast.error(error.response?.data.err || error.message)
@@ -71,14 +74,13 @@ export const Login: React.FC = () => {
       setLoadingToast(null)
       toast.dismiss(loadingToast)
     }
-    createUserMutation.isSuccess && navigate(from, { replace: true })
-  }, [createUserMutation.isLoading, createUserMutation.isSuccess])
+  }, [createUserMutation.isLoading])
   //handle login onSubmit
   const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault()
-    // if (!userLoginData.mail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-    //   return toast.error("Adresse mail incorrect!")
-    // }
+    if (!userLoginData.mail.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      return toast.error("Adresse mail incorrect!")
+    }
     createUserMutation.mutate(userLoginData)
   }
   //Handle reset

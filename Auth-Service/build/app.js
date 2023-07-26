@@ -7,13 +7,14 @@ import helmet from "helmet";
 import morgan from "morgan";
 import authRouter from "./Routes/authRouter.js";
 import oauthRouter from "./Routes/oauthRouter.js";
-import cors from "cors";
 const app = express();
 app.use(helmet());
 app.use(morgan("dev"));
-app.use(cors({
-    origin: "http://localhost:5173",
-}));
+// app.use(
+//   cors({
+//     origin: "http://localhost:5173",
+//   })
+// )
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(compression());

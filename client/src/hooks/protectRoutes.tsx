@@ -1,19 +1,17 @@
-import { useAuth } from "./useAuth"
-import { useLocation, Outlet, Navigate } from "react-router-dom"
-import React, { PropsWithChildren } from "react"
+import { Route, Navigate } from "react-router-dom"
 
-interface protectRoutesProps extends PropsWithChildren {
-  allowedRole: string
+function isAuthenticated(): boolean {
+  const userData = localStorage.getItem("User")
+  if (userData == null) return false
+  const role = JSON.parse(localStorage.getItem("User")!).role
+  return role === "user"
 }
 
-export const ProtectRoutes: React.FC<protectRoutesProps> = ({
-  allowedRole,
+// Component for protected routes
+const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({
+  element,
 }) => {
-  const location = useLocation()
-  const userContext = useAuth()
-  return userContext?.user && userContext.user.role === allowedRole ? (
-    <Outlet />
-  ) : (
-    <Navigate to={"/login"} state={{ from: location }} replace />
-  )
+  return isAuthenticated() ? element : <Navigate to="/login" />
 }
+
+export default ProtectedRoute

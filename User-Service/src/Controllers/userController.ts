@@ -21,6 +21,7 @@ export const registerUser = expressAsyncHandler(
       adresse,
       date_de_naissance,
       ville,
+      role,
     }: {
       nom: string
       prenom: string
@@ -30,6 +31,7 @@ export const registerUser = expressAsyncHandler(
       adresse: string
       date_de_naissance: Date
       ville: string
+      role?: string
     } = req.body
     if (
       !nom ||
@@ -80,6 +82,7 @@ export const registerUser = expressAsyncHandler(
       date_de_naissance,
       image: mediaPath,
       ville,
+      role: role ? role : "user",
     })
     const response = await fetch(
       `http://localhost:${process.env.AUTH_PORT}/api/auth/token/?_id=${newUser._id}&role=${newUser.role}`
@@ -252,6 +255,12 @@ export const findUserByMail = expressAsyncHandler(
 export const findAllUsers = expressAsyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     res.status(200).json(await UserModel.find({ role: "user" }))
+  }
+)
+//Find all
+export const findAll = expressAsyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    res.status(200).json(await UserModel.find())
   }
 )
 //Search users by nom || prenom

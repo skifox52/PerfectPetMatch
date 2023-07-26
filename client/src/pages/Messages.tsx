@@ -14,6 +14,7 @@ export const Messages: React.FC = () => {
     adresse: string
     date_de_naissance: string
     googleID?: string
+    _id: string
   } | null>(null)
   //Initialize the socker object
   const socket = io("http://localhost:5005")
@@ -24,14 +25,14 @@ export const Messages: React.FC = () => {
   }, [])
   return (
     <div
-      className="h-[92.5vh] pt-8 p-8  flex items-center justify-between  gap-4 bg-center bg-cover"
+      className="min-h-[92.5vh] pt-8 p-8 flex flex-col lg:flex-row items-center justify-between  gap-4 bg-center bg-cover"
       style={{
         backgroundImage: `url(${chatBackground})`,
       }}
     >
       <ChatAside socket={socket} setCurrentUser={setCurrentUser} />
       <Outlet context={socket} />
-      <ChatProfile currentUser={currentUser} />
+      {/* <ChatProfile currentUser={currentUser} /> */}
     </div>
   )
 }

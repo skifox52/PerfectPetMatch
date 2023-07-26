@@ -87,20 +87,21 @@ export const Home: React.FC = () => {
                 posts?.length > 0 &&
                 posts.map((post) => (
                   <Post
-                    key={post._id}
-                    nom={post.owner.nom}
-                    googleID={post.owner.googleID}
-                    prenom={post.owner.prenom}
-                    profilePicture={post.owner.image}
-                    category={post.category}
-                    postId={post._id}
-                    description={post.description}
-                    postPicture={post.images}
-                    likes={post.likes}
-                    commentCount={post.comments.length}
-                    createdAt={post.createdAt}
-                    pet={post.pet}
-                    wilaya={post.wilaya}
+                    key={post?._id}
+                    nom={post?.owner?.nom}
+                    googleID={post?.owner?.googleID}
+                    prenom={post?.owner?.prenom}
+                    profilePicture={post?.owner?.image}
+                    category={post?.category}
+                    postId={post?._id}
+                    description={post?.description}
+                    postPicture={post?.images}
+                    likes={post?.likes}
+                    commentCount={post?.comments.length}
+                    createdAt={post?.createdAt}
+                    pet={post?.pet}
+                    wilaya={post?.wilaya}
+                    id={post?.owner?._id}
                   />
                 ))}
             </InfiniteScroll>

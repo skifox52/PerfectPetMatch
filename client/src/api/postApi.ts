@@ -210,3 +210,18 @@ export const reportPost = async (
     throw error
   }
 }
+//Delete post
+export const deletePost = async (token: string, id: string): Promise<void> => {
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  }
+  try {
+    const response = await axios.delete<PostInterface[]>(
+      `${import.meta.env.VITE_API_GATEWAY}/api/post/${id}`,
+      config
+    )
+    console.log(response.data)
+  } catch (error) {
+    throw error
+  }
+}

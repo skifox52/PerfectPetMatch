@@ -27,17 +27,18 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
   // Join conversation
   useEffect(() => {
     socket.emit("joinConversation", conversationId)
-    // scrollToBottom()
+    scrollToBottom()
   }, [conversationId])
   //Handle onSubmit
   const handleSendMessage: any = () => {
     if (message === "") return
     const data = { conversationId, senderId: _id, content: message }
     setMessage("")
+    refetch()
     socket.emit("sendMessage", data)
   }
   //Load conversation loaded messages
-  const { data, error, isError, isLoading, isSuccess } = useQuery<
+  const { data, error, isError, isLoading, isSuccess, refetch } = useQuery<
     string[],
     any
   >({
@@ -47,7 +48,6 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
         accessToken,
         conversationId?.toString() as string
       ),
-    refetchOnWindowFocus: true,
   })
   if (isError) {
     toast.error(error.response?.err.data || error.message)
@@ -55,79 +55,26 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
 
   useEffect(() => {
     isSuccess && setMessages(data!)
-
+    refetch()
     return () => {
       setMessages([])
-      setPage(0)
     }
   }, [conversationId, isLoading, data, socket])
-  //Fetch on scroll
-  //--fetch on scroll query
-  const [page, setPage] = useState<number>(1)
-  const [scrollFetch, setScrollFetch] = useState<boolean>(false)
-  const {
-    data: scrollMessages,
-    isError: isErrorScrollMessages,
-    isSuccess: isSuccessScrollMessages,
-    error: errorScroll,
-    refetch,
-  } = useQuery<any, any>({
-    queryKey: ["onScrollMessages", accessToken, conversationId, page],
-    queryFn: () =>
-      getMessagesOnScroll(accessToken, conversationId as string, page),
-    enabled: scrollFetch,
-  })
-  const handleScroll = () => {
-    if (scrollTopElement.current?.scrollTop === 0) {
-      setScrollFetch(true)
-      setPage(page + 1)
-    }
-  }
-  console.log(scrollMessages)
-  console.log(page)
-  useEffect(() => {
-    scrollTopElement.current?.addEventListener("scroll", handleScroll)
-    return () => {
-      console.log("test")
-      scrollTopElement.current?.removeEventListener("scroll", handleScroll)
-    }
-  }, [scrollTopElement.current])
-  useEffect(() => {
-    setScrollFetch(true)
-  }, [page])
 
-  if (isErrorScrollMessages)
-    toast.error(errorScroll.response?.data.err || errorScroll.message)
-  useEffect(() => {
-    isSuccessScrollMessages &&
-      setMessages((prev) => {
-        return [...scrollMessages.messages, ...prev]
-      })
-  }, [isSuccessScrollMessages])
   //Recieved messages
   useEffect(() => {
     const handleNewMessage = (data: any) => {
-      if (conversationId === data.conversationId) {
-        setMessages((prev) => {
-          return [
-            ...prev,
-            JSON.stringify({
-              sender: data.sender,
-              content: data.content,
-              timeStamps: data.timeStamps,
-            }),
-          ]
-        })
-      }
+      refetch()
+      console.log(data)
     }
     socket.on("newMessage", handleNewMessage)
     return () => {
       socket.off("newMessage", handleNewMessage)
     }
-  }, [socket, conversationId])
+  }, [socket, conversationId, messages])
   if (isLoading) return <h1>Loading...</h1>
   return (
-    <main className="bg-bgPrimary flex-1 h-full first-letter rounded-3xl p-8 flex flex-col gap-6 items-center shadow-md shadow-gray-600">
+    <main className="bg-bgPrimary w-full  flex-1 h-[80vh] first-letter rounded-3xl p-8 flex flex-col gap-6 items-center shadow-md shadow-gray-600">
       <section
         ref={scrollTopElement}
         className="rounded-xl bg-base-100 py-8 h-[80%] overflow-y-auto w-full px-4 block flex-1 border-gray-300 border shadow-md"
@@ -176,7 +123,7 @@ export const ChatBody: React.FC<ChatBodyProps> = ({}) => {
             type="text"
             name="chatBody"
             placeholder="Saisissez votre message..."
-            className="h-full w-full rounded-3xl pl-6  input border-2 input-primary font-bold tracking-wide pr-16"
+            className="h-full w-full rounded-3xl pl-6  input border-2 input-primary py-3 font-bold tracking-wide pr-16"
             value={message}
             onKeyDown={(e) => e.key === "Enter" && handleSendMessage(e)}
             onChange={(e) => setMessage(e.target.value)}

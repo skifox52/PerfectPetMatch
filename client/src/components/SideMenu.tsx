@@ -32,7 +32,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({}) => {
     isSuccess && setUserData({ nom: data.nom, prenom: data.prenom })
   }, [isError, isSuccess])
   return (
-    <ul className="menu  w-3/5 font-bold text-lg max-w-full  sticky top-4 h-fit">
+    <ul className="menu hidden lg:block  w-3/5 font-bold text-lg max-w-full  sticky top-4 h-fit">
       {!isLoading && (
         <div className=" h-80 flex flex-col items-center justify-between shadow-lg mb-8 overflow-hidden bg-white rounded-xl">
           <section className="h-1/2  relative">
@@ -51,7 +51,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({}) => {
             </span>
             <li className="w-full">
               <Link
-                to={"/profile"}
+                to={"/profile/" + userContext?.user?._id}
                 className="flex items-center hover:bg-accent  focus:bg-success gap-2 justify-center text-gray-50 bg-primary"
               >
                 Afficher le profile

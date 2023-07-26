@@ -98,7 +98,7 @@ export const Notification: React.FC<NotificationProps> = ({}) => {
       {showNotifications && (
         <section
           ref={notificationRef}
-          className="absolute right-0 cursor-default translate-x-[105%] max-h-96 overflow-y-auto flex flex-col gap-4 rounded-lg p-4  bg-white shadow-lg border border-r-gray-300 top-0"
+          className="absolute  right-0 cursor-default translate-x-[105%] max-h-96 overflow-y-auto flex flex-col gap-4 rounded-lg p-4  bg-white shadow-lg border border-r-gray-300 top-0"
         >
           {message.length > 0
             ? message.map((msg, i: number) => (

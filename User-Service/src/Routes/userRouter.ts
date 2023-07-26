@@ -2,6 +2,7 @@ import {
   deleteUser,
   deleteUserById,
   fetchCurrentUser,
+  findAll,
   findAllUsers,
   findUserById,
   findUserByMail,
@@ -28,6 +29,7 @@ const userRouter = Router()
   .get("/one", findUserById)
   .get("/oneByMail", findUserByMail)
   .get("/all", findAllUsers)
+  .get("/tous", findAll)
   .post("/register", upload.single("image"), registerUser)
   .put("/update", updateUser)
   .put("/resetPassword", resetPasswordForm)

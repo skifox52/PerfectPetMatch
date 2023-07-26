@@ -23,7 +23,7 @@ export const HeroSection: React.FC = () => {
       />
       <Link
         to="/contact"
-        className="absolute bottom-16 left-10 btn btn-accent text-white text-[1.3vw] w-1/5  h-14 text-center font-black "
+        className="absolute bottom-4 lg:bottom-16 left-10 btn btn-accent btn-xs text-xs text-white text-[1.3vw] w-auto lg:w-1/5  lg:btn-md text-center font-black "
       >
         Contactez nous
       </Link>

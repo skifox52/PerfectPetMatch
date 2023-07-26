@@ -5,9 +5,9 @@ import RefreshTokenModel from "../Models/RefreshTokenModel.js";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 export const SignToken = ({ _id, role }) => {
-    //Do not forget to change the 10h to 10m
+    //Do not forget to change the 100h to 10m
     return jwt.sign({ _id, role }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "100000h",
+        expiresIn: "100h",
     });
 };
 export const SignRefreshToken = ({ _id, role }) => {

@@ -1,19 +1,18 @@
-import { Navigate, Outlet, RouterProps } from 'react-router-dom';
-import React from 'react';
+// src/components/ProtectedRoute.tsx
+import { Route, Navigate } from 'react-router-dom';
 
-const isAdmin = (role: string): boolean => {
-  return role.toLocaleLowerCase() === 'Admin';
-};
-
-interface ProtectAdminInterface extends RouterProps {
-  role: string | null;
+function isAuthenticated(): boolean {
+  const userData = localStorage.getItem('User');
+  if (userData == null) return false;
+  const role = JSON.parse(localStorage.getItem('User')!).role;
+  return role === 'admin';
 }
 
-export const ProtectAdmin: React.FC<ProtectAdminInterface> = ({ role }) => {
-  if (role === null) return <Navigate to={'http://localhost:5173/login'} />;
-  return isAdmin(role) ? (
-    <Outlet />
-  ) : (
-    <Navigate to={'http://localhost:5173/login'} />
-  );
+// Component for protected routes
+const ProtectedRoute: React.FC<{ element: React.ReactElement }> = ({
+  element,
+}) => {
+  return isAuthenticated() ? element : <Navigate to="/login" />;
 };
+
+export default ProtectedRoute;

@@ -8,6 +8,7 @@ import Loader from './common/Loader';
 import { userContext } from './hooks/userContext';
 import type { UserInterface } from './hooks/userContext';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import ProtectedRoute from './hooks/ProtectAdmin';
 
 const Chart = lazy(() => import('./pages/Chart'));
 const FormElements = lazy(() => import('./pages/Form/FormElements'));
@@ -32,20 +33,8 @@ function App() {
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
-    localStorage.setItem(
-      'User',
-      JSON.stringify({
-        _id: '648e305e9a16f00ff528409d',
-        accessToken:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDhlMzA1ZTlhMTZmMDBmZjUyODQwOWQiLCJyb2xlIjoidXNlciIsImlhdCI6MTY5MDIyNDE3NSwiZXhwIjoyMDUwMjI0MTc1fQ.wneFbnHWqCPYFPPUOb98p0E041zeHbbkm-PDPbDKL-c',
-        refreshToken:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NDhlMzA1ZTlhMTZmMDBmZjUyODQwOWQiLCJyb2xlIjoidXNlciIsImlhdCI6MTY5MDIyNDE3NX0.2mMNrsmxoL-orSSUAXN8SBF6BKHE5QhOjhgVHVT-o8o',
-        role: 'user',
-        profilePicture:
-          'http://localhost:5555/assets/ProfilePictures/1687040094037-PofilePicture.jpeg',
-      })
-    );
   }, []);
+
   // const role: string | null = (useAuth() && useAuth()!.user?.role) || null;
   const queryClient = new QueryClient();
   const userContextValue = useMemo(() => {
@@ -58,32 +47,22 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <userContext.Provider value={userContextValue}>
           <Routes>
-            {/* <ProtectAdmin role={role}> */}
             <Route path="/auth/signin" element={<SignIn />} />
-            <Route path="/auth/signup" element={<SignUp />} />
             <Route element={<DefaultLayout />}>
-              <Route index element={<ECommerce />} />
               <Route
                 path="/profile"
                 element={
                   <Suspense fallback={<Loader />}>
-                    <Profile />
+                    <ProtectedRoute element={<Profile />} />
                   </Suspense>
                 }
               />
+
               <Route
-                path="/forms/form-elements"
+                path="/"
                 element={
                   <Suspense fallback={<Loader />}>
-                    <FormElements />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="/users"
-                element={
-                  <Suspense fallback={<Loader />}>
-                    <Users />
+                    <ProtectedRoute element={<Users />} />
                   </Suspense>
                 }
               />
@@ -91,7 +70,7 @@ function App() {
                 path="/add-article"
                 element={
                   <Suspense fallback={<Loader />}>
-                    <Article />
+                    <ProtectedRoute element={<Article />} />
                   </Suspense>
                 }
               />
@@ -99,56 +78,24 @@ function App() {
                 path="/posts"
                 element={
                   <Suspense fallback={<Loader />}>
-                    <Posts />
+                    <ProtectedRoute element={<Posts />} />
                   </Suspense>
                 }
               />
               <Route
-                path="/forms/form-layout"
+                path="/login"
                 element={
                   <Suspense fallback={<Loader />}>
-                    <FormLayout />
+                    <SignIn />
                   </Suspense>
                 }
               />
               <Route
-                path="/tables"
+                path="/*"
                 element={
-                  <Suspense fallback={<Loader />}>
-                    <Tables />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="/settings"
-                element={
-                  <Suspense fallback={<Loader />}>
-                    <Settings />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="/chart"
-                element={
-                  <Suspense fallback={<Loader />}>
-                    <Chart />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="/ui/alerts"
-                element={
-                  <Suspense fallback={<Loader />}>
-                    <Alerts />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="/ui/buttons"
-                element={
-                  <Suspense fallback={<Loader />}>
-                    <Buttons />
-                  </Suspense>
+                  <h1 className="mt-16 text-center text-6xl font-bold">
+                    Not found!
+                  </h1>
                 }
               />
             </Route>

@@ -40,17 +40,17 @@ export const Articles: React.FC<ArticlesProps> = ({}) => {
   return (
     <div className="bg-bgPrimary pb-8">
       <header className="h-64 w-full relative shadow-lg">
-        <h1 className="absolute top-1/2 left-8 max-w-[60vw] -translate-y-1/2 text-gray-50 font-bold text-8xl">
+        <h1 className="absolute top-1/2 left-8 max-w-[60vw] -translate-y-1/2 text-gray-50 font-bold text-5xl lg:text-8xl">
           Articles et conseils
         </h1>
         <img
           src={articleProfile}
           alt="article header"
-          className="max-h-full w-full object-cover"
+          className="h-full w-full object-cover"
         />
       </header>
-      <section className=" w-3/5 mx-auto">
-        <article className="w-full relative mx-auto my-16 h-96 overflow-hidden flex bg-white rounded-2xl border border-gray-200 shadow-lg">
+      <section className="w-4/5 xl:w-3/5 mx-auto">
+        <article className="w-full flex flex-col md:flex-row relative mx-auto my-16 h-96 overflow-hidden  bg-white rounded-2xl border border-gray-200 shadow-lg">
           <span className="absolute right-4 top-6 rounded-full text-white font-bold bg-error px-2 py-1 border-2 border-red-500">
             Nouveau
           </span>
@@ -59,7 +59,7 @@ export const Articles: React.FC<ArticlesProps> = ({}) => {
               data?.latestArticle[0].image
             }`}
             alt="article image"
-            className="h-full w-2/5 object-center object-cover"
+            className="h-1/2 md:h-full w-full md:w-2/5 object-center object-cover"
           />
           <div className="px-16 py-4">
             <Link
@@ -94,7 +94,7 @@ export const Articles: React.FC<ArticlesProps> = ({}) => {
             </p>
           </div>
         </article>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {data?.articles.map((article, i) => (
             <SingleArticle
               article={article}

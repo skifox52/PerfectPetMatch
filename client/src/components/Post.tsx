@@ -5,7 +5,13 @@ import { AiOutlineLike, AiOutlineSend, AiTwotoneLike } from "react-icons/ai"
 import { TbCat, TbDog } from "react-icons/tb"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import type { CommentInterface } from "../types/postType"
-import { dislikePost, likePost, postComment, reportPost } from "../api/postApi"
+import {
+  deletePost,
+  dislikePost,
+  likePost,
+  postComment,
+  reportPost,
+} from "../api/postApi"
 import { toast } from "react-hot-toast"
 import { useAuth } from "../hooks/useAuth"
 import { Comments } from "./Comments"
@@ -181,6 +187,20 @@ export const Post: React.FC<PostProps> = ({
     reportMutation.mutate({ token, postId, reason: reportData })
     setShowReport(false)
   }
+  //onDelete
+  const accessToken = useAuth()?.user?.accessToken as string
+  const { mutate } = useMutation({
+    mutationFn: (variables: { token: string; id: string }) =>
+      deletePost(variables.token, variables.id),
+    onSuccess: () => queryClient.invalidateQueries(["posts"]),
+  })
+  const handleOnDelete = () => {
+    const confirm = window.confirm(
+      "Voulez vous vraiment supprimer ce poste? " + postId
+    )
+    if (!confirm) return
+    mutate({ token: accessToken, id: postId })
+  }
   return (
     <div className="flex flex-col  p-6 pb-0 space-y-4 overflow-hidden rounded-lg shadow-lg border bg-white border-gray-300 w-full max-w-2xl white:bg-gray-900 dark:text-gray-100">
       <div className="flex justify-between">
@@ -197,11 +217,20 @@ export const Post: React.FC<PostProps> = ({
           <div className="flex flex-col space-y-1">
             <Link
               rel="noopener noreferrer"
-              to="#"
+              to={`/profile/${id}`}
               className="text-sm font-bold text-gray-600 "
             >
-              {nom} {prenom} {wilaya}
+              {nom} {prenom}{" "}
+              <span className="block text-primary text-lg">{wilaya}</span>
             </Link>
+            {currenUserId === id && (
+              <span
+                onClick={handleOnDelete}
+                className=" text-md btn btn-error btn-xs text-white my-2 w-fit"
+              >
+                Supprimer
+              </span>
+            )}
             <span className="text-xs dark:text-gray-400">
               {timeDiff >= 1
                 ? timeDiff < 24
@@ -216,39 +245,55 @@ export const Post: React.FC<PostProps> = ({
         <span
           className={
             category === "adoption"
-              ? "py-1 px-2 shadow-md  rounded-3xl bg-accent text-gray-50 font-bold text h-8 flex items-center"
-              : "py-1 px-2 shadow-md  rounded-3xl bg-secondary text-gray-50 font-bold text h-8 flex items-center"
+              ? "py-1 px-2 text-xs md:text-lg shadow-md  rounded-3xl bg-accent text-gray-50 font-bold text h-6 flex items-center"
+              : "py-1 px-2 text-xs md:text-lg shadow-md  rounded-3xl bg-secondary text-gray-50 font-bold text h-6 flex items-center"
           }
         >
           {category.charAt(0).toUpperCase() + category.slice(1)}
         </span>
       </div>
       <div>
-        <section className="text-accent text-xl font-semibold bg-bgPrimary shadow-lg border border-gray-200 rounded-xl p-4 flex justify-between">
+        <section
+          className={
+            pet.sexe.toLocaleLowerCase() === "male"
+              ? "text-accent text-xl font-semibold bg-primary bg-opacity-40 shadow-lg border border-primary rounded-xl p-2 lg:p-4 flex justify-between"
+              : "text-accent text-xl font-semibold bg-secondary bg-opacity-40 shadow-lg border border-secondary rounded-xl p-2 lg:p-4 flex justify-between"
+          }
+        >
           <div className="grid grid-cols-2 gap-2">
-            <div className="flex items-center gap-4 bg-white px-4 py-1 w-fit rounded-full border border-gray-200">
+            <div className="flex items-center gap-2 h-8 lg:gap-4 bg-white px-4 text-xs lg:text-sm lg:px-2 py-1 w-fit rounded-full border border-gray-200">
               <span className="text-xs text-primary font-normal">Type</span>
               {pet.type.charAt(0).toUpperCase()}
               {pet.type.slice(1)}
             </div>
-            <div className="flex items-center gap-4 bg-white px-4 py-1 w-fit rounded-full border border-gray-200">
-              <span className="text-sm text-primary font-normal">Race</span>{" "}
+            <div className="flex items-center gap-2 h-8 lg:gap-4 bg-white px-4 text-xs lg:text-sm lg:px-2 py-1 w-fit rounded-full border border-gray-200">
+              <span className="text-xs lg:text-sm text-primary font-normal">
+                Race
+              </span>{" "}
               {pet.race}
             </div>
-            <div className="flex items-center gap-4 bg-white px-4 py-1 w-fit rounded-full border border-gray-200">
-              <span className="text-sm text-primary font-normal">Sexe</span>{" "}
+            <div className="flex items-center gap-2 h-8 lg:gap-4 bg-white px-4 text-xs lg:text-sm lg:px-2 py-1 w-fit rounded-full border border-gray-200">
+              <span className="text-xs lg:text-sm text-primary font-normal">
+                Sexe
+              </span>{" "}
               {pet.sexe.charAt(0).toUpperCase()}
               {pet.sexe.slice(1)}
             </div>
-            <div className="flex items-center gap-4 bg-white px-4 py-1 w-fit rounded-full border border-gray-200">
-              <span className="text-sm text-primary font-normal">Age</span>{" "}
+            <div className="flex items-center gap-2 h-8 lg:gap-4 bg-white px-4 text-xs lg:text-sm lg:px-2 py-1 w-fit rounded-full border border-gray-200">
+              <span className="text-xs lg:text-sm text-primary font-normal">
+                Age
+              </span>{" "}
               {calculatePetAge(pet.date_de_naissance)}
             </div>
           </div>
           {pet.type === "chat" ? (
-            <TbCat className="text-8xl h-full my-auto text-primary" />
+            pet.sexe.toLowerCase() === "male" ? (
+              <TbCat className="text-4xl lg:text-8xl h-full my-auto text-primary" />
+            ) : (
+              <TbCat className="text-4xl lg:text-8xl h-full my-auto text-secondary" />
+            )
           ) : (
-            <TbDog className="text-8xl h-full my-auto text-primary" />
+            <TbDog className="text-4xl lg:text-8xl h-full my-auto text-primary" />
           )}
         </section>
         <div className="flex items-end flex-col" ref={showDescriptionRef}>
@@ -383,7 +428,7 @@ export const Post: React.FC<PostProps> = ({
               className="input input-ghost rounded-sm w-full pr-8"
             />
             <button type="submit" disabled={postCommentMutation.isLoading}>
-              <AiOutlineSend className="absolute right-1  h-full text-xl hover:cursor-pointer hover:fill-primary  fill-gray-400 top-0 bottom-2" />
+              <AiOutlineSend className="absolute right-1  h-full text-xl hover:cursor-pointer hover:fill-primary fill-gray-400 top-0 bottom-2" />
             </button>
           </form>
         )}

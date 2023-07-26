@@ -56,7 +56,7 @@ export const FilterPost: React.FC<FilterPostProps> = ({
     category && setQueryParams((prev) => ({ ...prev, category }))
   }
   return (
-    <div className="w-2/3 h-full flex flex-col items-center justify-between shadow-lg mb-8 overflow-hidden pb-4 bg-white rounded-xl sticky top-4">
+    <div className="hidden lg:flex w-2/3 h-full  flex-col items-center justify-between shadow-lg mb-8 overflow-hidden pb-4 bg-white rounded-xl sticky top-4">
       <img
         src={searchSection}
         className="object-center object-cover w-full h-auto"

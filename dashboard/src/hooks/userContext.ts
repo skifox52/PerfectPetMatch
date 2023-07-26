@@ -5,6 +5,7 @@ export interface UserInterface {
   role: string;
   accessToken: string;
   refreshToken: string;
+  profilePicture: string;
 }
 
 export const userContext = createContext<{

@@ -24,7 +24,7 @@ export interface PostInterface {
   images: string[];
   pet: petType;
   likes: string[];
-  reports: { reason: string; user: string }[];
+  reports: { reason: string; user: string; _id: string }[];
 }
 //get all reported posts
 export const getReportedPosts = async (
@@ -37,6 +37,18 @@ export const getReportedPosts = async (
         config(token)
       )
     ).data;
+  } catch (error) {
+    throw error;
+  }
+};
+//Delete post
+export const deletePost = async (token: string, id: string): Promise<void> => {
+  try {
+    const response = await axios.delete<PostInterface[]>(
+      `${gateWayURI}/api/post/${id}`,
+      config(token)
+    );
+    console.log(response.data);
   } catch (error) {
     throw error;
   }

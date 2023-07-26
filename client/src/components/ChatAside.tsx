@@ -10,6 +10,7 @@ interface ChatAsideProps {
   socket: Socket
   setCurrentUser: React.Dispatch<
     React.SetStateAction<{
+      _id: string
       nom: string
       prenom: string
       image: string
@@ -27,7 +28,7 @@ export const ChatAside: React.FC<ChatAsideProps> = ({
 }) => {
   const { conversationId } = useParams()
   const navigate = useNavigate()
-  const { accessToken } = useAuth()?.user!
+  const accessToken = useAuth()?.user?.accessToken!
   const { data, isLoading, isError, error, isSuccess } = useQuery<
     | {
         convId: string
@@ -49,12 +50,14 @@ export const ChatAside: React.FC<ChatAsideProps> = ({
     queryFn: () => getConversations(accessToken),
   })
   useEffect(() => {
-    if (conversationId) {
+    if (data && data.length > 0 && conversationId) {
       const currUser =
         data?.length &&
+        isSuccess &&
         (data.filter((conv) => conv.convId === conversationId) as any)
-      isSuccess &&
+      if (currUser.length > 0) {
         setCurrentUser({
+          _id: currUser[0].user._id,
           nom: currUser[0].user.nom,
           prenom: currUser[0].user.prenom,
           date_de_naissance: currUser[0].user.date_de_naissance,
@@ -63,18 +66,19 @@ export const ChatAside: React.FC<ChatAsideProps> = ({
           adresse: currUser[0].user.adresse,
           googleID: currUser[0].user.googleID || null,
         })
+      }
     }
   }, [conversationId, isSuccess])
 
   if (isError) toast.error(error.response?.data.err || error.message)
   if (isLoading)
     return (
-      <aside className="w-[20vw]  h-full rounded-3xl flex flex-col gap-2  p-2 bg-bgPrimary items-center justify-center shadow-md shadow-gray-600">
+      <aside className="w-full lg:w-[20vw]  h-full rounded-3xl flex flex-col gap-2  p-2 bg-bgPrimary items-center justify-center shadow-md shadow-gray-600">
         <h1 className="text-accent font-bold text-lg">Loading...</h1>
       </aside>
     )
   return (
-    <aside className="w-[20vw]  h-full rounded-3xl flex flex-col gap-2  p-2 bg-bgPrimary shadow-md shadow-gray-600">
+    <aside className="w-full lg:w-[20vw]  lg:h-[80vh] rounded-3xl flex flex-col gap-2  p-2 bg-bgPrimary shadow-md shadow-gray-600">
       {data &&
         data.map((conv) => (
           <div

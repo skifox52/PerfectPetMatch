@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { UserInterface } from '../hooks/userContext';
 
 const gateWayURI: string = 'http://localhost:3333';
 const config = (token: string) => {
@@ -27,7 +28,7 @@ export const fetchAllUsers = async (
   try {
     return (
       await axios.get<UserType[] | []>(
-        `${gateWayURI}/api/user/all`,
+        `${gateWayURI}/api/user/tous`,
         config(token)
       )
     ).data;
@@ -46,6 +47,42 @@ export const deleteUser = async (
       config(token)
     );
     return { message: 'User deleted successfully' };
+  } catch (error) {
+    throw error;
+  }
+};
+//Login the user
+export const loginUser = async ({
+  mail,
+  password,
+}: {
+  mail: string;
+  password: string;
+}): Promise<UserInterface> => {
+  try {
+    const response = await axios.post<UserInterface>(
+      `http://localhost:3333/api/auth/login`,
+      {
+        mail,
+        password,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+//Logou | delete refreshToken from the database
+export const logoutUser = async (refreshToken: string, token: string) => {
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  try {
+    await axios.delete(
+      `http://localhost:3333/api/auth/logout?refreshToken=${refreshToken}`,
+      config
+    );
+    return { success: true, message: 'Logged out successfully' };
   } catch (error) {
     throw error;
   }

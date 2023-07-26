@@ -1,7 +1,7 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuth } from '../hooks/useAuth';
-import { getReportedPosts } from '../api/postApi';
+import { deletePost, getReportedPosts } from '../api/postApi';
 import Loader from '../common/Loader';
 import { SinglePost } from '../components/SinglePost';
 
@@ -12,6 +12,7 @@ const Posts: React.FC<PostsProps> = ({}) => {
   const { data: posts, isLoading } = useQuery(['posts', accessToken], () => {
     return getReportedPosts(accessToken);
   });
+
   if (isLoading) return <Loader />;
   return (
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

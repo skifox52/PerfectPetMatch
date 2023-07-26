@@ -6,10 +6,10 @@ interface AboutProps {}
 
 export const About: React.FC<AboutProps> = ({}) => {
   return (
-    <div className="flex h-[93vh] px-32 justify-between">
-      <div className="w-3/5">
+    <div className="flex min-h-[93vh] flex-col-reverse items-center lg:flex-row px-6 md:px-16 lg:px-32 justify-between">
+      <div className="w-full lg:w-4/5">
         <h1 className="text-[10vw] text-primary font-semibold">À propos</h1>
-        <p className="text-xl tracking-wider leading-10 font-semibold text-gray-500 text-justify p-8">
+        <p className="text-md lg:text-lg xl:text-xl tracking-wider leading-10 font-semibold text-gray-500 text-justify p-8">
           Bienvenue sur "Perfect Pet Match" - le réseau social dédié aux
           propriétaires d'animaux passionnés ! Notre application est conçue pour
           créer un espace convivial où les amoureux des animaux peuvent se
@@ -23,7 +23,10 @@ export const About: React.FC<AboutProps> = ({}) => {
           dévoués.
         </p>
       </div>
-      <Lottie className="w-2/5 h-full" animationData={animationData} />
+      <Lottie
+        className="w-full h-2/5 lg:w-2/5 lg:h-full"
+        animationData={animationData}
+      />
     </div>
   )
 }

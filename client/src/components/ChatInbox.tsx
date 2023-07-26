@@ -57,7 +57,7 @@ export const ChatInbox: React.FC<ChatInboxProps> = ({}) => {
     })
   }
   return (
-    <main className="bg-bgPrimary flex-1 h-full pt-16 first-letter rounded-3xl p-8 flex flex-col gap-6 items-center shadow-md shadow-gray-600">
+    <main className="bg-bgPrimary flex-1 h-[80vh] pt-16 first-letter rounded-3xl p-8 flex flex-col gap-6 items-center shadow-md shadow-gray-600">
       <h2 className="font-bold">Commencer une conversation...</h2>
 
       <label

@@ -1,8 +1,9 @@
 import React from "react"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 
 interface ChatProfileProps {
   currentUser: {
+    _id: string
     nom: string
     prenom: string
     image: string
@@ -16,11 +17,11 @@ export const ChatProfile: React.FC<ChatProfileProps> = ({ currentUser }) => {
   const { conversationId } = useParams()
   if (!conversationId)
     return (
-      <div className=" w-1/6 rounded-3xl flex flex-col gap-4 shadow-md shadow-gray-600 h-full bg-bgPrimary p-4"></div>
+      <div className="w-1/6 hidden lg:flex rounded-3xl lg:h-[80vh]  flex-col gap-4 shadow-md shadow-gray-600 h-full bg-bgPrimary p-4"></div>
     )
 
   return (
-    <div className=" w-1/6 rounded-3xl flex flex-col gap-4 shadow-md shadow-gray-600 h-full bg-bgPrimary p-4">
+    <div className=" w-1/6 hidden lg:flex rounded-3xl lg:h-[80vh]  flex-col gap-4 shadow-md shadow-gray-600 h-full bg-bgPrimary p-4">
       <div className="flex justify-center mb-4 ">
         <img
           src={
@@ -63,12 +64,12 @@ export const ChatProfile: React.FC<ChatProfileProps> = ({ currentUser }) => {
         </li>
       </ul>
       <div className="flex flex-col gap-2">
-        <button className="btn btn-primary font-bold text-lg text-gray-50">
+        <Link
+          to={"/profile/" + currentUser?._id}
+          className="btn btn-primary font-bold text-lg text-gray-50"
+        >
           Voir profile
-        </button>
-        <button className="btn btn-error font-bold text-lg text-gray-50">
-          Bloquer
-        </button>
+        </Link>
       </div>
     </div>
   )

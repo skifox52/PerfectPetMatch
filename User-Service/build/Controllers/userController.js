@@ -9,7 +9,7 @@ import nodemailer from "nodemailer";
 import { Types } from "mongoose";
 //Register a User
 export const registerUser = expressAsyncHandler(async (req, res) => {
-    const { nom, prenom, mail, mot_de_passe, sexe, adresse, date_de_naissance, ville, } = req.body;
+    const { nom, prenom, mail, mot_de_passe, sexe, adresse, date_de_naissance, ville, role, } = req.body;
     if (!nom ||
         !prenom ||
         !mail ||
@@ -53,6 +53,7 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
         date_de_naissance,
         image: mediaPath,
         ville,
+        role: role ? role : "user",
     });
     const response = await fetch(`http://localhost:${process.env.AUTH_PORT}/api/auth/token/?_id=${newUser._id}&role=${newUser.role}`);
     await newUser.save();
@@ -183,6 +184,10 @@ export const findUserByMail = expressAsyncHandler(async (req, res) => {
 //Get All users
 export const findAllUsers = expressAsyncHandler(async (req, res) => {
     res.status(200).json(await UserModel.find({ role: "user" }));
+});
+//Find all
+export const findAll = expressAsyncHandler(async (req, res) => {
+    res.status(200).json(await UserModel.find());
 });
 //Search users by nom || prenom
 export const searchUser = expressAsyncHandler(async (req, res) => {

@@ -15,7 +15,7 @@ import { Home } from "./pages/Home"
 import { ResetPassword } from "./pages/ResetPassword"
 import { NotFound } from "./components/NotFound"
 import { FillForm } from "./components/FillForm"
-import { ProtectRoutes } from "./hooks/ProtectRoutes"
+import ProtectUser from "./hooks/ProtectRoutes"
 import { Messages } from "./pages/Messages"
 import { Profile } from "./pages/Profile"
 import { ChatBody } from "./components/ChatBody"
@@ -25,6 +25,7 @@ import { SinglePost } from "./pages/SinglePost"
 import { Articles } from "./pages/Articles"
 import { DetailArticle } from "./pages/DetailArticle"
 import { About } from "./pages/About"
+import { Settings } from "./pages/Settings"
 
 function App() {
   const router = createBrowserRouter(
@@ -32,25 +33,48 @@ function App() {
       <Route path="/" element={<Layout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/articles" element={<Articles />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/articles/:id" element={<DetailArticle />} />
-        <Route path="/post/:id" element={<SinglePost />} />
-        <Route path="/google-fill-form" element={<FillForm />} />
-        <Route path="/resetPassword" element={<ResetPassword />} />
-        <Route element={<ProtectRoutes allowedRole="user" />}>
-          <Route index element={<Home />} />
-          <Route path="/messagerie" element={<Messages />}>
-            <Route index element={<ChatInbox />} />
-            <Route
-              path="/messagerie/c/:conversationId"
-              element={<ChatBody />}
-            />
-          </Route>
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/*" element={<NotFound />} />
+        <Route
+          path="/contact"
+          element={<ProtectUser element={<Contact />} />}
+        />
+        <Route
+          path="/articles"
+          element={<ProtectUser element={<Articles />} />}
+        />
+        <Route path="/about" element={<ProtectUser element={<About />} />} />
+        <Route
+          path="/articles/:id"
+          element={<ProtectUser element={<DetailArticle />} />}
+        />
+        <Route
+          path="/post/:id"
+          element={<ProtectUser element={<SinglePost />} />}
+        />
+        <Route
+          path="/settings"
+          element={<ProtectUser element={<Settings />} />}
+        />
+        <Route
+          path="/google-fill-form"
+          element={<ProtectUser element={<FillForm />} />}
+        />
+        <Route
+          path="/resetPassword"
+          element={<ProtectUser element={<ResetPassword />} />}
+        />
+        <Route index element={<ProtectUser element={<Home />} />} />
+        <Route
+          path="/messagerie"
+          element={<ProtectUser element={<Messages />} />}
+        >
+          <Route index element={<ChatInbox />} />
+          <Route path="/messagerie/c/:conversationId" element={<ChatBody />} />
         </Route>
+        <Route
+          path="/profile/:id"
+          element={<ProtectUser element={<Profile />} />}
+        />
+        <Route path="/*" element={<NotFound />} />
       </Route>
     )
   )

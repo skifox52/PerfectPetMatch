@@ -64,7 +64,11 @@ proxy.use(
   })
 )
 //Gateway the auth service
-const authExcludedPaths = ["/api/auth/login", "/api/auth/saveRefreshToken"]
+const authExcludedPaths = [
+  "/api/auth/login",
+  "/api/auth/saveRefreshToken",
+  "/api/auth/refresh",
+]
 proxy.use(
   "/api/auth/*",
   (req: Request, res: Response, next: NextFunction) => {

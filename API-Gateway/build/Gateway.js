@@ -58,7 +58,11 @@ proxy.use("/api/user/*", (req, res, next) => {
     },
 }));
 //Gateway the auth service
-const authExcludedPaths = ["/api/auth/login", "/api/auth/saveRefreshToken"];
+const authExcludedPaths = [
+    "/api/auth/login",
+    "/api/auth/saveRefreshToken",
+    "/api/auth/refresh",
+];
 proxy.use("/api/auth/*", (req, res, next) => {
     if (!authExcludedPaths.includes(req.originalUrl)) {
         authMiddleware("user")(req, res, next);
